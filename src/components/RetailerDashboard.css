@@ -1,0 +1,126 @@
+.retailer-dashboard {
+  padding: var(--space-md);
+  /* padding-top removed */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  color: white;
+}
+
+.dashboard-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stall-info {
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.credit-card-visual {
+  background: linear-gradient(135deg, #0f766e 0%, #0f172a 100%);
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -5px rgba(15, 118, 110, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.credit-card-visual::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.card-chip {
+  width: 36px;
+  height: 26px;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.card-logo {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+.credit-info {
+  margin-bottom: 20px;
+}
+
+.credit-info .label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.credit-info .value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.score-badge {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.score-label {
+  font-size: 0.65rem;
+  display: block;
+  opacity: 0.8;
+}
+
+.score-value {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.card-number {
+  font-family: monospace;
+  opacity: 0.8;
+}
+
+.recent-activity h3 {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin-bottom: var(--space-sm);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  color: #64748b;
+  background-color: rgba(30, 41, 59, 0.5);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  border: 1px dashed #334155;
+}

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amana - Pitch Deck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --text: #f8fafc;
+            --primary: #2dd4bf;
+            --accent: #fbbf24;
+            --glass: rgba(30, 41, 59, 0.4);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --glow: 0 0 40px rgba(45, 212, 191, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Animated Background */
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(45, 212, 191, 0.12), transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(251, 191, 36, 0.08), transparent 45%);
+            animation: pulseBg 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* Slides Container */
+        .slides-container {
+            display: flex;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            width: 100%;
+        }
+
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Fragments (Step-by-Step Reveal) */
+        .fragment {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+
+        .fragment.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Typography */
+        h1 { 
+            font-size: 8rem; 
+            font-weight: 800; 
+            letter-spacing: -0.04em; 
+            margin-bottom: 1rem; 
+            text-align: center; 
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(45, 212, 191, 0.2));
+        }
+
+        h2 { 
+            font-size: 4rem; 
+            font-weight: 700; 
+            color: white; 
+            margin-bottom: 3rem; 
+            text-align: center;
+        }
+
+        h3 { font-size: 2rem; margin-bottom: 1rem; color: var(--primary); }
+        
+        p { 
+            font-size: 1.5rem; 
+            line-height: 1.6; 
+            color: #94a3b8; 
+            max-width: 900px; 
+            text-align: center; 
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, #6ee7b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-accent { color: var(--accent); }
+
+        /* Components */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card-grid.three-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .card {
+            background: var(--glass);
+            border: var(--glass-border);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            backdrop-filter: blur(20px);
+            text-align: center;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .stat-number { font-size: 5rem; font-weight: 800; color: white; display: block; margin-bottom: 0.5rem; line-height: 1; }
+        .stat-label { font-size: 1.2rem; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+
+        /* Diagram */
+        .diagram {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .diagram-step {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--primary);
+            width: 280px;
+            text-align: center;
+            box-shadow: var(--glow);
+        }
+        .arrow { font-size: 3rem; color: var(--accent); opacity: 0.5; }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-nav:hover { background: var(--primary); color: #0f172a; border-color: var(--primary); }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.3);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+    <div class="progress-bar" id="progress"></div>
+    <div class="slide-counter" id="counter">01 / 05</div>
+
+    <div class="slides-container" id="container">
+        
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="fragment visible">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 20px rgba(45,212,191,0.4)); margin-bottom: 2rem;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <path d="M9 12l2 2 4-4"></path>
+                </svg>
+            </div>
+            <h1 class="fragment">Amana</h1>
+            <p class="text-accent fragment" style="font-size: 2rem; font-weight: 600; margin-bottom: 1rem;">Bridging the Credit Gap</p>
+            <p class="fragment">Sharia-Compliant Inventory Financing for the Informal Economy</p>
+        </div>
+
+        <!-- Slide 2: The Problem -->
+        <div class="slide">
+            <h2>The Problem</h2>
+            <div class="card-grid">
+                <div class="card fragment">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📉</div>
+                    <h3>The Stock-Out Trap</h3>
+                    <p>Retailers run out of cash, can't restock, and lose daily sales. They are stuck in a cycle of low liquidity.</p>
+                </div>
+                <div class="card fragment">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">🕌</div>
+                    <h3>The Riba Constraint</h3>
+                    <p>Over 80% of Northern Nigeria is unbanked because conventional loans (Interest/Riba) are religiously forbidden.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Solution -->
+        <div class="slide">
+            <h2>The Solution: <span class="text-gradient">Digital Murabaha</span></h2>
+            <p class="fragment" style="margin-bottom: 3rem;">We buy the goods, they buy from us at a markup.</p>
+            <div class="diagram">
+                <div class="diagram-step fragment">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);">📱</div>
+                    <h3>1. Request</h3>
+                    <p style="font-size: 1rem;">Retailer selects items in app</p>
+                </div>
+                <div class="arrow fragment">→</div>
+                <div class="diagram-step fragment">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);">📦</div>
+                    <h3>2. Purchase</h3>
+                    <p style="font-size: 1rem;">Amana pays Vendor directly</p>
+                </div>
+                <div class="arrow fragment">→</div>
+                <div class="diagram-step fragment">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);">🤝</div>
+                    <h3>3. Repay</h3>
+                    <p style="font-size: 1rem;">Retailer sells & repays later</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Market -->
+        <div class="slide">
+            <h2>The Opportunity</h2>
+            <div class="card-grid three-col">
+                <div class="card fragment">
+                    <span class="stat-number text-gradient">$100B</span>
+                    <span class="stat-label">Informal Trade</span>
+                </div>
+                <div class="card fragment">
+                    <span class="stat-number text-accent">40M</span>
+                    <span class="stat-label">MSMEs in Nigeria</span>
+                </div>
+                <div class="card fragment">
+                    <span class="stat-number" style="color: #94a3b8;">0%</span>
+                    <span class="stat-label">Current Credit Access</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Ask -->
+        <div class="slide">
+            <h2>Join Us</h2>
+            <p class="fragment" style="font-size: 2.5rem; color: white; margin-bottom: 4rem; font-weight: 300;">We are raising to scale our pilot in Kano.</p>
+            <div class="card fragment" style="padding: 4rem; border-color: var(--primary); min-width: 500px;">
+                <h3 class="text-primary" style="font-size: 2.5rem;">Contact</h3>
+                <p style="font-size: 1.5rem; color: white;">founders@amana.ng</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button class="btn-nav" onclick="prevStep()">←</button>
+        <button class="btn-nav" onclick="nextStep()">→</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const container = document.getElementById('container');
+        const progress = document.getElementById('progress');
+        const counter = document.getElementById('counter');
+        const totalSlides = slides.length;
+
+        function updateView() {
+            // Move Container
+            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            
+            // Activate Slide
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            // Update Progress
+            const progressWidth = ((currentSlide + 1) / totalSlides) * 100;
+            progress.style.width = `${progressWidth}%`;
+
+            // Update Counter
+            counter.innerText = `0${currentSlide + 1} / 0${totalSlides}`;
+        }
+
+        function nextStep() {
+            const activeSlide = slides[currentSlide];
+            const hiddenFragments = activeSlide.querySelectorAll('.fragment:not(.visible)');
+
+            if (hiddenFragments.length > 0) {
+                // Reveal next fragment
+                hiddenFragments[0].classList.add('visible');
+            } else {
+                // Go to next slide
+                if (currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                    updateView();
+                    // Auto-reveal first fragment of new slide if it's the only one, 
+                    // or just let user click again. Let's let user click for control.
+                }
+            }
+        }
+
+        function prevStep() {
+            const activeSlide = slides[currentSlide];
+            const visibleFragments = activeSlide.querySelectorAll('.fragment.visible');
+
+            if (visibleFragments.length > 0) {
+                // Hide last fragment
+                visibleFragments[visibleFragments.length - 1].classList.remove('visible');
+            } else {
+                // Go to prev slide
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateView();
+                }
+            }
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextStep();
+            } else if (e.key === 'ArrowLeft') {
+                prevStep();
+            }
+        });
+
+        // Initialize: Reveal first slide fragments automatically? 
+        // Let's reveal the first slide's title immediately for impact.
+        setTimeout(() => {
+            const firstSlideFragments = slides[0].querySelectorAll('.fragment');
+            firstSlideFragments.forEach((f, i) => {
+                setTimeout(() => f.classList.add('visible'), i * 200);
+            });
+        }, 500);
+
+    </script>
+</body>
+</html>

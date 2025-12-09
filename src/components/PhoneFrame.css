@@ -1,0 +1,123 @@
+.phone-frame {
+  width: 340px;
+  height: 680px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+.phone-bezel {
+  width: 100%;
+  height: 100%;
+  background: #1e293b;
+  border-radius: 48px;
+  padding: 12px;
+  box-shadow: 
+    0 0 0 2px #334155,
+    0 20px 50px -10px rgba(0, 0, 0, 0.5),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background-color: #f8fafc; /* Keep screen light for now, or switch to dark app mode */
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dark mode inside the phone app */
+.phone-screen {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 30px;
+  background-color: #1e293b;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.notch-camera {
+  width: 10px;
+  height: 10px;
+  background-color: #0f172a;
+  border-radius: 50%;
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.notch-speaker {
+  width: 40px;
+  height: 4px;
+  background-color: #334155;
+  border-radius: 2px;
+}
+
+.status-bar {
+  height: 44px;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  z-index: 15;
+}
+
+.status-icons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.battery {
+  width: 24px;
+  height: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
+  position: relative;
+}
+.battery::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  bottom: 1px;
+  width: 60%;
+  background-color: #fff;
+  border-radius: 1px;
+}
+
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+.home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+  z-index: 20;
+}

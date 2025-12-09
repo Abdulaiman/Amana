@@ -1,0 +1,57 @@
+.timeline {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  height: 100%;
+  overflow-y: auto;
+}
+
+.timeline h3 {
+  font-size: 1rem;
+  margin-bottom: var(--space-md);
+  color: var(--color-primary);
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--space-sm);
+  font-size: 0.875rem;
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-soft);
+}
+
+.timeline-time {
+  color: var(--color-muted);
+  font-family: monospace;
+  font-size: 0.75rem;
+  min-width: 60px;
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.badge-retailer { background-color: #e0f2fe; color: #0369a1; }
+.badge-vendor { background-color: #fef3c7; color: #d97706; }
+.badge-api { background-color: #f3e8ff; color: #7e22ce; }
+.badge-system { background-color: #f3f4f6; color: #4b5563; }
+.badge-error { background-color: #fee2e2; color: #991b1b; }
