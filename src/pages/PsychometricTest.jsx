@@ -39,13 +39,25 @@ const PsychometricTest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Mock Logic
-    let score = 50; 
-    Object.values(answers).forEach(val => score += (val * 5));
+    
+    // Scoring Logic: 
+    // We start with a base.
+    // Each question has 4 options. Index 0 is best, Index 3 is worst.
+    // (3 - index) * 5 gives:
+    // Index 0 (Best) = 15 pts
+    // Index 3 (Worst) = 0 pts
+    // Max Score for 5 questions = 75 pts.
+    
+    let rawScore = 0; 
+    Object.values(answers).forEach(val => {
+        // Assuming 4 options per question
+        const points = (3 - val) * 5; 
+        rawScore += Math.max(0, points);
+    });
 
     try {
       await api.post('/retailer/onboarding', {
-        testScore: score,
+        testScore: rawScore,
         hasBankStatement: !!bankStatement,
         nin
       });

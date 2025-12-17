@@ -16,7 +16,7 @@ const CompleteProfile = () => {
         businessName: '',
         businessType: 'Retail',
         yearsInBusiness: '',
-        startingCapital: '50k-200k',
+        startingCapital: 'low',
         description: '',
         address: '',
         bvn: '',
@@ -195,8 +195,9 @@ const CompleteProfile = () => {
                                 <div className="form-group">
                                     <label className="form-label">Starting Capital Estimate</label>
                                     <select name="startingCapital" value={formData.startingCapital} onChange={handleInputChange} className="input-field">
-                                        <option value="low">Under ₦200,000</option>
-                                        <option value="high">Above ₦200,000</option>
+                                        <option value="low">Low (Under ₦100,000)</option>
+                                        <option value="medium">Medium (₦100,000 - ₦500,000)</option>
+                                        <option value="high">High (Above ₦500,000)</option>
                                     </select>
                                 </div>
                             </div>
