@@ -52,3 +52,10 @@
 .modal-body {
   padding: var(--space-md);
 }
+
+@media (max-width: 640px) {
+  .modal-content {
+    width: 95%;
+    max-height: 85vh;
+  }
+}

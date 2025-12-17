@@ -452,3 +452,38 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+/* Mobile Overrides */
+@media (max-width: 640px) {
+    .complete-profile-page {
+        padding: 16px;
+        align-items: flex-start; /* Prevent centering cut-off */
+        padding-top: 40px;
+    }
+    
+    .form-header {
+        padding: 24px;
+    }
+    
+    .header-title {
+        font-size: 1.5rem;
+    }
+    
+    .form-content {
+        padding: 20px;
+    }
+    
+    .upload-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .upload-btn-label {
+        width: 100%;
+    }
+    
+    .btn-row {
+        flex-direction: column-reverse; /* Put Primary action at top/bottom depending on preference, usually stack */
+        gap: 12px;
+    }
+}

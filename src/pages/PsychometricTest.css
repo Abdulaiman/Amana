@@ -380,3 +380,38 @@
 .animate-slide-in-right {
     animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+@media (max-width: 640px) {
+    .quiz-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .quiz-content {
+        padding: 1rem 1rem 4rem;
+    }
+
+    .intro-title {
+        font-size: 2.25rem;
+        line-height: 1.1;
+    }
+
+    .intro-text {
+        font-size: 1rem;
+    }
+
+    .step-question {
+        max-width: 100%;
+    }
+
+    .question-text {
+        font-size: 1.5rem;
+    }
+
+    .option-card {
+        padding: 1rem;
+    }
+
+    .option-label {
+        font-size: 1rem;
+    }
+}

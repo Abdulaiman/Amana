@@ -174,3 +174,37 @@ button {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
+
+/* Global Mobile Overrides */
+@media (max-width: 640px) {
+  :root {
+    --space-2xl: 2.5rem; /* Reduced spacing */
+  }
+
+  .main-content {
+    padding: 0 var(--space-sm);
+  }
+
+  /* Typography Scaling */
+  .text-4xl { font-size: 2rem !important; }
+  .text-3xl { font-size: 1.5rem !important; }
+  .text-2xl { font-size: 1.25rem !important; }
+  
+  h1 { font-size: 2rem; line-height: 1.2; }
+  h2 { font-size: 1.5rem; }
+  
+  /* Buttons */
+  .btn-lg {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    width: 100%; /* Full width buttons on mobile */
+    justify-content: center;
+  }
+  
+  /* Hero specific */
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+}

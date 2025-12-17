@@ -485,7 +485,28 @@
     transition: all 0.2s;
 }
 
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+
+
+@media (max-width: 640px) {
+    .user-profile-container {
+        padding-bottom: 80px; /* Space for bottom nav if any */
+    }
+
+    .profile-header-card {
+        padding: 1.5rem;
+    }
+
+    .profile-stats {
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        align-items: center;
+        min-width: 80px;
+    }
+
+    .profile-section {
+        padding: 1rem;
+    }
 }

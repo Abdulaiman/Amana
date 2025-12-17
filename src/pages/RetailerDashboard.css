@@ -800,6 +800,40 @@
     text-transform: capitalize;
 }
 
+/* Mobile Responsiveness Overrides */
+@media (max-width: 640px) {
+    .dashboard-container {
+        gap: 1.5rem;
+        padding-bottom: 2rem;
+    }
+
+    .welcome-title {
+        font-size: 2rem; /* Reduced from 2.5rem */
+    }
+
+    .stat-card-value .value-main,
+    .stat-value {
+        font-size: 2rem; /* Reduced from 2.25-3rem */
+    }
+    
+    .hud-grid {
+        gap: 1rem;
+    }
+    
+    .hud-card, .stat-card {
+        padding: 1rem;
+    }
+    
+    .due-amount {
+        font-size: 1.75rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+}
+
+
 .status-badge.delivered, .status-badge.confirmed { background: rgba(16, 185, 129, 0.1); color: var(--color-primary); }
 .status-badge.processing, .status-badge.pending { background: rgba(255, 255, 255, 0.1); color: var(--color-text); }
 .status-badge.pending_vendor { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }

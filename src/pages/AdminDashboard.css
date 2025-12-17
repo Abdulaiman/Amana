@@ -284,3 +284,48 @@
     align-items: center;
     gap: 0.5rem;
 }
+
+/* Mobile Overrides */
+@media (max-width: 640px) {
+    .admin-dashboard-container {
+        padding: 1rem;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-status { text-align: left; }
+    
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .admin-stat-card {
+        padding: 1rem;
+    }
+    
+    .admin-stat-value {
+        font-size: 1.5rem;
+    }
+
+    .admin-tabs-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .admin-tabs-list {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .admin-search-wrapper, .admin-search-input {
+        width: 100%;
+    }
+}

@@ -794,6 +794,46 @@ select.form-input option {
 }
 
 
+/* Mobile Responsiveness Overrides */
+@media (max-width: 640px) {
+    .vendor-dashboard-container {
+        padding-bottom: 2rem;
+        gap: 1.5rem;
+    }
+
+    .business-name {
+        font-size: 1.75rem; /* Scale down from 2.25rem */
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .stat-card-value .value-main {
+        font-size: 2rem;
+    }
+    
+    .modal-form {
+        padding: 1.5rem;
+        max-height: 85vh;
+    }
+    
+    .inventory-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .inventory-actions {
+        width: 100%;
+    }
+    
+    .search-wrapper, .search-input-sm {
+        width: 100%;
+    }
+}
+
 /* Premium Glass Modal */
 .glass-modal-overlay {
   position: fixed;

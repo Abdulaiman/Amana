@@ -28,6 +28,21 @@
     animation: slideUp 0.5s ease-out;
 }
 
+@media (max-width: 640px) {
+    .auth-card {
+        padding: 1.5rem; /* Reduced from 2.5rem */
+        border-radius: 1rem;
+    }
+    
+    .auth-title {
+        font-size: 1.75rem;
+    }
+    
+    .login-page {
+        padding: 1rem;
+    }
+}
+
 /* Subtle gloss line effect */
 .auth-card::before {
     content: '';

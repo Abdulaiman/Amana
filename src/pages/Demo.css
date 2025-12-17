@@ -700,3 +700,34 @@
 .glow-primary:hover {
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
 }
+
+@media (max-width: 640px) {
+  .demo-page {
+    padding-top: 5rem;
+  }
+  
+  .demo-title {
+    font-size: 2rem;
+  }
+  
+  .progress-container {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .state-container {
+    padding: 1rem;
+  }
+  
+  .tip-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .success-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

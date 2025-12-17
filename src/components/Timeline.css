@@ -55,3 +55,19 @@
 .badge-api { background-color: #f3e8ff; color: #7e22ce; }
 .badge-system { background-color: #f3f4f6; color: #4b5563; }
 .badge-error { background-color: #fee2e2; color: #991b1b; }
+
+@media (max-width: 640px) {
+  .timeline {
+    padding: var(--space-sm);
+  }
+  
+  .timeline-item {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .timeline-time {
+    font-size: 0.7rem;
+    color: var(--color-primary);
+  }
+}
