@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './RetailerDashboard.css';
+import { useToast } from '../context/ToastContext';
+import ConfirmModal from '../components/ConfirmModal';
 import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock } from 'lucide-react';
 
 const RetailerDashboard = () => {
@@ -16,6 +18,10 @@ const RetailerDashboard = () => {
     const [repaymentAmount, setRepaymentAmount] = useState('');
     const [targetOrderId, setTargetOrderId] = useState(null); // If paying specific order
     const [isPayLoading, setIsPayLoading] = useState(false);
+
+    // Notification System
+    const { addToast } = useToast();
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isDestructive: false });
 
     const navigate = useNavigate();
 
@@ -37,9 +43,7 @@ const RetailerDashboard = () => {
         fetchData();
     }, []);
 
-    const handleCancelOrder = async (orderId) => {
-        if (!window.confirm('Are you sure you want to cancel this order?')) return;
-        
+    const executeCancelOrder = async (orderId) => {
         setCancellingOrderId(orderId);
         try {
             const cancelRes = await api.put(`/orders/${orderId}/cancel`);
@@ -56,20 +60,29 @@ const RetailerDashboard = () => {
             
             // Show appropriate message
             if (cancelRes.data.refunded) {
-                alert('Order cancelled and credit refunded successfully!');
+                addToast('Order cancelled and credit refunded successfully!', 'success');
             } else {
-                alert('Order cancelled successfully.');
+                addToast('Order cancelled successfully.', 'success');
             }
         } catch (error) {
-            alert(error.response?.data?.message || 'Failed to cancel order');
+            addToast(error.response?.data?.message || 'Failed to cancel order', 'error');
         } finally {
             setCancellingOrderId(null);
         }
     };
 
-    const handleConfirmGoodsReceived = async (orderId) => {
-        if (!window.confirm('Have you received this order? By confirming, you acknowledge receipt of goods and your credit will be charged.')) return;
+    const handleCancelOrder = (orderId) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Cancel Order',
+            message: 'Are you sure you want to cancel this order? Item will be returned to stock.',
+            onConfirm: () => executeCancelOrder(orderId),
+            isDestructive: true,
+            confirmText: 'Cancel Order'
+        });
+    };
 
+    const executeConfirmGoodsReceived = async (orderId) => {
         try {
             await api.put(`/orders/${orderId}/received`);
             
@@ -81,15 +94,26 @@ const RetailerDashboard = () => {
             setProfile(profileRes.data);
             setOrders(ordersRes.data);
             setSelectedOrder(null); 
-            alert('Goods received confirmed! Vendor has been paid and your repayment is now due.');
+            addToast('Goods received confirmed! Vendor has been paid.', 'success');
         } catch (error) {
-            alert(error.response?.data?.message || 'Failed to confirm goods received');
+            addToast(error.response?.data?.message || 'Failed to confirm goods received', 'error');
         }
+    };
+
+    const handleConfirmGoodsReceived = (orderId) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Confirm Goods Received',
+            message: 'Have you inspected the goods? By confirming, you acknowledge receipt and the vendor will be paid from your credit wallet.',
+            onConfirm: () => executeConfirmGoodsReceived(orderId),
+            isDestructive: false,
+            confirmText: 'Confirm Receipt'
+        });
     };
 
     const handleInitiatePayment = async () => {
         if (!repaymentAmount || parseFloat(repaymentAmount) <= 0) {
-            alert('Please enter a valid amount');
+            addToast('Please enter a valid amount', 'error');
             return;
         }
 
@@ -105,7 +129,7 @@ const RetailerDashboard = () => {
             window.location.href = res.data.authorization_url; // Redirect to Paystack
         } catch (error) {
             console.error(error);
-            alert('Payment initialization failed. Please try again.');
+            addToast('Payment initialization failed. Please try again.', 'error');
             setIsPayLoading(false);
         }
     };
@@ -205,25 +229,23 @@ const RetailerDashboard = () => {
             {/* HUD Status Cards */}
             <div className="hud-grid">
                 
-                {/* Amana Score HUD */}
-                <div className="hud-card-wrapper gradient-teal">
-                     <div className="hud-card">
-                        <div className="card-top">
-                             <div>
-                                <h3 className="card-label">Amana Score</h3>
-                                <p className="card-sub-teal">Trust Metric</p>
-                             </div>
-                             <div className="card-icon-teal">
-                                <TrendingUp size={24} />
-                             </div>
+                {/* Amana Score Card */}
+                <div className="stat-card">
+                    <div className="stat-card-header">
+                        <div className="stat-card-icon">
+                            <TrendingUp size={22} />
                         </div>
-                        <div className="card-stat">
-                             <span className="stat-value">{profile.amanaScore}</span>
-                             <span className="stat-max">/ 100</span>
+                        <div className="stat-card-title">
+                            <h3>Amana Score</h3>
+                            <span>Trust Metric</span>
                         </div>
-                        
-                        {/* Tier & Markup Badge */}
-                        <div className="tier-badge-container">
+                    </div>
+                    <div className="stat-card-body">
+                        <div className="stat-card-value">
+                            <span className="value-main">{profile.amanaScore}</span>
+                            <span className="value-suffix">/ 100</span>
+                        </div>
+                        <div className="tier-badges">
                             <span className={`tier-badge ${
                                 profile.tier === 'Gold' ? 'gold' :
                                 profile.tier === 'Silver' ? 'silver' : 'bronze'
@@ -234,55 +256,65 @@ const RetailerDashboard = () => {
                                 {profile.markupTier}% Fee
                             </span>
                         </div>
-                        {/* Futuristic Progress Segment */}
-                        <div className="progress-segments">
-                             {[...Array(10)].map((_, i) => (
-                                <div key={i} className={`segment ${i < profile.amanaScore / 10 ? 'bg-teal' : 'bg-gray'}`}></div>
-                             ))}
+                    </div>
+                    <div className="stat-card-progress">
+                        <div className="progress-track">
+                            <div 
+                                className="progress-fill" 
+                                style={{ width: `${profile.amanaScore}%` }}
+                            ></div>
                         </div>
-                     </div>
+                    </div>
                 </div>
 
-                 {/* Balance HUD */}
-                 <div className="hud-card-wrapper gradient-purple">
-                     <div className="hud-card">
-                        <div className="card-top">
-                             <div>
-                                <h3 className="card-label">Credit Limit</h3>
-                                <p className="card-sub-purple">Available to Spend</p>
-                             </div>
-                             <div className="card-icon-purple">
-                                <CreditCard size={24} />
-                             </div>
+                {/* Credit Limit Card */}
+                <div className="stat-card">
+                    <div className="stat-card-header">
+                        <div className="stat-card-icon">
+                            <CreditCard size={22} />
                         </div>
-                        <div className="card-stat">
-                             <span className="currency-symbol">₦</span>
-                             <span className="stat-value">{(profile.creditLimit - profile.usedCredit).toLocaleString()}</span>
+                        <div className="stat-card-title">
+                            <h3>Credit Limit</h3>
+                            <span>Available to Spend</span>
                         </div>
-                        <p className="card-footer">Max Limit: ₦{profile.creditLimit.toLocaleString()}</p>
-                     </div>
+                    </div>
+                    <div className="stat-card-body">
+                        <div className="stat-card-value currency">
+                            <span className="currency-sign">₦</span>
+                            <span className="value-main">{(profile.creditLimit - profile.usedCredit).toLocaleString()}</span>
+                        </div>
+                        <p className="stat-card-note">Max Limit: ₦{profile.creditLimit.toLocaleString()}</p>
+                    </div>
+                    <div className="stat-card-progress">
+                        <div className="progress-track">
+                            <div 
+                                className="progress-fill" 
+                                style={{ width: `${((profile.creditLimit - profile.usedCredit) / profile.creditLimit) * 100}%` }}
+                            ></div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Orders HUD */}
-                <div className="hud-card-wrapper gradient-blue">
-                     <div className="hud-card">
-                        <div className="card-top">
-                             <div>
-                                <h3 className="card-label">Active Orders</h3>
-                                <p className="card-sub-blue">Pending / In Progress</p>
-                             </div>
-                             <div className="card-icon-blue">
-                                <Clock size={24} />
-                             </div>
+                {/* Active Orders Card */}
+                <div className="stat-card">
+                    <div className="stat-card-header">
+                        <div className="stat-card-icon">
+                            <Clock size={22} />
                         </div>
-                         <div className="card-stat">
-                             <span className="stat-value">{orders.filter(o => o.status !== 'cancelled' && o.status !== 'completed').length}</span>
-                             <span className="stat-max">Active</span>
+                        <div className="stat-card-title">
+                            <h3>Active Orders</h3>
+                            <span>Pending / In Progress</span>
                         </div>
-                        <p className="card-footer">
+                    </div>
+                    <div className="stat-card-body">
+                        <div className="stat-card-value">
+                            <span className="value-main">{orders.filter(o => o.status !== 'cancelled' && o.status !== 'completed').length}</span>
+                            <span className="value-suffix">Active</span>
+                        </div>
+                        <p className="stat-card-note">
                             {orders.filter(o => o.status === 'pending_vendor').length} awaiting vendor
                         </p>
-                     </div>
+                    </div>
                 </div>
             </div>
 
@@ -669,6 +701,15 @@ const RetailerDashboard = () => {
                     </div>
                 </div>
             )}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                isDestructive={confirmModal.isDestructive}
+                confirmText={confirmModal.confirmText}
+            />
         </div>
     );
 };

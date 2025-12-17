@@ -1,0 +1,141 @@
+.confirm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.confirm-modal {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.confirm-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.confirm-modal-close:hover {
+    color: #fff;
+}
+
+.confirm-modal-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.confirm-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-icon-box.primary {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.confirm-icon-box.destructive {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.confirm-modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.confirm-modal-body {
+    text-align: center;
+    color: #9ca3af;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.confirm-modal-footer {
+    display: flex;
+    gap: 12px;
+}
+
+.confirm-modal-footer button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-confirm.primary {
+    background: #10b981;
+    border: none;
+    color: #000;
+}
+
+.btn-confirm.primary:hover {
+    background: #059669;
+}
+
+.btn-confirm.destructive {
+    background: #ef4444;
+    border: none;
+    color: #fff;
+}
+
+.btn-confirm.destructive:hover {
+    background: #dc2626;
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-scale-in {
+    animation: scale-in 0.2s ease-out;
+}

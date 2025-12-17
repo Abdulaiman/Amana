@@ -449,7 +449,7 @@
 .pending-message {
     margin-top: 1rem;
     font-size: 0.8rem;
-    color: #fbbf24;
+    color: #e5e7eb;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -467,7 +467,7 @@
 /* Icon color utilities */
 .text-success { color: #22c55e; }
 .text-danger { color: #ef4444; }
-.text-warning { color: #f59e0b; }
+.text-warning { color: #d1d5db; }
 .font-mono { font-family: monospace; }
 
 /* Back Button (shared) */

@@ -38,7 +38,7 @@ const AppLayout = ({ children }) => {
             <aside className="app-sidebar">
                 <div className="sidebar-header">
                     <div className="logo-container">
-                        <Zap size={20} className="logo-icon" />
+                        <img src="/logo.png" alt="Amana" className="logo-img" style={{ width: '28px', height: '28px' }} />
                     </div>
                     <span className="brand-name">Amana</span>
                 </div>
@@ -73,7 +73,7 @@ const AppLayout = ({ children }) => {
                 <header className="mobile-header">
                     <div className="mobile-brand">
                          <div className="logo-container small">
-                            <Zap size={16} className="logo-icon" />
+                            <img src="/logo.png" alt="Amana" className="logo-img" style={{ width: '24px', height: '24px' }} />
                         </div>
                         <span className="brand-name">Amana</span>
                     </div>

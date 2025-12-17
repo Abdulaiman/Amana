@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './CompleteProfile.css'; // Reuse retailer styling
 import { Upload, Building, User, CreditCard, ShieldCheck, ArrowRight, Loader, Briefcase, Landmark } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const VendorCompleteProfile = () => {
     const navigate = useNavigate();
@@ -10,6 +11,7 @@ const VendorCompleteProfile = () => {
     const [step, setStep] = useState(1);
     const [pageLoading, setPageLoading] = useState(true);
     const [isComplete, setIsComplete] = useState(false);
+    const { addToast } = useToast();
     
     const [formData, setFormData] = useState({
         ownerName: '',
@@ -63,7 +65,7 @@ const VendorCompleteProfile = () => {
             setFiles({ ...files, [`${type}Url`]: res.data[0] });
         } catch (error) {
             console.error('Upload Error', error);
-            alert('File upload failed. Please try again.');
+            addToast('File upload failed. Please try again.', 'error');
         } finally {
             setUploading({ ...uploading, [type]: false });
         }
@@ -91,11 +93,11 @@ const VendorCompleteProfile = () => {
             };
 
             await api.put('/vendor/profile/complete', payload);
-            alert('Profile completed! Your account is now pending verification.');
+            addToast('Profile completed! Your account is now pending verification.', 'success');
             navigate('/vendor');
         } catch (error) {
             console.error('Submission Error', error);
-            alert(error.response?.data?.message || 'Failed to complete profile.');
+            addToast(error.response?.data?.message || 'Failed to complete profile.', 'error');
         } finally {
             setLoading(false);
         }

@@ -23,7 +23,10 @@ const RetailerDashboard = ({ retailer, onStartRequest }) => {
 
       <div className="credit-card-visual">
         <div className="card-chip"></div>
-        <div className="card-logo">AMANA</div>
+        <div className="card-logo" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+             <img src="/logo.png" alt="Amana" style={{ height: '16px', width: '16px' }} />
+             <span>AMANA</span>
+        </div>
         <div className="credit-info">
           <span className="label">Available Limit</span>
           <span className="value">₦{retailer.creditLimit.toLocaleString()}</span>

@@ -4,17 +4,20 @@ import Button from './Button';
 import './VendorDashboard.css';
 import { withdrawVendor } from '../mock/api';
 import { Wallet, ArrowDownLeft, Check, X } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const VendorDashboard = ({ vendor, incomingRequest, onConfirmRequest, isMobile = false }) => {
   const [withdrawing, setWithdrawing] = useState(false);
   const [localBalance, setLocalBalance] = useState(vendor?.walletBalance || 0);
+
+  const { addToast } = useToast();
 
   const handleWithdraw = async () => {
     setWithdrawing(true);
     await withdrawVendor(localBalance);
     setLocalBalance(0);
     setWithdrawing(false);
-    alert('Withdrawal successful!');
+    addToast('Withdrawal successful!', 'success');
   };
 
   if (!vendor) return <div className="p-md text-center text-muted">Loading vendor...</div>;
@@ -33,8 +36,8 @@ const VendorDashboard = ({ vendor, incomingRequest, onConfirmRequest, isMobile =
       </div>
 
       <div className={`dashboard-grid ${isMobile ? 'flex flex-col gap-md' : ''}`}>
-        <Card className="balance-card bg-gradient-to-br from-amber-600 to-amber-800 border-none">
-          <div className="flex items-center gap-sm mb-sm text-amber-200 text-sm uppercase font-bold">
+        <Card className="balance-card">
+          <div className="flex items-center gap-sm mb-sm text-primary text-sm uppercase font-bold">
             <Wallet size={16} /> Wallet Balance
           </div>
           <div className="balance-amount text-white">₦{localBalance.toLocaleString()}</div>
@@ -43,7 +46,7 @@ const VendorDashboard = ({ vendor, incomingRequest, onConfirmRequest, isMobile =
             size="sm" 
             onClick={handleWithdraw}
             disabled={localBalance === 0 || withdrawing}
-            className="w-full mt-sm border-amber-200/30 text-amber-100 hover:bg-amber-900/50"
+            className="w-full mt-sm"
           >
             <ArrowDownLeft size={16} className="mr-2" />
             {withdrawing ? 'Processing...' : 'Withdraw to Bank'}

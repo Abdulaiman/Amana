@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { ShoppingCart, Search, Filter, X, Check, ChevronRight } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 import './Marketplace.css';
 
 const Marketplace = () => {
@@ -12,6 +13,7 @@ const Marketplace = () => {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [purchaseLoading, setPurchaseLoading] = useState(false);
     const [user, setUser] = useState(null);
+    const { addToast } = useToast();
     const [viewMode, setViewMode] = useState('details'); // 'details' | 'checkout'
     const [acceptedTerms, setAcceptedTerms] = useState(false); // Murabaha agreement state
 
@@ -90,10 +92,10 @@ const Marketplace = () => {
                 totalRepaymentAmount: calculateFinance(selectedProduct.price).total,
                 totalPrice: selectedProduct.price // Base price for reference
             });
-            alert('Order Placed! The vendor will process it shortly.');
+            addToast('Order Placed! The vendor will process it shortly.', 'success');
             setSelectedProduct(null);
         } catch (error) {
-            alert(error.response?.data?.message || 'Purchase Failed');
+            addToast(error.response?.data?.message || 'Purchase Failed', 'error');
         } finally {
             setPurchaseLoading(false);
         }

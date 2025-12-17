@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import './Login.css'; // Shared Auth Styles
 
 const Register = () => {
@@ -9,11 +10,11 @@ const Register = () => {
         name: '', email: '', password: '', phone: '',
         businessName: '', address: '', description: '', phones: ['', '']
     });
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const { registerRetailer, registerVendor } = useAuth();
     const navigate = useNavigate();
+    const { addToast } = useToast();
 
     const handleChange = (e) => {
         if (e.target.name.startsWith('phone_')) {
@@ -28,7 +29,6 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setLoading(true);
 
         try {
@@ -37,6 +37,7 @@ const Register = () => {
                     name: formData.name, email: formData.email,
                     password: formData.password, phone: formData.phone
                 });
+                addToast('Registration successful!', 'success');
                 navigate('/dashboard');
             } else {
                 await registerVendor({
@@ -44,10 +45,11 @@ const Register = () => {
                     password: formData.password, phones: formData.phones,
                     address: formData.address, description: formData.description
                 });
+                addToast('Registration successful!', 'success');
                 navigate('/vendor');
             }
         } catch (err) {
-            setError(err);
+            addToast(err?.message || 'Registration failed', 'error');
         } finally {
             setLoading(false);
         }
@@ -57,6 +59,7 @@ const Register = () => {
         <div className="login-page">
             <div className="auth-card" style={{ maxWidth: '500px' }}>
                 <div className="auth-header">
+                    <img src="/logo.png" alt="Amana" className="auth-logo" style={{ width: '48px', height: '48px', marginBottom: '1rem' }} />
                     <h2 className="auth-title">Create Account</h2>
                     <p className="auth-subtitle">Join Amana today</p>
                 </div>
@@ -78,7 +81,7 @@ const Register = () => {
                     </button>
                 </div>
 
-                {error && <div className="error-message">{error}</div>}
+
 
                 <form onSubmit={handleSubmit}>
                     {role === 'retailer' ? (

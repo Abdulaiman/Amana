@@ -2,7 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { Check, ChevronRight, ChevronLeft, CreditCard, ShieldCheck, UploadCloud, FileText } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 import './PsychometricTest.css';
+
+// Futuristic Questions Data
+const questions = [
+  { id: 1, text: "How often do you check your finances?", options: ["Daily", "Weekly", "Rarely", "Never"], emoji: "📱" },
+  { id: 2, text: "Savings Habit", options: ["I save first", "I save what's left", "I don't save"], emoji: "💰" },
+  { id: 3, text: "Loan History", options: ["Never Missed", "Missed Once", "Multiple Misses"], emoji: "📅" },
+  { id: 4, text: "Budgeting Style", options: ["Strict Plan", "Mental Note", "No Plan"], emoji: "📝" },
+  { id: 5, text: "Income Stability", options: ["Steady", "Variable", "Unpredictable"], emoji: "💼" },
+];
 
 const PsychometricTest = () => {
   const [step, setStep] = useState(0); 
@@ -11,15 +21,7 @@ const PsychometricTest = () => {
   const [bankStatement, setBankStatement] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Futuristic Questions Data
-  const questions = [
-    { id: 1, text: "How often do you check your finances?", options: ["Daily", "Weekly", "Rarely", "Never"], emoji: "📱" },
-    { id: 2, text: "Savings Habit", options: ["I save first", "I save what's left", "I don't save"], emoji: "💰" },
-    { id: 3, text: "Loan History", options: ["Never Missed", "Missed Once", "Multiple Misses"], emoji: "📅" },
-    { id: 4, text: "Budgeting Style", options: ["Strict Plan", "Mental Note", "No Plan"], emoji: "📝" },
-    { id: 5, text: "Income Stability", options: ["Steady", "Variable", "Unpredictable"], emoji: "💼" },
-  ];
+  const { addToast } = useToast();
 
   const totalSteps = questions.length + 2;
   const progress = (step / totalSteps) * 100;
@@ -48,9 +50,10 @@ const PsychometricTest = () => {
         nin
       });
       navigate('/dashboard');
+      addToast('Assessment completed successfully', 'success');
     } catch (error) {
       console.error(error);
-      alert('Submission failed');
+      addToast('Submission failed', 'error');
       setLoading(false);
     }
   };

@@ -1,75 +1,277 @@
 .vendor-dashboard {
   max-width: 1000px;
   margin: 0 auto;
-  padding: var(--space-lg);
+  padding: 1.5rem;
   color: white;
 }
 
 .vendor-dashboard.mobile-view {
-  padding: var(--space-md);
-  /* padding-top removed */
+  padding: 1rem;
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: #000000;
 }
 
+/* Header */
 .vendor-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-xl);
+  margin-bottom: 1rem;
 }
 
 .mobile-view .vendor-header {
-  margin-bottom: var(--space-lg);
   justify-content: center;
 }
 
 .vendor-profile {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: 0.75rem;
 }
 
 .avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--color-accent) 0%, #d97706 100%);
-  color: #0f172a;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #000000;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 
+    0 4px 12px rgba(16, 185, 129, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Dashboard Grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--space-lg);
+  gap: 1rem;
+}
+
+/* Balance Card - Now using green instead of amber */
+.balance-card {
+  background: linear-gradient(145deg, #111111 0%, #1a1a1a 50%, #0a0a0a 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  border-radius: 16px !important;
+  padding: 1.25rem !important;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 15px 35px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.balance-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(0, 0, 0, 0.3) 0%, transparent 40%);
+  pointer-events: none;
 }
 
 .balance-amount {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: var(--space-sm);
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+}
+
+/* Requests Card */
+.requests-card {
+  background: rgba(17, 17, 17, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(8px);
 }
 
 .request-item {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.request-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #10b981;
+  border-radius: 3px 0 0 3px;
 }
 
 .request-details {
-  margin-bottom: var(--space-md);
+  margin-bottom: 0.75rem;
+  padding-left: 0.5rem;
 }
 
+.request-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.request-actions .btn {
+  padding: 0.6rem;
+  font-size: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.request-actions .btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #000000;
+  border: none;
+}
+
+.request-actions .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.request-actions .btn-danger {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.request-actions .btn-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Empty State */
 .empty-state {
   text-align: center;
-  padding: var(--space-lg);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.empty-state .text-muted {
+  color: #6b7280;
+}
+
+/* Utility overrides for vendor dashboard */
+.mobile-view .balance-card {
+  margin-bottom: 0.75rem;
+}
+
+.mobile-view .requests-card {
+  flex: 1;
+}
+
+/* Button styling inside vendor - Updated for green theme */
+.mobile-view .btn-outline {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #10b981;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.mobile-view .btn-outline:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.mobile-view .btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Grid utilities */
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Text utilities */
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-muted {
+  color: #6b7280;
+}
+
+.text-primary {
+  color: #10b981;
+}
+
+.text-white {
+  color: #ffffff;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.mb-xs {
+  margin-bottom: 0.25rem;
+}
+
+.mb-sm {
+  margin-bottom: 0.5rem;
+}
+
+.mb-md {
+  margin-bottom: 1rem;
+}
+
+.mt-sm {
+  margin-top: 0.5rem;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-sm {
+  gap: 0.5rem;
 }

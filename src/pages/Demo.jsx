@@ -19,7 +19,8 @@ import {
   makeRepayment 
 } from '../demoState';
 import { getRetailer, getVendor } from '../mock/api';
-import { Smartphone, Store, RefreshCw } from 'lucide-react';
+import { Smartphone, Store, RefreshCw, Sparkles, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import './Demo.css';
 
 const Demo = () => {
   const [state, setState] = useState({ step: 'idle', logs: [], scenario: 'Normal Flow' });
@@ -36,8 +37,20 @@ const Demo = () => {
 
   const handleVendorConfirm = async () => {
     await vendorConfirm();
-    // Optional: Auto-switch back or let user do it. Let's let user do it for clarity.
-    // setViewMode('retailer'); 
+  };
+
+  const getStepIndicator = () => {
+    const steps = [
+      { key: 'idle', label: 'Dashboard', icon: '🏠' },
+      { key: 'request', label: 'Request', icon: '📦' },
+      { key: 'contract', label: 'Contract', icon: '📋' },
+      { key: 'vendor_wait', label: 'Pending', icon: '⏳' },
+      { key: 'goods_received', label: 'Delivered', icon: '✅' },
+      { key: 'repay', label: 'Repay', icon: '💳' },
+      { key: 'done', label: 'Complete', icon: '🎉' },
+    ];
+    const currentIndex = steps.findIndex(s => s.key === state.step);
+    return { steps, currentIndex };
   };
 
   const renderScreen = () => {
@@ -62,12 +75,19 @@ const Demo = () => {
         return <RetailerContract contract={state.contract} onSign={submitToVendor} />;
       case 'vendor_wait':
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center p-md">
-            <div className="text-4xl mb-md animate-pulse">⏳</div>
-            <h3 className="text-primary mb-sm">Waiting for Vendor</h3>
-            <p className="text-muted text-sm">Alhaji Dankoli is reviewing your request...</p>
-            <div className="mt-lg p-sm bg-yellow-900/20 border border-yellow-500/30 rounded text-xs text-yellow-500">
-              Tip: Switch to <strong>Vendor Portal</strong> to confirm.
+          <div className="state-container">
+            <div className="state-icon-wrapper">
+              <div className="state-icon-bg"></div>
+              <div className="state-icon-pulse"></div>
+              <span className="state-icon">⏳</span>
+            </div>
+            <h3 className="state-title">Awaiting Vendor</h3>
+            <p className="state-desc">Alhaji Dankoli is reviewing your request...</p>
+            <div className="tip-card">
+              <div className="tip-icon"><ArrowRight size={14} /></div>
+              <div className="tip-text">
+                <strong>Tip:</strong> Switch to <span className="highlight">Vendor Portal</span> to confirm the order
+              </div>
             </div>
           </div>
         );
@@ -77,12 +97,27 @@ const Demo = () => {
         return <RetailerRepayment contract={state.contract} onRepay={makeRepayment} />;
       case 'done':
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center p-md">
+          <div className="state-container state-done">
             <Confetti />
-            <div className="text-6xl mb-md animate-bounce">🎉</div>
-            <h3 className="text-primary mb-sm">Cycle Complete!</h3>
-            <p className="text-muted mb-lg text-sm">Repayment successful. Your Amana Score has increased.</p>
-            <Button onClick={resetDemo} variant="primary" className="glow-primary">Start New Cycle</Button>
+            <div className="success-burst"></div>
+            <div className="state-icon-wrapper success">
+              <span className="state-icon">🎉</span>
+            </div>
+            <h3 className="state-title success-title">Cycle Complete!</h3>
+            <p className="state-desc">Repayment successful. Your Amana Score has increased.</p>
+            <div className="success-stats">
+              <div className="success-stat">
+                <span className="stat-value">+15</span>
+                <span className="stat-label">Score Points</span>
+              </div>
+              <div className="success-stat">
+                <span className="stat-value">₦5K</span>
+                <span className="stat-label">Limit Increase</span>
+              </div>
+            </div>
+            <Button onClick={resetDemo} variant="primary" className="glow-primary restart-btn">
+              <RefreshCw size={16} /> Start New Cycle
+            </Button>
           </div>
         );
       default:
@@ -90,41 +125,129 @@ const Demo = () => {
     }
   };
 
+  const { steps, currentIndex } = getStepIndicator();
+
   return (
-    <div className="container section flex flex-col items-center">
-      <div className="mb-xl text-center max-w-2xl">
-        <h1 className="text-primary mb-sm">Live Demo</h1>
-        <p className="text-muted">Experience the full Murabaha cycle. Switch between the Retailer App and Vendor Portal to see both sides of the transaction.</p>
+    <div className="demo-page">
+      {/* Animated Background */}
+      <div className="demo-bg">
+        <div className="demo-bg-gradient"></div>
+        <div className="demo-bg-grid"></div>
+        <div className="demo-bg-orb demo-bg-orb-1"></div>
+        <div className="demo-bg-orb demo-bg-orb-2"></div>
+        <div className="demo-bg-orb demo-bg-orb-3"></div>
+      </div>
+
+      {/* Header Section */}
+      <div className="demo-header">
+        <div className="demo-badge">
+          <Sparkles size={14} />
+          <span>Interactive Demo</span>
+        </div>
+        <h1 className="demo-title">
+          Experience <span className="text-gradient">Amana</span> in Action
+        </h1>
+        <p className="demo-subtitle">
+          Walk through a complete Murabaha financing cycle. Switch between Retailer and Vendor views to see both sides of the transaction.
+        </p>
+      </div>
+
+      {/* Feature Pills */}
+      <div className="demo-features">
+        <div className="feature-pill">
+          <ShieldCheck size={14} />
+          <span>100% Sharia Compliant</span>
+        </div>
+        <div className="feature-pill">
+          <Zap size={14} />
+          <span>Instant Processing</span>
+        </div>
       </div>
 
       {/* View Toggle */}
-      <div className="glass-panel p-1 rounded-full mb-lg flex relative z-10">
-        <button 
-          className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${viewMode === 'retailer' ? 'bg-primary text-slate-900 shadow-[0_0_15px_rgba(45,212,191,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-          onClick={() => setViewMode('retailer')}
-        >
-          <Smartphone size={16} /> Retailer App
-        </button>
-        <button 
-          className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ${viewMode === 'vendor' ? 'bg-accent text-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-          onClick={() => setViewMode('vendor')}
-        >
-          <Store size={16} /> Vendor Portal
-        </button>
+      <div className="demo-toggle-container">
+        <div className="demo-toggle">
+          <button 
+            className={`toggle-btn ${viewMode === 'retailer' ? 'active retailer-active' : ''}`}
+            onClick={() => setViewMode('retailer')}
+          >
+            <Smartphone size={18} />
+            <span>Retailer App</span>
+          </button>
+          <button 
+            className={`toggle-btn ${viewMode === 'vendor' ? 'active vendor-active' : ''}`}
+            onClick={() => setViewMode('vendor')}
+          >
+            <Store size={18} />
+            <span>Vendor Portal</span>
+          </button>
+          <div className={`toggle-slider ${viewMode === 'vendor' ? 'vendor' : ''}`}></div>
+        </div>
       </div>
 
+      {/* Progress Indicator */}
+      {viewMode === 'retailer' && (
+        <div className="progress-container">
+          <div className="progress-bar">
+            {steps.slice(0, -1).map((step, index) => (
+              <React.Fragment key={step.key}>
+                <div className={`progress-step ${index <= currentIndex ? 'active' : ''} ${index === currentIndex ? 'current' : ''}`}>
+                  <div className="step-dot">
+                    <span className="step-icon">{step.icon}</span>
+                  </div>
+                  <span className="step-label">{step.label}</span>
+                </div>
+                {index < steps.length - 2 && (
+                  <div className={`progress-line ${index < currentIndex ? 'filled' : ''}`}></div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Phone Frame */}
-      <div className="relative mb-xl">
-        <div className="absolute inset-0 bg-teal-500/10 blur-3xl rounded-full transform scale-75 pointer-events-none"></div>
+      <div className="demo-phone-container">
+        <div className="phone-glow"></div>
+        <div className="phone-reflection"></div>
         <PhoneFrame>
           {renderScreen()}
         </PhoneFrame>
       </div>
 
       {/* Reset Control */}
-      <Button size="sm" variant="outline" onClick={resetDemo} className="opacity-50 hover:opacity-100 transition-opacity">
-        <RefreshCw size={14} className="mr-2" /> Reset Simulation
-      </Button>
+      <button className="reset-button" onClick={resetDemo}>
+        <RefreshCw size={14} />
+        <span>Reset Demo</span>
+      </button>
+
+      {/* Guide Card */}
+      <div className="demo-guide">
+        <h3>How It Works</h3>
+        <div className="guide-steps">
+          <div className="guide-step">
+            <div className="guide-number">1</div>
+            <div className="guide-content">
+              <strong>Request Inventory</strong>
+              <p>Retailer selects goods and submits request</p>
+            </div>
+          </div>
+          <div className="guide-step">
+            <div className="guide-number">2</div>
+            <div className="guide-content">
+              <strong>Vendor Confirms</strong>
+              <p>Switch to Vendor Portal to approve the order</p>
+            </div>
+          </div>
+          <div className="guide-step">
+            <div className="guide-number">3</div>
+            <div className="guide-content">
+              <strong>Complete Repayment</strong>
+              <p>Retailer receives goods and repays over time</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

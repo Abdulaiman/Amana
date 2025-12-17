@@ -1,28 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import './Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       const user = await login(email, password);
+      addToast('Welcome back!', 'success');
       if (user.role === 'vendor') navigate('/vendor');
       else if (user.role === 'admin') navigate('/admin');
       else navigate('/dashboard'); // Retailer
     } catch (err) {
-      setError(err);
+      addToast(err?.message || 'Invalid credentials', 'error');
     } finally {
       setLoading(false);
     }
@@ -32,11 +33,12 @@ const Login = () => {
     <div className="login-page">
       <div className="auth-card">
         <div className="auth-header">
+            <img src="/logo.png" alt="Amana" className="auth-logo" style={{ width: '48px', height: '48px', marginBottom: '1rem' }} />
             <h2 className="auth-title">Welcome Back</h2>
             <p className="auth-subtitle">Sign in to your Amana account</p>
         </div>
         
-        {error && <div className="error-message">{error}</div>}
+
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">

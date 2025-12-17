@@ -1,21 +1,22 @@
 :root {
-  /* Colors - Premium Dark Theme */
-  --color-bg: #0f172a; /* Slate 900 */
-  --color-bg-soft: #1e293b; /* Slate 800 */
-  --color-bg-card: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity for glass */
+  /* Colors - Monochrome + Green Theme */
+  --color-bg: #000000; /* Pure Black */
+  --color-bg-soft: #111111; /* Dark Gray */
+  --color-bg-card: rgba(17, 17, 17, 0.8); /* Dark Gray with opacity for glass */
   
-  --color-primary: #2dd4bf; /* Teal 400 - Electric Teal */
-  --color-primary-dark: #14b8a6; /* Teal 500 */
-  --color-primary-glow: rgba(45, 212, 191, 0.3);
+  --color-primary: #10b981; /* Emerald 500 - Clean Green */
+  --color-primary-dark: #059669; /* Emerald 600 */
+  --color-primary-glow: rgba(16, 185, 129, 0.25);
 
-  --color-accent: #fbbf24; /* Amber 400 - Luminous Gold */
-  --color-accent-glow: rgba(251, 191, 36, 0.3);
+  /* Accent is now also green - no amber/purple */
+  --color-accent: #10b981; /* Same as primary */
+  --color-accent-glow: rgba(16, 185, 129, 0.25);
 
-  --color-text: #f8fafc; /* Slate 50 */
-  --color-text-muted: #94a3b8; /* Slate 400 */
+  --color-text: #ffffff; /* Pure White */
+  --color-text-muted: #9ca3af; /* Gray 400 */
   
-  --color-border: rgba(148, 163, 184, 0.1);
-  --color-border-hover: rgba(45, 212, 191, 0.5);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-hover: rgba(16, 185, 129, 0.5);
 
   --color-danger: #ef4444; /* Red 500 */
   --color-success: #10b981; /* Emerald 500 */
@@ -32,9 +33,9 @@
   --space-2xl: 4rem;
 
   /* Shadows & Glows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
   --glow-primary: 0 0 20px var(--color-primary-glow);
   --glow-accent: 0 0 20px var(--color-accent-glow);
 
@@ -45,8 +46,8 @@
   --radius-full: 9999px;
 
   /* Glassmorphism */
-  --glass-bg: rgba(30, 41, 59, 0.6);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(20, 20, 20, 0.7);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
   --backdrop-blur: blur(12px);
 }
 
@@ -63,8 +64,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(45, 212, 191, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(251, 191, 36, 0.05), transparent 25%);
+    radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.06), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.04), transparent 25%);
   background-attachment: fixed;
 }
 
@@ -95,7 +96,7 @@ button {
 
 /* Utilities */
 .text-primary { color: var(--color-primary); }
-.text-accent { color: var(--color-accent); }
+.text-accent { color: var(--color-primary); } /* Accent is now green */
 .text-muted { color: var(--color-text-muted); }
 .text-danger { color: var(--color-danger); }
 .text-success { color: var(--color-success); }
@@ -160,7 +161,7 @@ button {
   position: fixed;
   width: 10px;
   height: 10px;
-  background-color: var(--color-accent);
+  background-color: var(--color-primary);
   animation: confetti-fall 3s linear forwards;
   z-index: 9999;
 }

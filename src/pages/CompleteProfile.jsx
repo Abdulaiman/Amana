@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './CompleteProfile.css';
 import { Upload, Building, User, CreditCard, MapPin, CheckCircle, ShieldCheck, ArrowRight, Loader } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const CompleteProfile = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
+    const { addToast } = useToast();
     
     // Form States
     const [formData, setFormData] = useState({
@@ -76,7 +78,7 @@ const CompleteProfile = () => {
             setFiles({ ...files, [`${type}Url`]: res.data[0] });
         } catch (error) {
             console.error('Upload Error', error);
-            alert('File upload failed. Please try again.');
+            addToast('File upload failed. Please try again.', 'error');
         } finally {
             setUploading({ ...uploading, [type]: false });
         }
@@ -137,11 +139,11 @@ const CompleteProfile = () => {
             const res = await api.put('/retailer/profile/complete', payload);
             
             // Success!
-            alert(`Success! Profile Verified. Your Score is ${res.data.amanaScore} and Limit is ₦${res.data.creditLimit.toLocaleString()}.`);
+            addToast(`Success! Profile Verified. Your Score is ${res.data.amanaScore} and Limit is ₦${res.data.creditLimit.toLocaleString()}.`, 'success');
             navigate('/dashboard');
         } catch (error) {
             console.error('Submission Error', error);
-            alert(error.response?.data?.message || 'Failed to complete profile.');
+            addToast(error.response?.data?.message || 'Failed to complete profile.', 'error');
         } finally {
             setLoading(false);
         }

@@ -17,7 +17,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          <ShieldCheck className="logo-icon" size={28} />
+          <img src="/logo.png" alt="Amana Logo" className="logo-img" style={{ height: '32px', width: '32px' }} />
           <span>Amana</span>
         </Link>
         

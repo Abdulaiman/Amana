@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './VendorDashboard.css';
-import './RetailerDashboard.css'; // Importing shared styles for gradients
+import { useToast } from '../context/ToastContext';
+import ConfirmModal from '../components/ConfirmModal';
+
 import { Plus, DollarSign, Package, TrendingUp, Search, Edit2, Trash2, X, ChevronRight, Lock, Wallet, ArrowRight, Building, AlertTriangle, UploadCloud } from 'lucide-react';
 
 const VendorDashboard = () => {
@@ -10,6 +12,10 @@ const VendorDashboard = () => {
     const [profile, setProfile] = useState(null);
     const [products, setProducts] = useState([]);
     const [showAddProduct, setShowAddProduct] = useState(false);
+    
+    // Notification System
+    const { addToast } = useToast();
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isDestructive: false });
     
     // State for Tabs
     const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'orders'
@@ -61,38 +67,48 @@ const VendorDashboard = () => {
         }
     };
 
-    const handleConfirmOrder = async (orderId) => {
-        if (!window.confirm('Confirm this order?')) return;
-        
+    const executeConfirmOrder = async (orderId) => {
         try {
             await api.put(`/orders/${orderId}/ready`);
-            alert('Order Confirmed! User will pick up goods.');
+            addToast('Order Confirmed! User will pick up goods.', 'success');
             fetchOrders(); // Refresh
             fetchDashboardData(); // Update wallet balance
         } catch (e) {
-            alert(e.response?.data?.message || 'Failed to confirm order');
+            addToast(e.response?.data?.message || 'Failed to confirm order', 'error');
         }
     };
 
-    const handleRequestPayout = async () => {
+    const handleConfirmOrderClick = (orderId) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Confirm Order Readiness',
+            message: 'Are you sure this order is ready for pickup? The user will be notified.',
+            onConfirm: () => executeConfirmOrder(orderId),
+            isDestructive: false,
+            confirmText: 'Confirm Ready'
+        });
+    };
+
+    const handleRequestPayout = async (e) => {
+        if (e) e.preventDefault(); 
         const amount = parseFloat(payoutAmount);
         if (!amount || amount <= 0) {
-            alert('Enter a valid amount');
+            addToast('Enter a valid amount', 'error');
             return;
         }
         if (amount > profile.walletBalance) {
-            alert('Amount exceeds wallet balance');
+            addToast('Amount exceeds wallet balance', 'error');
             return;
         }
         
         setPayoutLoading(true);
         try {
             await api.post('/vendor/payout/request', { amount });
-            alert('Payout request submitted! Admin will process within 24-48 hours.');
+            addToast('Payout request submitted! Admin will process within 24-48 hours.', 'success');
             setShowPayoutModal(false);
             setPayoutAmount('');
         } catch (e) {
-            alert(e.response?.data?.message || 'Failed to submit payout request');
+            addToast(e.response?.data?.message || 'Failed to submit payout request', 'error');
         } finally {
             setPayoutLoading(false);
         }
@@ -104,7 +120,7 @@ const VendorDashboard = () => {
 
         const totalImages = (newProduct.images?.length || 0) + imageFiles.length + files.length;
         if (totalImages > 10) {
-            alert('You can only have up to 10 images per product.');
+            addToast('You can only have up to 10 images per product.', 'error');
             return;
         }
 
@@ -154,15 +170,25 @@ const VendorDashboard = () => {
         setShowAddProduct(true);
     };
 
-    const handleDeleteClick = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await api.delete(`/products/${id}`);
-                setProducts(products.filter(p => p._id !== id));
-            } catch (e) {
-                alert('Failed to delete product');
-            }
+    const executeDeleteProduct = async (id) => {
+        try {
+            await api.delete(`/products/${id}`);
+            setProducts(products.filter(p => p._id !== id));
+            addToast('Product deleted successfully', 'success');
+        } catch (e) {
+            addToast('Failed to delete product', 'error');
         }
+    };
+
+    const handleDeleteClick = (id) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Product',
+            message: 'Are you sure you want to delete this product? This action cannot be undone.',
+            onConfirm: () => executeDeleteProduct(id),
+            isDestructive: true,
+            confirmText: 'Delete Product'
+        });
     };
 
     const handleSaveProduct = async (e) => {
@@ -186,10 +212,10 @@ const VendorDashboard = () => {
 
             if (editingId) {
                 await api.put(`/products/${editingId}`, productPayload);
-                alert('Product Updated Successfully');
+                addToast('Product Updated Successfully', 'success');
             } else {
                 await api.post('/products', productPayload);
-                alert('Product Added Successfully');
+                addToast('Product Added Successfully', 'success');
             }
             
             setShowAddProduct(false);
@@ -199,7 +225,7 @@ const VendorDashboard = () => {
         } catch (e) {
             console.error(e);
             setUploading(false);
-            alert('Failed to save product');
+            addToast('Failed to save product', 'error');
         }
     };
 
@@ -272,65 +298,71 @@ const VendorDashboard = () => {
                 )}
             </header>
 
-            {/* Stats (Keep existing stats for now, maybe add Order stats later) */}
+            {/* Stats Grid */}
             <div className="stats-grid">
-               {/* ... (Kept same as before) ... */}
-               <div className="stat-card-wrapper gradient-purple">
-                    <div className="stat-card group">
-                        <div className="card-top">
-                             <div>
-                                <h3 className="stat-label">Wallet Balance</h3>
-                                <p className="card-sub-purple">Verified Funds</p>
-                             </div>
-                             <div className="stat-icon-box purple group-hover-scale">
-                                <DollarSign size={24} />
-                             </div>
+               {/* Wallet Balance Card */}
+                <div className="stat-card">
+                    <div className="stat-card-header">
+                        <div className="stat-card-icon">
+                            <DollarSign size={22} />
                         </div>
-                        <div className="card-stat">
-                             <h3 className="stat-value-mono">₦{profile.walletBalance.toLocaleString()}</h3>
-                             {profile.walletBalance > 0 && (
-                                 <button 
-                                     onClick={() => setShowPayoutModal(true)}
-                                     className="payout-btn"
-                                 >
-                                     <Wallet size={14} /> Request Payout
-                                 </button>
-                             )}
+                        <div className="stat-card-title">
+                            <h3>Wallet Balance</h3>
+                            <span>Verified Funds</span>
+                        </div>
+                    </div>
+                    <div className="stat-card-body">
+                        <div className="stat-card-value currency">
+                            <span className="currency-sign">₦</span>
+                            <span className="value-main">{profile.walletBalance.toLocaleString()}</span>
+                        </div>
+                        <div style={{ marginTop: '0.5rem' }}>
+                         {profile.walletBalance > 0 && (
+                             <button
+                                 onClick={() => setShowPayoutModal(true)}
+                                 className="payout-btn"
+                             >
+                                 <Wallet size={14} /> Request Payout
+                             </button>
+                         )}
                         </div>
                     </div>
                 </div>
 
-                <div className="stat-card-wrapper gradient-teal">
-                    <div className="stat-card group">
-                        <div className="card-top">
-                             <div>
-                                <h3 className="stat-label">Live Inventory</h3>
-                                <p className="card-sub-teal">Active Records</p>
-                             </div>
-                             <div className="stat-icon-box teal group-hover-scale">
-                                <Package size={24} />
-                             </div>
+                {/* Live Inventory Card */}
+                <div className="stat-card">
+                    <div className="stat-card-header">
+                        <div className="stat-card-icon">
+                            <Package size={22} />
                         </div>
-                         <div className="card-stat">
-                             <h3 className="stat-value-mono">{products.length}</h3>
-                             <span className="stat-max">Items</span>
+                        <div className="stat-card-title">
+                            <h3>Live Inventory</h3>
+                            <span>Active Records</span>
+                        </div>
+                    </div>
+                    <div className="stat-card-body">
+                        <div className="stat-card-value">
+                            <span className="value-main">{products.length}</span>
+                            <span className="value-suffix">Items</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="stat-card-wrapper gradient-blue">
-                    <div className="stat-card group">
-                        <div className="card-top">
-                             <div>
-                                <h3 className="stat-label">Orders</h3>
-                                <p className="card-sub-blue">Pending Actions</p>
-                             </div>
-                             <div className="stat-icon-box blue group-hover-scale">
-                                <TrendingUp size={24} />
-                             </div>
+                {/* Orders Card */}
+                <div className="stat-card">
+                    <div className="stat-card-header">
+                        <div className="stat-card-icon">
+                            <TrendingUp size={22} />
                         </div>
-                         <div className="card-stat">
-                             <h3 className="stat-value-mono">{orders.filter(o => o.status === 'pending_vendor').length}</h3>
+                        <div className="stat-card-title">
+                            <h3>Orders</h3>
+                            <span>Pending Actions</span>
+                        </div>
+                    </div>
+                    <div className="stat-card-body">
+                         <div className="stat-card-value">
+                             <span className="value-main">{orders.filter(o => o.status === 'pending_vendor').length}</span>
+                             <span className="value-suffix">Pending</span>
                         </div>
                     </div>
                 </div>
@@ -435,7 +467,7 @@ const VendorDashboard = () => {
                                         <td className="td-cell pr text-right">
                                             {order.status === 'pending_vendor' && (
                                                 <button 
-                                                    onClick={() => handleConfirmOrder(order._id)}
+                                                    onClick={() => handleConfirmOrderClick(order._id)}
                                                     className="confirm-btn"
                                                 >
                                                     Confirm Order
@@ -685,6 +717,15 @@ const VendorDashboard = () => {
                     </div>
                 </div>
             )}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                isDestructive={confirmModal.isDestructive}
+                confirmText={confirmModal.confirmText}
+            />
         </>
     );
 };

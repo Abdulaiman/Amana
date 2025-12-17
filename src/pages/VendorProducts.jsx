@@ -4,6 +4,8 @@ import api from '../services/api';
 import './VendorDashboard.css'; // Reuse vendor styling
 import './AdminDashboard.css'; // Reuse admin table styling
 import { Plus, Search, Edit2, Trash2, Package, AlertTriangle, Check, X, ChevronLeft, Filter, ToggleLeft, ToggleRight, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import ConfirmModal from '../components/ConfirmModal';
 
 const VendorProducts = () => {
     const navigate = useNavigate();
@@ -11,6 +13,8 @@ const VendorProducts = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'active', 'outofstock'
+    const { addToast } = useToast();
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isDestructive: false });
 
     // Modal State
     const [showModal, setShowModal] = useState(false);
@@ -46,19 +50,31 @@ const VendorProducts = () => {
                 countInStock: newStatus ? (product.countInStock > 0 ? product.countInStock : 1) : 0
             });
             fetchProducts();
+            addToast('Product status updated', 'success');
         } catch (e) {
-            alert('Failed to update product');
+            addToast('Failed to update product', 'error');
         }
     };
 
-    const handleDeleteProduct = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this product?')) return;
+    const executeDeleteProduct = async (id) => {
         try {
             await api.delete(`/products/${id}`);
             fetchProducts();
+            addToast('Product deleted', 'success');
         } catch (e) {
-            alert('Failed to delete');
+            addToast('Failed to delete', 'error');
         }
+    };
+
+    const handleDeleteProduct = (id) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Product',
+            message: 'Are you sure you want to delete this product?',
+            onConfirm: () => executeDeleteProduct(id),
+            isDestructive: true,
+            confirmText: 'Delete'
+        });
     };
 
     const openAddModal = () => {
@@ -89,7 +105,7 @@ const VendorProducts = () => {
         // Prevent exceeding limit
         const totalImages = (formData.images?.length || 0) + imageFiles.length + files.length;
         if (totalImages > 10) {
-            alert('You can only have up to 10 images per product.');
+            addToast('You can only have up to 10 images per product.', 'error');
             return;
         }
 
@@ -149,9 +165,10 @@ const VendorProducts = () => {
 
             setShowModal(false);
             fetchProducts();
+            addToast(editingProduct ? 'Product Updated' : 'Product Created', 'success');
         } catch (e) {
             console.error(e);
-            alert('Failed to save product');
+            addToast('Failed to save product', 'error');
         } finally {
             setUploading(false);
         }
@@ -450,6 +467,15 @@ const VendorProducts = () => {
                     </div>
                 </div>
             )}
+             <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                isDestructive={confirmModal.isDestructive}
+                confirmText={confirmModal.confirmText}
+            />
         </div>
     );
 };

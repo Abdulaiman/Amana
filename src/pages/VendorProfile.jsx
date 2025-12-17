@@ -5,6 +5,7 @@ import {
     Building, CreditCard, MapPin, ShieldCheck, Mail, Phone, Loader, 
     Wallet, Edit2, X, Save, ChevronLeft, CheckCircle, AlertCircle, Clock
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 import './UserProfile.css'; // Reuse retailer profile styles
 
 const VendorProfile = () => {
@@ -51,14 +52,17 @@ const VendorProfile = () => {
         }
     };
 
+    const { addToast } = useToast();
+
     const handleSave = async () => {
         setSaving(true);
         try {
             await api.put('/vendor/profile', formData);
             await fetchProfile();
             setEditMode(false);
+            addToast('Profile updated successfully', 'success');
         } catch (error) {
-            alert('Failed to update profile');
+            addToast('Failed to update profile', 'error');
         } finally {
             setSaving(false);
         }
