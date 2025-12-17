@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShieldCheck } from 'lucide-react';
+import { Menu, X, ShieldCheck, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, logout, isVendor, isAdmin } = useAuth();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -24,8 +26,22 @@ const Navbar = () => {
           <Link to="/solution" className={`nav-link ${isActive('/solution')}`}>Solution</Link>
           <Link to="/how-it-works" className={`nav-link ${isActive('/how-it-works')}`}>How It Works</Link>
           <Link to="/demo" className={`nav-link ${isActive('/demo')}`}>Demo</Link>
-          <Link to="/team" className={`nav-link ${isActive('/team')}`}>Team</Link>
-          <Link to="/contact" className="btn btn-primary btn-sm glow-effect">Contact</Link>
+          
+          {user ? (
+             <>
+                <Link 
+                    to={isVendor ? "/vendor" : (isAdmin ? "/admin" : "/dashboard")} 
+                    className="btn btn-primary btn-sm glow-effect"
+                >
+                    Dashboard
+                </Link>
+             </>
+          ) : (
+            <>
+              <Link to="/login" className={`nav-link ${isActive('/login')}`}>Login</Link>
+              <Link to="/register" className="btn btn-primary btn-sm glow-effect">Get Started</Link>
+            </>
+          )}
         </div>
 
         <button className="navbar-toggle" onClick={toggleMenu}>

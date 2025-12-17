@@ -1,0 +1,286 @@
+/* Admin Dashboard CSS */
+
+.admin-dashboard-container {
+    /* reuse retailer container styles if needed, or keep specific tweaks */
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-bottom: 2.5rem;
+}
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media(min-width: 768px) {
+    .admin-stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Ensure stat card wrapper behaves like flex container if needed */
+.stat-card-wrapper .admin-stat-card {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--glass-bg); /* Use shared glass bg */
+    border-radius: 1.375rem;
+}
+
+.admin-dashboard-container {
+    min-height: 100vh;
+    padding: 1.5rem;
+}
+
+.admin-max-width {
+    max-width: 80rem;
+    margin: 0 auto;
+}
+
+/* Header */
+.admin-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.admin-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.admin-subtitle { color: #9ca3af; }
+
+.header-status { text-align: right; }
+
+.operational-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #10b981;
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+
+/* Stats Grid */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+@media(min-width: 768px) { .admin-stats-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.admin-stat-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.admin-stat-card:hover { border-color: var(--color-primary); }
+
+.admin-stat-icon {
+    padding: 1rem;
+    border-radius: 1rem;
+    transition: transform 0.3s;
+}
+.admin-stat-card:hover .group-hover-scale { transform: scale(1.1); }
+
+.admin-stat-icon.purple { background: var(--color-primary-glow); color: var(--color-primary); }
+.admin-stat-icon.accent { background: var(--color-primary-glow); color: var(--color-primary); }
+.admin-stat-icon.orange { background: var(--color-primary-glow); color: var(--color-primary); }
+
+.admin-stat-value { font-size: 1.875rem; font-weight: 700; color: var(--color-text); }
+.admin-stat-label { font-size: 0.875rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+
+
+/* Main Panel */
+.admin-panel {
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+/* Tabs */
+.admin-tabs-header {
+    border-bottom: 1px solid var(--color-border);
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.2);
+}
+
+.admin-tabs-list { display: flex; gap: 2rem; }
+
+.tab-btn {
+    padding: 1.25rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    color: #9ca3af;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 0; /* Override default */
+}
+.tab-btn:hover { color: white; }
+.tab-btn.active { border-bottom-color: var(--color-primary); color: var(--color-primary); }
+
+.admin-search-wrapper { position: relative; }
+
+.admin-search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
+.admin-search-input {
+    padding: 0.5rem 1rem 0.5rem 2.25rem;
+    font-size: 0.875rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    color: white;
+    outline: none;
+    width: 16rem;
+}
+.admin-search-input:focus { border-color: var(--color-primary); }
+
+
+/* Content Area */
+.admin-content-area {
+    flex: 1;
+    overflow: auto;
+    background: rgba(17, 24, 39, 0.2); /* bg-soft/20 */
+    padding: 0;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 16rem;
+    color: var(--color-text-muted);
+}
+.empty-icon { margin-bottom: 1rem; opacity: 0.5; }
+
+
+/* Payouts Table */
+.payouts-table { width: 100%; text-align: left; border-collapse: collapse; }
+
+.payouts-head-row {
+    background: var(--color-bg-soft);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.payouts-row { transition: background 0.2s; }
+.payouts-row:hover { background: var(--color-bg-soft); }
+
+.td-cell { padding: 1rem; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-size: 0.875rem; }
+
+.vendor-name-text { font-weight: 700; color: var(--color-text); }
+.vendor-id-text { font-size: 0.75rem; color: var(--color-text-muted); }
+
+.amount-text { font-size: 1.125rem; font-family: monospace; font-weight: 700; color: var(--color-text); }
+
+.bank-details-box { font-size: 0.875rem; }
+.bank-name { color: var(--color-text); font-weight: 500; }
+.account-number { color: var(--color-text-muted); font-family: monospace; }
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.status-pill.approved { background: rgba(16, 185, 129, 0.1); color: var(--color-success); }
+.status-pill.pending { background: rgba(234, 179, 8, 0.1); color: #eab308; }
+
+.confirm-transfer-btn {
+    padding: 0.5rem 1rem;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.confirm-transfer-btn:hover {
+    background: #0d9488;
+    box-shadow: 0 0 15px rgba(20, 184, 166, 0.3);
+}
+/* Badge for counts */
+.badge {
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 99px;
+    margin-left: 6px;
+}
+
+/* Action Buttons */
+.action-btns {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.reject-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(239, 68, 68, 0.1); 
+    color: #ef4444;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.reject-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+/* Tab Active State refinement */
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

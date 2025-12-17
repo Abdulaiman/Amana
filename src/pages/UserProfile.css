@@ -1,0 +1,491 @@
+
+/* Premium Dark Aesthetic for User Profile */
+.user-profile-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.user-profile-container::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(50px);
+}
+
+/* Header Card with Glassmorphism & Mesh Gradient */
+.profile-header-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-header-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Subtle gradient overlay on header */
+.profile-header-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(16, 185, 129, 0.1), transparent);
+    pointer-events: none;
+}
+
+.profile-avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    z-index: 2;
+}
+
+.profile-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #333, #111);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(16, 185, 129, 0.5); /* Brand border */
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.profile-stats {
+    display: flex;
+    gap: 48px;
+    text-align: right;
+    position: relative;
+    z-index: 2;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
+/* Glass Panels for Sections */
+.glass-panel {
+    background: #1A1A1A; /* Fallback */
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.glass-panel:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(25, 25, 25, 0.8);
+}
+
+.section-title {
+    color: var(--color-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.detail-row span {
+    color: #888;
+}
+
+.detail-row p {
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .profile-header-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 32px;
+        padding: 30px 20px;
+    }
+    
+    .profile-avatar-section {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .profile-stats {
+        width: 100%;
+        justify-content: center;
+        gap: 32px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 24px;
+    }
+    
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Semantic Classes to Replace Tailwind */
+
+.user-profile-content {
+    padding: 24px;
+    padding-bottom: 96px;
+    animation: fadeInScale 0.4s ease-out forwards;
+}
+
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+}
+
+.error-message {
+    padding: 32px;
+    text-align: center;
+    color: #ef4444; /* red-500 */
+}
+
+/* Typography & Elements */
+.profile-name {
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.profile-tier {
+    color: #34d399; /* emerald-400 */
+    font-family: monospace; /* font-mono */
+    font-size: 0.875rem; /* text-sm */
+    margin-top: 4px;
+}
+
+.icon-white {
+    color: white;
+}
+
+.profile-grid {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    .profile-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .full-width {
+        grid-column: span 2;
+    }
+}
+
+.profile-section {
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-label {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.detail-value {
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-value.highlight {
+    font-weight: 500;
+}
+
+/* Verification Status Card */
+.verification-status-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.verification-title {
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.verification-subtitle {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-verified {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.status-pending {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.locked-message {
+    margin-top: 16px;
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Vendor Specific Styles */
+.vendor-header-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(255,255,255,0.02) 100%);
+}
+
+.vendor-avatar {
+    overflow: hidden;
+}
+
+.vendor-avatar .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Edit Controls */
+.edit-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.edit-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.edit-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.cancel-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancel-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.save-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-profile-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.save-profile-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Edit Input */
+.profile-edit-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.profile-edit-input:focus {
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-edit-input.textarea {
+    min-height: 80px;
+    resize: none;
+}
+
+/* Bank Note */
+.bank-note {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Status Colors */
+.status-rejected {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.pending-message {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: #fbbf24;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rejected-message {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: #f87171;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Icon color utilities */
+.text-success { color: #22c55e; }
+.text-danger { color: #ef4444; }
+.text-warning { color: #f59e0b; }
+.font-mono { font-family: monospace; }
+
+/* Back Button (shared) */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}

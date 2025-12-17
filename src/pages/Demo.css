@@ -1,0 +1,201 @@
+/* Demo Page Styles */
+.demo-page {
+  min-height: 100vh;
+  padding: 8rem 1.5rem 4rem; /* Top padding for navbar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.demo-bg-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  height: 80vw;
+  background: radial-gradient(circle, var(--color-neutral-glow) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.demo-header {
+  text-align: center;
+  max-width: 42rem;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 10;
+}
+
+.demo-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--color-text) 30%, var(--color-text-muted) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.demo-subtitle {
+  color: var(--color-text-muted);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+/* View Toggle (Glassmorphic) */
+.demo-controls {
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 10;
+}
+
+.toggle-container {
+  display: flex;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  padding: 0.375rem;
+  border-radius: 2rem; /* Pill shape */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 1.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-btn:hover {
+  color: var(--color-text);
+}
+
+.toggle-btn.active {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+
+/* Phone Frame Container */
+.demo-frame-wrapper {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 4rem;
+}
+
+.frame-glow {
+  position: absolute;
+  inset: -1rem;
+  background: radial-gradient(circle, var(--color-primary-glow) 0%, transparent 70%);
+  filter: blur(20px);
+  z-index: -1;
+}
+
+/* Reset Button */
+.reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: 2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background: var(--glass-bg);
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+/* Internal States (Waiting, Done) */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text);
+}
+
+.state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.state-title {
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.state-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.tip-box {
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.tip-box strong {
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .demo-title { font-size: 2rem; }
+  .demo-subtitle { font-size: 1rem; }
+  
+  .toggle-container {
+    flex-direction: column;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 20rem;
+  }
+  
+  .toggle-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animations */
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-bounce { animation: bounce 2s infinite; }
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}

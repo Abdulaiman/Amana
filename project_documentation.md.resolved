@@ -1,0 +1,127 @@
+# Amana Project Documentation
+
+## 1. Authentication & Roles
+ The system supports three distinct user roles managed via [authController.js](file:///c:/Users/user/Desktop/amana/server/src/controllers/authController.js) and [AuthContext.jsx](file:///c:/Users/user/Desktop/amana/src/context/AuthContext.jsx).
+
+### **Entities**
+- **Retailer (User Model)**: The primary borrower/buyer. Stored in the `users` collection.
+- **Vendor (Vendor Model)**: The supplier/seller. Stored in the `vendors` collection.
+- **Admin**: Special role within the `users` collection (Role: `admin`).
+
+### **Login Logic**
+- The system first checks the `users` collection.
+    - If found and password matches -> Logs in as **Retailer** (or **Admin** if usage role is admin).
+- If not found, it checks the `vendors` collection.
+    - If found -> Logs in as **Vendor**.
+- **Result**: Returns a JWT token and a Role (`retailer`, `admin`, or `vendor`) which the frontend `AuthContext` uses to route to the correct Dashboard.
+
+---
+
+## 2. Retailer Journey (The Borrower)
+
+### **Phase 1: Onboarding & Trust (The "Gatekeeper")**
+1. **Sign Up**: Basic account creation (Name, Email, Password).
+2. **Psychometric Test** (`/onboarding`):
+   - User takes a quiz to determine "willingness to repay".
+   - **Result**: `testScore` (0-60 points) is saved.
+3. **KYC & Profile Completion** (`/complete-profile`):
+   - User uploads BVN, ID, Location Proof, and Business details.
+   - **Amana Engine Trigger**: Once submitted, [calculateInitialScore](file:///c:/Users/user/Desktop/amana/server/src/utils/amanaEngine.js#6-19) runs.
+     - `testScore` + `Business Data` (Years in business, Physical location bonus) = **Initial Amana Score**.
+   - **Unlock**: `isProfileComplete` becomes `true`, unlocking the Dashboard and Credit Limit.
+
+### **Phase 2: The Amana Engine (Financial Logic)**
+The "Brain" of the operation ([amanaEngine.js](file:///c:/Users/user/Desktop/amana/server/src/utils/amanaEngine.js)):
+- **Credit Limit**: Linear formula (`Score * 300`). Max capped at ₦30,000 for verified starters.
+- **Tier System**:
+  - **Gold**: Score 75+
+  - **Silver**: Score 50-74
+  - **Bronze**: Score < 50
+- **Markup (Interest)**:
+  - Gold: 2.5% | Silver: 3.5% | Bronze: 5.0%
+
+### **Phase 3: Shopping (Murabaha Model)**
+1. **Marketplace**: Retailer browses products aggregated from Vendors.
+2. **Order Placement**: 
+   - Retailer adds items to cart.
+   - **Calculations**: `Item Price` + `Markup %` (based on Retailer Tier) = `Total Repayment Amount`.
+   - **Check**: System verifies [(Used Credit + New Order Total) <= Credit Limit](file:///c:/Users/user/Desktop/amana/src/App.jsx#40-118).
+   - **Action**: Order created with status `pending_vendor`. **Note**: Credit is *checked* but not *deducted* yet.
+
+### **Phase 4: Fulfillment (Escrow Logic)**
+1. **Vendor Action**: Vendor sees order, prepares items, and clicks "Ready for Pickup".
+   - Order Status -> `ready_for_pickup`.
+   - **Pickup Code**: Generated and shown to Vendor/Retailer.
+2. **Retailer Action**: Retailer physically collects goods.
+3. **Confirmation**: Retailer clicks "Confirm Goods Received".
+   - **Critical Financial Event**: 
+     - Retailer's `usedCredit` increases by `Total Repayment Amount`.
+     - Vendor's `walletBalance` increases by `Item Price`.
+     - Order Status -> `goods_received`.
+
+### **Phase 5: Repayment**
+1. **Payment**: Retailer pays via Paystack ([paymentController.js](file:///c:/Users/user/Desktop/amana/server/src/controllers/paymentController.js)).
+   - Can pay specific Order ID or General Lump Sum (FIFO).
+2. **Verification**: Webhook/Callback verifies success.
+3. **Settlement**: 
+   - `usedCredit` is reduced.
+   - Order is marked `repaid` and `completed`.
+4. **Growth Loop**:
+   - If Repayment > ₦5,000, `repaymentStreak` increases.
+   - **Score Growth**: [calculateScoreGrowth](file:///c:/Users/user/Desktop/amana/server/src/utils/amanaEngine.js#48-62) adds points (Base + Streak Bonus).
+   - **New Limit**: Higher Score = Higher Credit Limit immediately.
+
+---
+
+## 3. Vendor Journey (The Supplier)
+
+### **Phase 1: Onboarding**
+- **Register**: Business Name, Category, Contact.
+- **Verification**: Must complete profile (Bank Details, CAC) to be "Verified" by Admin. Verification status (`pending` -> `verified`) controls visibility/trust but does not strictly block selling in MVP (though ready for strictness).
+
+### **Phase 2: Sales & Inventory**
+- **Dashboard**: Sees "Active Orders" and "Wallet Balance".
+- **Product Mgmt**: Adds products with Stock Count. Stock automatically decrements on Order Placement.
+- **Order Processing**: 
+  - Cannot "Complete" an order, can only mark "Ready".
+  - **Protection**: Vendor relies on Retailer confirmation to get paid (Escrow). *See Gaps below.*
+
+### **Phase 3: Payouts**
+- **Wallet**: Functions as a ledger. Money sits there until withdrawn.
+- **Withdrawal**: 
+  - Vendor requests Payout (`amount`).
+  - Request Status -> `pending`.
+  - **Admin Action required** to finalize transfer.
+
+---
+
+## 4. Admin Journey (The Overseer)
+
+- **Access**: Special user with `role: admin`.
+- **Capabilities**:
+  1. **Dashboard**: View Global Analytics (Total Users, Volume, Outstanding Debt).
+  2. **Vendor Approval**: Verify Vendor KYC documents.
+  3. **Payout Processing**:
+     - View Pending Withdrawal Requests.
+     - **Confirm Payout**: Currently a manual process. Admin transfers fiat typically, then clicks "Confirm" in app to deduct Vendor Wallet and mark request `approved`.
+  4. **Transaction Monitoring**: View all system transactions (Loans, Repayments, Payouts).
+
+---
+
+## 5. Potential Gaps & "Watch Outs"
+
+### **1. The "Confirmation" Standoff (Escrow Risk)**
+- **Logic**: Vendor gets paid ONLY when Retailer clicks "Received".
+- **Risk**: Retailer picks up goods but *doesn't* click confirm.
+- **Mitigation (Current)**: Vendor holds the "Pickup Code". In a perfect world, Vendor shouldn't hand over goods until they see Retailer click Confirm, or they exchange the Code. Current implementation relies on honest Retailer confirmation. 
+- **Recommendation**: Implement a "4-digit Code Exchange" where Vendor inputs a code provided by Retailer to prove handover, automatically triggering the transfer.
+
+### **2. Manual Payouts**
+- Current logic allows Admin to "Confirm" a payout, but it doesn't *actually* trigger a bank transfer API (like Paystack Transfer). It just updates the DB.
+- **Recommendation**: Integrate Paystack Transfer API for automated settlements.
+
+### **3. Admin Seeding**
+- There is no UI to "Create Admin". It must be done via database seeding ([seedAdmin.js](file:///c:/Users/user/Desktop/amana/server/src/utils/seedAdmin.js)) or manually editing a User document in MongoDB.
+
+### **4. Error Handling**
+- If Paystack callback fails (network issue), the system relies on the user returning to `/payment-callback`. A Webhook implementation is safer for production.

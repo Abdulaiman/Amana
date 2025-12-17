@@ -1,0 +1,333 @@
+/* Transactions.css - Premium Transaction History Styles (Matched to UserProfile) */
+
+/* Reuse container style */
+.transactions-container {
+    max-width: 1100px; /* Match UserProfile */
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    padding: 24px;
+    padding-bottom: 96px;
+    animation: fadeInScale 0.4s ease-out forwards;
+}
+
+/* Background blob effect similar to profile */
+.transactions-container::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%); /* Subtle tint */
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(50px);
+}
+
+/* Header Section */
+.transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+}
+
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    /* text-shadow: 0 2px 10px rgba(0,0,0,0.5); */ /* Optional, consistent with profile stats if needed */
+}
+
+.dashboard-subtitle {
+    color: #9ca3af;
+    font-size: 0.95rem;
+}
+
+/* Summary Card - Styled like Profile Header Card but smaller */
+.summary-card-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+}
+
+.summary-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+/* Filters Bar - Glass Panel Style */
+.filters-bar {
+    background: rgba(20, 20, 20, 0.6); /* Match glass-panel fallback */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px; /* Slightly tighter than main panels */
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+/* Input Styles - Matching .profile-edit-input */
+.search-input-wrapper {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+}
+
+.search-input-wrapper input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem; /* Match profile buttons/inputs */
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.search-input-wrapper input:focus {
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.filter-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em;
+    min-width: 150px;
+}
+
+.filter-select:focus {
+    border-color: var(--color-primary);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Table Container - Glass Panel */
+.transactions-table-container {
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px; /* Match profile panel radius */
+    padding: 0; /* Let table fill */
+    overflow: hidden; /* For rounded corners */
+}
+
+.transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transactions-table th {
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    color: rgba(255, 255, 255, 0.5); /* Match .stat-label */
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.transactions-table td {
+    padding: 1.25rem 1.5rem;
+    color: #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+.transactions-table tr:last-child td {
+    border-bottom: none;
+}
+
+.transactions-table tr:hover {
+    background: rgba(255, 255, 255, 0.03); /* Subtle hover */
+}
+
+/* Transaction Types & Statuses */
+.tx-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.tx-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px; /* Softer square */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tx-type-badge.payout .tx-icon-wrapper {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.tx-type-badge.earning .tx-icon-wrapper {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.tx-type-badge.order .tx-icon-wrapper {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.tx-description-main {
+    color: white;
+    font-weight: 500;
+    display: block;
+}
+
+.tx-description-sub {
+    color: #6b7280;
+    font-size: 0.8rem;
+    font-family: monospace;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.tx-date-cell {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tx-amount {
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.tx-amount.positive { color: #10b981; }
+.tx-amount.negative { color: #ef4444; }
+
+/* Status Badges - Using Profile Style */
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.status-pill.completed, .status-pill.approved {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.status-pill.pending {
+    background-color: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+}
+
+.status-pill.rejected, .status-pill.cancelled {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 4rem 1rem;
+    text-align: center;
+    color: #6b7280;
+}
+
+/* Pagination - Matching Filters Style */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

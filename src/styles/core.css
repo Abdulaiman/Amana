@@ -1,0 +1,175 @@
+:root {
+  /* Colors - Monochrome & Green */
+  --color-bg: #000000;
+  --color-bg-soft: #121212; /* Neutral Gray */
+  --color-text: #ffffff;
+  --color-text-muted: #a1a1aa; /* Zinc 400 */
+  
+  /* Brand Colors - Minimalist Approach */
+  --color-primary: #10b981; /* Emerald 500 - Pure Green (Accents Only) */
+  --color-primary-dark: #047857; /* Emerald 700 */
+  --color-primary-glow: rgba(16, 185, 129, 0.05); /* Very subtle glow */
+  --color-accent: #10b981; 
+  --color-accent-glow: rgba(16, 185, 129, 0.05);
+  --color-danger: #ef4444;
+  --color-success: #10b981;
+  
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-neutral-glow: rgba(255, 255, 255, 0.03); /* Neutral glow for backgrounds */
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(16px);
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Utilities Replacement */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-2 { gap: 0.5rem; }
+.gap-4 { gap: 1rem; }
+.hidden { display: none; }
+
+/* Desktop Only Utility */
+@media (min-width: 768px) {
+  .md\:flex { display: flex; }
+  .md\:hidden { display: none; }
+}
+
+/* Component: Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 4px 15px var(--color-primary-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--color-primary-glow);
+  background: var(--color-primary-dark);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-muted);
+}
+
+.btn-outline:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+  background: var(--glass-bg);
+}
+
+/* Component: Glass Panel */
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 1.5rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Light Mode Overrides - Maximum Contrast */
+[data-theme='light'] {
+  --color-bg: #f1f5f9; /* Slate 100 - Distinct Light Gray Background */
+  --color-bg-soft: #ffffff; /* Pure White for Cards */
+  --color-text: #0f172a; /* Slate 900 - Deep Black-Blue */
+  --color-text-muted: #334155; /* Slate 700 - Dark Gray (High Legibility) */
+  
+  --glass-bg: #ffffff; /* Solid White for maximum contrast, minimal transparency */
+  --glass-border: #cbd5e1; /* Slate 300 - Clearly visible grey border */
+  --glass-blur: none; /* Disable blur in light mode for crispness */
+  
+  --color-border: #94a3b8; /* Slate 400 - Stronger general borders */
+  --color-neutral-glow: rgba(0, 0, 0, 0.05);
+  
+  /* Add specific shadow for light mode cards to make them pop */
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='light'] .glass-panel,
+[data-theme='light'] .hud-card,
+[data-theme='light'] .stat-card,
+[data-theme='light'] .option-card, 
+[data-theme='light'] .admin-panel,
+[data-theme='light'] .admin-stat-card {
+  box-shadow: var(--shadow-card);
+  background: #ffffff; /* Enforce solid white */
+}
+
+[data-theme='light'] .navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
