@@ -5,6 +5,7 @@ import './RetailerDashboard.css';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock } from 'lucide-react';
+import KYCStatusGate from '../components/KYCStatusGate';
 
 const RetailerDashboard = () => {
     const [profile, setProfile] = useState(null);
@@ -165,29 +166,8 @@ const RetailerDashboard = () => {
 
     if (!profile) return <div className="error-container">Error loading profile. Please refresh.</div>;
 
-    // GATEKEEPER: Force Profile Completion (KYC)
     if (profile && !profile.isProfileComplete && profile.hasTakenTest) {
-        return (
-            <div className="kyc-gatekeeper">
-                <div className="kyc-card">
-                    <div className="kyc-icon">
-                        <Lock size={48} />
-                    </div>
-                    <h1 className="kyc-title">Unlock Your Credit 🚀</h1>
-                    <p className="kyc-text">
-                        You've passed the initial assessment! <br/>
-                        Now, verify your business identity to unlock your credit limit up to <strong>₦30,000</strong>.
-                    </p>
-                    <button 
-                        onClick={() => navigate('/complete-profile')}
-                        className="kyc-btn"
-                    >
-                        Complete Verification <ChevronRight size={20} />
-                    </button>
-                    <p className="kyc-note">Takes less than 2 minutes • Secure & Private</p>
-                </div>
-            </div>
-        );
+        return <KYCStatusGate profile={profile} role="retailer" />;
     }
 
     if (!profile.hasTakenTest) {

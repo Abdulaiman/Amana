@@ -38,8 +38,27 @@ const VendorCompleteProfile = () => {
         const checkProfile = async () => {
             try {
                 const res = await api.get('/vendor/profile');
-                if (res.data.isProfileComplete) {
-                    setIsComplete(true);
+                const profile = res.data;
+                
+                if (profile) {
+                    setFormData({
+                        ownerName: profile.ownerName || '',
+                        ownerPhone: profile.ownerPhone || '',
+                        description: profile.description || '',
+                        cacNumber: profile.cacNumber || '',
+                        bankName: profile.bankDetails?.bankName || '',
+                        accountNumber: profile.bankDetails?.accountNumber || '',
+                        accountName: profile.bankDetails?.accountName || ''
+                    });
+                    setFiles({
+                        profilePicUrl: profile.profilePicUrl || '',
+                        cacDocumentUrl: profile.cacDocumentUrl || ''
+                    });
+
+                    // Only block if complete AND NOT rejected
+                    if (profile.isProfileComplete && profile.verificationStatus !== 'rejected') {
+                        setIsComplete(true);
+                    }
                 }
             } catch (error) {
                 console.error('Profile check failed', error);
@@ -137,8 +156,8 @@ const VendorCompleteProfile = () => {
             <div className="complete-profile-container">
                 
                 <div className="form-header">
-                    <h1 className="header-title">Complete Your Vendor Profile</h1>
-                    <p className="header-subtitle">Add your business details to start receiving orders.</p>
+                    <h1 className="header-title">{formData.ownerName ? 'Update Your Vendor Profile' : 'Complete Your Vendor Profile'}</h1>
+                    <p className="header-subtitle">{formData.ownerName ? 'Revise your details and documents for verification.' : 'Add your business details to start receiving orders.'}</p>
                     
                     <div className="step-indicator-wrapper">
                         {[1, 2, 3].map(i => (

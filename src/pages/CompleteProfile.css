@@ -456,34 +456,58 @@
 /* Mobile Overrides */
 @media (max-width: 640px) {
     .complete-profile-page {
-        padding: 16px;
-        align-items: flex-start; /* Prevent centering cut-off */
-        padding-top: 40px;
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+
+    .complete-profile-container {
+        border-radius: 1rem;
     }
     
     .form-header {
-        padding: 24px;
+        padding: 20px 16px;
     }
     
     .header-title {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
+    }
+
+    .header-subtitle {
+        font-size: 0.85rem;
     }
     
     .form-content {
-        padding: 20px;
+        padding: 16px;
+    }
+
+    .form-grid {
+        gap: 16px;
     }
     
+    .upload-card {
+        padding: 12px;
+    }
+
     .upload-row {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
     }
     
     .upload-btn-label {
         width: 100%;
+        min-height: 44px;
     }
     
     .btn-row {
-        flex-direction: column-reverse; /* Put Primary action at top/bottom depending on preference, usually stack */
-        gap: 12px;
+        flex-direction: column-reverse; /* Put main action at bottom for easier thumb access */
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
     }
 }

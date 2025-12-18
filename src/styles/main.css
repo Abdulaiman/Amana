@@ -178,24 +178,30 @@ button {
 /* Global Mobile Overrides */
 @media (max-width: 640px) {
   :root {
-    --space-2xl: 2.5rem; /* Reduced spacing */
+    --space-2xl: 2rem; /* Shrunk even more */
+    --space-xl: 1.5rem;
+    --space-lg: 1.25rem;
   }
 
   .main-content {
-    padding: 0 var(--space-sm);
+    padding: 0 var(--space-md) var(--space-md) var(--space-md); /* Reverted to small padding */
   }
 
-  /* Typography Scaling */
-  .text-4xl { font-size: 2rem !important; }
+  /* Typography Scaling - More aggressive for mobile */
+  .text-4xl { font-size: 1.875rem !important; }
   .text-3xl { font-size: 1.5rem !important; }
   .text-2xl { font-size: 1.25rem !important; }
+  .text-xl { font-size: 1.1rem !important; }
   
-  h1 { font-size: 2rem; line-height: 1.2; }
-  h2 { font-size: 1.5rem; }
+  h1 { font-size: 1.875rem; line-height: 1.2; letter-spacing: -0.02em; }
+  h2 { font-size: 1.5rem; letter-spacing: -0.01em; }
+  h3 { font-size: 1.25rem; }
   
+  p { font-size: 0.9375rem; line-height: 1.5; }
+
   /* Buttons */
   .btn-lg {
-    padding: 0.75rem 1.25rem;
+    padding: 0.875rem 1.5rem;
     font-size: 1rem;
     width: 100%; /* Full width buttons on mobile */
     justify-content: center;
@@ -206,5 +212,11 @@ button {
     flex-direction: column;
     width: 100%;
     gap: 0.75rem;
+  }
+
+  /* Utility to prevent scroll when modal/menu is open */
+  .no-scroll {
+    overflow: hidden !important;
+    height: 100vh;
   }
 }

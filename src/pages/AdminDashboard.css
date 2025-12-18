@@ -35,7 +35,7 @@
 }
 
 .admin-max-width {
-    max-width: 80rem;
+    max-width: 100rem;
     margin: 0 auto;
 }
 
@@ -327,5 +327,467 @@
     
     .admin-search-wrapper, .admin-search-input {
         width: 100%;
+    }
+}
+
+/* Review Button */
+.review-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.review-btn:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 15px var(--color-primary-glow);
+}
+
+/* Admin Review Modal */
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1.5rem;
+}
+
+.admin-modal-content {
+    background: #0a0a0a;
+    width: 100%;
+    max-width: 900px;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.admin-modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-modal-header .modal-title { font-size: 1.25rem; font-weight: 700; color: white; }
+.admin-modal-header .modal-subtitle { font-size: 0.75rem; color: #9ca3af; }
+
+.admin-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+
+.section-title {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-item { margin-bottom: 1.25rem; }
+.info-item:last-child { margin-bottom: 0; }
+.info-item label { display: block; font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin-bottom: 0.25rem; }
+.info-item p { font-size: 1rem; font-weight: 600; color: white; }
+
+.rejection-box {
+    margin-top: 2rem;
+}
+
+.rejection-box label { display: block; font-size: 0.8rem; color: #f87171; font-weight: 600; margin-bottom: 0.5rem; }
+.rejection-box textarea {
+    width: 100%;
+    min-height: 100px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    resize: none;
+    transition: all 0.2s;
+}
+
+.rejection-box textarea:focus {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.docs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.doc-item label { display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 0.5rem; }
+.doc-preview {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s;
+    cursor: zoom-in;
+}
+.doc-preview:hover { transform: scale(1.02); }
+
+.admin-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.action-pills { display: flex; gap: 1rem; }
+
+.approve-pill {
+    padding: 0.75rem 2rem;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.approve-pill:hover:not(:disabled) {
+    background: #0d9488;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(20, 184, 166, 0.4);
+}
+
+.reject-pill {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: #ef4444;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reject-pill:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.1);
+    transform: translateY(-2px);
+}
+
+.cancel-pill {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: #9ca3af;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.cancel-pill:hover { color: white; }
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: #9ca3af;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.close-btn:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+
+@media (max-width: 768px) {
+    .review-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .admin-modal-content { height: 100%; border-radius: 0; }
+    .admin-modal-footer { flex-direction: column-reverse; gap: 1.5rem; padding-bottom: 2rem; }
+    .action-pills { width: 100%; flex-direction: column; }
+    .approve-pill, .reject-pill, .cancel-pill { width: 100%; }
+}
+
+/* Comprehensive Review Layout */
+.review-comprehensive-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 3rem;
+}
+
+.modal-section {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 1.25rem;
+    padding: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.info-item.full-width {
+    grid-column: span 2;
+}
+
+.highlight-score {
+    color: var(--color-primary);
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+}
+
+.docs-scroll-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.doc-review-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.doc-review-card label {
+    display: block;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.doc-viewer-link {
+    position: relative;
+    display: block;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.viewer-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.doc-viewer-link:hover .viewer-overlay {
+    opacity: 1;
+}
+
+/* PDF Viewer Style */
+.pdf-doc-viewer {
+    display: block;
+    text-decoration: none;
+}
+
+.pdf-icon-box {
+    background: rgba(20, 184, 166, 0.1);
+    border: 2px dashed rgba(20, 184, 166, 0.3);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-primary);
+    transition: all 0.2s;
+}
+
+.pdf-icon-box:hover {
+    background: rgba(20, 184, 166, 0.15);
+    border-color: var(--color-primary);
+}
+
+.pdf-icon-box span {
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.no-doc-fallback {
+    padding: 2rem;
+    text-align: center;
+    color: #4b5563;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0.75rem;
+}
+
+.rejection-card {
+    background: rgba(239, 68, 68, 0.03);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+}
+
+.rejection-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #f87171;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.admin-decision-input {
+    width: 100%;
+    min-height: 120px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    color: white;
+    outline: none;
+    resize: none;
+}
+
+.admin-decision-input:focus {
+    border-color: #ef4444;
+}
+
+@media (max-width: 768px) {
+    /* Responsive Table to Cards */
+    .payouts-table, .payouts-table thead, .payouts-table tbody, .payouts-table th, .payouts-table td, .payouts-table tr {
+        display: block;
+        width: 100%;
+    }
+
+    .payouts-head-row {
+        display: none !important;
+    }
+
+    .payouts-row {
+        margin-bottom: 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1.25rem;
+        padding: 0.5rem 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .td-cell {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        padding-left: 45% !important;
+        text-align: right !important;
+        min-height: 3.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .td-cell:last-child {
+        border-bottom: none;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .td-cell::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 40%;
+        text-align: left;
+        font-weight: 700;
+        color: var(--color-primary);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.8;
+    }
+
+    .td-cell.pr.text-right {
+        text-align: right !important;
+        justify-content: flex-end;
+    }
+
+    /* Action button full width in card */
+    .td-cell[data-label="Action"] .confirm-transfer-btn,
+    .td-cell[data-label="Action"] .review-btn {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    /* Modal Mobile Refinement */
+    .admin-modal-overlay {
+        padding: 0;
+    }
+
+    .admin-modal-content {
+        height: 100%;
+        border-radius: 0;
+        max-width: none;
+    }
+
+    .admin-modal-body {
+        padding: 1.25rem;
+    }
+
+    .modal-section {
+        padding: 1.25rem;
+        border-radius: 1rem;
+    }
+
+    .review-comprehensive-grid {
+        gap: 1.5rem;
+    }
+
+    .doc-review-card {
+        padding: 0.75rem;
+    }
+
+    .pdf-icon-box {
+        padding: 1.5rem;
+    }
+
+    .admin-modal-footer {
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+}
+
+.mt-6 { margin-top: 1.5rem; }
+
+@media (max-width: 1024px) {
+    .review-comprehensive-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
     }
 }

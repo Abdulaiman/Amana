@@ -9,7 +9,19 @@ const Navbar = () => {
   const location = useLocation();
   const { user, logout, isVendor, isAdmin } = useAuth();
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+  };
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    document.body.classList.remove('no-scroll');
+  };
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
@@ -22,24 +34,25 @@ const Navbar = () => {
         </Link>
         
         <div className={`navbar-links ${isOpen ? 'open' : ''}`}>
-          <Link to="/problem" className={`nav-link ${isActive('/problem')}`}>Problem</Link>
-          <Link to="/solution" className={`nav-link ${isActive('/solution')}`}>Solution</Link>
-          <Link to="/how-it-works" className={`nav-link ${isActive('/how-it-works')}`}>How It Works</Link>
-          <Link to="/demo" className={`nav-link ${isActive('/demo')}`}>Demo</Link>
+          <Link to="/problem" className={`nav-link ${isActive('/problem')}`} onClick={closeMenu}>Problem</Link>
+          <Link to="/solution" className={`nav-link ${isActive('/solution')}`} onClick={closeMenu}>Solution</Link>
+          <Link to="/how-it-works" className={`nav-link ${isActive('/how-it-works')}`} onClick={closeMenu}>How It Works</Link>
+          <Link to="/demo" className={`nav-link ${isActive('/demo')}`} onClick={closeMenu}>Demo</Link>
           
           {user ? (
              <>
                 <Link 
                     to={isVendor ? "/vendor" : (isAdmin ? "/admin" : "/dashboard")} 
                     className="btn btn-primary btn-sm glow-effect"
+                    onClick={closeMenu}
                 >
                     Dashboard
                 </Link>
              </>
           ) : (
             <>
-              <Link to="/login" className={`nav-link ${isActive('/login')}`}>Login</Link>
-              <Link to="/register" className="btn btn-primary btn-sm glow-effect">Get Started</Link>
+              <Link to="/login" className={`nav-link ${isActive('/login')}`} onClick={closeMenu}>Login</Link>
+              <Link to="/register" className="btn btn-primary btn-sm glow-effect" onClick={closeMenu}>Get Started</Link>
             </>
           )}
         </div>

@@ -5,7 +5,8 @@ import './VendorDashboard.css';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 
-import { Plus, DollarSign, Package, TrendingUp, Search, Edit2, Trash2, X, ChevronRight, Lock, Wallet, ArrowRight, Building, AlertTriangle, UploadCloud } from 'lucide-react';
+import { Plus, DollarSign, Package, TrendingUp, Search, Edit2, Trash2, X, ChevronRight, Lock, Wallet, ArrowRight, Building, AlertTriangle, UploadCloud, Clock } from 'lucide-react';
+import KYCStatusGate from '../components/KYCStatusGate';
 
 const VendorDashboard = () => {
     const navigate = useNavigate();
@@ -239,263 +240,310 @@ const VendorDashboard = () => {
 
     if (!profile) return <div className="dashboard-error">Error loading dashboard.</div>;
 
-    // GATEKEEPER: Force Profile Completion
-    if (profile && !profile.isProfileComplete) {
-        return (
-            <div className="kyc-gatekeeper">
-                <div className="kyc-card">
-                    <div className="kyc-icon">
-                        <Lock size={48} />
-                    </div>
-                    <h1 className="kyc-title">Complete Your Profile 🏪</h1>
-                    <p className="kyc-text">
-                        To start receiving orders and request payouts, please complete your vendor profile with business and bank details.
-                    </p>
-                    <button 
-                        onClick={() => navigate('/vendor/complete-profile')}
-                        className="kyc-btn"
-                    >
-                        Complete Profile <ChevronRight size={20} />
-                    </button>
-                    <p className="kyc-note">Takes less than 3 minutes • Secure & Private</p>
-                </div>
-            </div>
-        );
-    }
+    const isVerified = profile?.verificationStatus === 'verified';
 
     const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
         <>
             <div className="vendor-dashboard-container animate-fade-in">
-            {/* Header ... */}
-            <header className="vendor-header">
-                <div>
-                     <h1 className="business-name">{profile.businessName}</h1>
-                     <div className="vendor-badges">
-                        <span className="verified-badge">Verified Vendor</span>
-                        <span className="portal-access">Portal Access</span>
-                     </div>
+                
+            {/* Onboarding / Verification Guidance */}
+            {profile.verificationStatus !== 'verified' && (
+                <div className="dashboard-guidance-section" style={{ marginBottom: '2rem' }}>
+                    {!profile.isProfileComplete ? (
+                        <div className="onboarding-card-wrapper">
+                            <div className="onboarding-card-glow"></div>
+                            <div className="onboarding-card-content">
+                                <div className="onboarding-icon-box">
+                                    <Building size={32} />
+                                </div>
+                                <div className="onboarding-text">
+                                    <h3>Complete Your Vendor Profile</h3>
+                                    <p>Tell us more about your business and add bank details to start receiving orders and payouts.</p>
+                                </div>
+                                <button onClick={() => navigate('/vendor/complete-profile')} className="onboarding-action-btn">
+                                    Complete Profile <ArrowRight size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    ) : profile.verificationStatus === 'pending' ? (
+                        <div className="verification-pending-card">
+                            <Clock className="spin-slow" size={24} />
+                            <div className="verification-text">
+                                <h3>Account Verification Pending</h3>
+                                <p>We're currently reviewing your business documents. This usually takes less than 24 hours.</p>
+                            </div>
+                        </div>
+                    ) : profile.verificationStatus === 'rejected' && (
+                        <div className="verification-rejected-card">
+                            <AlertTriangle size={24} />
+                            <div className="verification-text">
+                                <h3>Verification Declined</h3>
+                                <p>Reason: <span className="rejection-reason-text">"{profile.rejectionReason}"</span></p>
+                                <button onClick={() => navigate('/vendor/complete-profile')} className="re-verify-btn">
+                                    Update Documents
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div className="tabs-container">
-                    <button 
-                        onClick={() => setActiveTab('inventory')}
-                        className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
-                    >
-                        Inventory
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('orders')}
-                        className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
-                    >
-                    Orders
-                    </button>
-                </div>
-                {activeTab === 'inventory' && (
-                    <button onClick={openAddModal} className="add-product-main-btn">
-                        <Plus size={20} /> Add Product
-                    </button>
-                )}
-            </header>
+            )}
+            {/* Header */}
+            {isVerified && (
+                <header className="vendor-header">
+                    <div>
+                        <h1 className="business-name">{profile.businessName}</h1>
+                        <div className="vendor-badges">
+                            <span className="verified-badge">Verified Vendor</span>
+                            <span className="portal-access">Portal Access</span>
+                        </div>
+                    </div>
+                    <div className={`segmented-tabs-container ${activeTab === 'orders' ? 'orders-active' : ''}`}>
+                        <div className="tabs-slider"></div>
+                        <button 
+                            onClick={() => setActiveTab('inventory')}
+                            className={`segmented-tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
+                        >
+                            <Package size={16} /> Inventory
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('orders')}
+                            className={`segmented-tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+                        >
+                            <TrendingUp size={16} /> Orders
+                        </button>
+                    </div>
+                    {activeTab === 'inventory' && (
+                        <button onClick={openAddModal} className="add-product-main-btn">
+                            <Plus size={20} /> Add Product
+                        </button>
+                    )}
+                </header>
+            )}
 
             {/* Stats Grid */}
-            <div className="stats-grid">
-               {/* Wallet Balance Card */}
-                <div className="stat-card">
-                    <div className="stat-card-header">
-                        <div className="stat-card-icon">
-                            <DollarSign size={22} />
+            {isVerified && (
+                <div className="stats-grid">
+                    {/* Wallet Balance Card */}
+                    <div className="stat-card">
+                        <div className="stat-card-header">
+                            <div className="stat-card-icon">
+                                <DollarSign size={22} />
+                            </div>
+                            <div className="stat-card-title">
+                                <h3>Wallet Balance</h3>
+                                <span>Verified Funds</span>
+                            </div>
                         </div>
-                        <div className="stat-card-title">
-                            <h3>Wallet Balance</h3>
-                            <span>Verified Funds</span>
-                        </div>
-                    </div>
-                    <div className="stat-card-body">
-                        <div className="stat-card-value currency">
-                            <span className="currency-sign">₦</span>
-                            <span className="value-main">{profile.walletBalance.toLocaleString()}</span>
-                        </div>
-                        <div style={{ marginTop: '0.5rem' }}>
-                         {profile.walletBalance > 0 && (
-                             <button
-                                 onClick={() => setShowPayoutModal(true)}
-                                 className="payout-btn"
-                             >
-                                 <Wallet size={14} /> Request Payout
-                             </button>
-                         )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Live Inventory Card */}
-                <div className="stat-card">
-                    <div className="stat-card-header">
-                        <div className="stat-card-icon">
-                            <Package size={22} />
-                        </div>
-                        <div className="stat-card-title">
-                            <h3>Live Inventory</h3>
-                            <span>Active Records</span>
-                        </div>
-                    </div>
-                    <div className="stat-card-body">
-                        <div className="stat-card-value">
-                            <span className="value-main">{products.length}</span>
-                            <span className="value-suffix">Items</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Orders Card */}
-                <div className="stat-card">
-                    <div className="stat-card-header">
-                        <div className="stat-card-icon">
-                            <TrendingUp size={22} />
-                        </div>
-                        <div className="stat-card-title">
-                            <h3>Orders</h3>
-                            <span>Pending Actions</span>
-                        </div>
-                    </div>
-                    <div className="stat-card-body">
-                         <div className="stat-card-value">
-                             <span className="value-main">{orders.filter(o => o.status === 'pending_vendor').length}</span>
-                             <span className="value-suffix">Pending</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content Area */}
-            {activeTab === 'inventory' ? (
-                <div className="inventory-panel glass-panel">
-                    {/* ... Existing Inventory Table Logic ... */}
-                    <div className="inventory-header">
-                        <h3 className="inventory-title">Product Inventory</h3>
-                        <div className="inventory-actions">
-                            <div className="search-wrapper">
-                                <Search className="search-icon-sm" size={16} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Search inventory..." 
-                                    className="search-input-sm"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
+                        <div className="stat-card-body">
+                            <div className="stat-card-value currency">
+                                <span className="currency-sign">₦</span>
+                                <span className="value-main">{profile.walletBalance.toLocaleString()}</span>
+                            </div>
+                            <div style={{ marginTop: '0.5rem' }}>
+                            {profile.walletBalance > 0 && (
+                                <button
+                                    onClick={() => {
+                                        if (!isVerified) {
+                                            addToast('Please complete verification to request payouts', 'error');
+                                            return;
+                                        }
+                                        setShowPayoutModal(true);
+                                    }}
+                                    className={`payout-btn ${!isVerified ? 'disabled' : ''}`}
+                                >
+                                    <Wallet size={14} /> Request Payout
+                                </button>
+                            )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="inventory-table-wrapper">
-                        <table className="inventory-table">
-                            <thead>
-                                <tr className="table-head-row">
-                                    <th className="th-cell pl">Product</th>
-                                    <th className="th-cell">Category</th>
-                                    <th className="th-cell">Price</th>
-                                    <th className="th-cell">Stock</th>
-                                    <th className="th-cell pr text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredProducts.map(p => (
-                                    <tr key={p._id} className="table-body-row">
-                                        <td className="td-cell pl">
-                                            <div className="product-cell">
-                                                <div className="product-thumb">
-                                                    {p.images && p.images.length > 0 ? (
-                                                        <img src={p.images[0]} alt="" className="thumb-img" />
-                                                    ) : (
-                                                        <div className="no-img-placeholder">No Img</div>
-                                                    )}
-                                                </div>
-                                                <span className="product-name-text">{p.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="td-cell">{p.category}</td>
-                                        <td className="td-cell font-mono">₦{p.price.toLocaleString()}</td>
-                                        <td className="td-cell">
-                                            <span className={`stock-badge ${p.countInStock > 5 ? 'in-stock' : 'low-stock'}`}>
-                                                {p.countInStock} Units
-                                            </span>
-                                        </td>
-                                        <td className="td-cell pr text-right">
-                                            <div className="action-buttons">
-                                                <button className="action-btn edit" onClick={() => handleEditClick(p)}><Edit2 size={16} /></button>
-                                                <button className="action-btn delete" onClick={() => handleDeleteClick(p._id)}><Trash2 size={16} /></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    {/* Live Inventory Card */}
+                    <div className="stat-card">
+                        <div className="stat-card-header">
+                            <div className="stat-card-icon">
+                                <Package size={22} />
+                            </div>
+                            <div className="stat-card-title">
+                                <h3>Live Inventory</h3>
+                                <span>Active Records</span>
+                            </div>
+                        </div>
+                        <div className="stat-card-body">
+                            <div className="stat-card-value">
+                                <span className="value-main">{products.length}</span>
+                                <span className="value-suffix">Items</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Orders Card */}
+                    <div className="stat-card">
+                        <div className="stat-card-header">
+                            <div className="stat-card-icon">
+                                <TrendingUp size={22} />
+                            </div>
+                            <div className="stat-card-title">
+                                <h3>Orders</h3>
+                                <span>Pending Actions</span>
+                            </div>
+                        </div>
+                        <div className="stat-card-body">
+                            <div className="stat-card-value">
+                                <span className="value-main">{orders.filter(o => o.status === 'pending_vendor').length}</span>
+                                <span className="value-suffix">Pending</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            ) : (
-                <div className="inventory-panel glass-panel">
-                    <div className="inventory-header">
-                        <h3 className="inventory-title">Order Management</h3>
-                    </div>
-                    <div className="inventory-table-wrapper">
-                        <table className="inventory-table">
-                            <thead>
-                                <tr className="table-head-row">
-                                    <th className="th-cell pl">Order ID</th>
-                                    <th className="th-cell">Item</th>
-                                    <th className="th-cell">Price</th>
-                                    <th className="th-cell">Status</th>
-                                    <th className="th-cell pr text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {orders.map(order => (
-                                    <tr key={order._id} className="table-body-row">
-                                        <td className="td-cell pl font-mono text-xs">{order._id.substring(0, 8)}...</td>
-                                        <td className="td-cell">{order.orderItems[0]?.name || 'Unknown Item'}</td>
-                                        <td className="td-cell font-mono">₦{order.itemsPrice.toLocaleString()}</td>
-                                        <td className="td-cell">
-                                            <span className={`status-badge-pill ${
-                                                order.status === 'pending_vendor' ? 'pending' :
-                                                order.status === 'ready_for_pickup' ? 'pickup' :
-                                                order.status === 'goods_received' ? 'completed' : 'completed'
-                                            }`}>
-                                                {order.status === 'goods_received' ? 'RECEIVED' : order.status.replace('_', ' ').toUpperCase()}
-                                            </span>
-                                        </td>
-                                        <td className="td-cell pr text-right">
-                                            {order.status === 'pending_vendor' && (
-                                                <button 
-                                                    onClick={() => handleConfirmOrderClick(order._id)}
-                                                    className="confirm-btn"
-                                                >
-                                                    Confirm Order
-                                                </button>
-                                            )}
-                                            {order.status === 'ready_for_pickup' && (
-                                                <div>
-                                                    <span className="pickup-wait-text">Code: {order.pickupCode}</span>
-                                                    <p className="payment-pending-note">💰 Payment on user confirmation</p>
-                                                </div>
-                                            )}
-                                            {order.status === 'goods_received' && (
-                                                <span className="paid-badge">✓ Paid</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {orders.length === 0 && (
-                                    <tr><td colSpan="5" className="table-empty-message">No orders found.</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+            )}
+
+            {/* Main Content Area */}
+            {isVerified && (
+                <>
+                    {activeTab === 'inventory' ? (
+                        <div className="inventory-panel glass-panel">
+                            {/* ... Existing Inventory Table Logic ... */}
+                            <div className="inventory-header">
+                                <h3 className="inventory-title">Product Inventory</h3>
+                                <div className="inventory-actions">
+                                    <div className="search-wrapper">
+                                        <Search className="search-icon-sm" size={16} />
+                                        <input 
+                                            type="text" 
+                                            placeholder="Search inventory..." 
+                                            className="search-input-sm"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="inventory-table-wrapper">
+                                <table className="inventory-table">
+                                    <thead>
+                                        <tr className="table-head-row">
+                                            <th className="th-cell pl">Product</th>
+                                            <th className="th-cell">Category</th>
+                                            <th className="th-cell">Price</th>
+                                            <th className="th-cell">Stock</th>
+                                            <th className="th-cell pr text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredProducts.map(p => (
+                                            <tr key={p._id} className="table-body-row">
+                                                <td className="td-cell pl" data-label="Product">
+                                                    <div className="product-cell">
+                                                        <div className="product-thumb">
+                                                            {p.images && p.images.length > 0 ? (
+                                                                <img src={p.images[0]} alt="" className="thumb-img" />
+                                                            ) : (
+                                                                <div className="no-img-placeholder">No Img</div>
+                                                            )}
+                                                        </div>
+                                                        <span className="product-name-text">{p.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="td-cell" data-label="Category">{p.category}</td>
+                                                <td className="td-cell font-mono" data-label="Price">₦{p.price.toLocaleString()}</td>
+                                                <td className="td-cell" data-label="Stock">
+                                                    <span className={`stock-badge ${p.countInStock > 5 ? 'in-stock' : 'low-stock'}`}>
+                                                        {p.countInStock} Units
+                                                    </span>
+                                                </td>
+                                                <td className="td-cell pr text-right" data-label="Actions">
+                                                    <div className="action-buttons">
+                                                        <button className="action-btn edit" onClick={() => handleEditClick(p)}><Edit2 size={16} /></button>
+                                                        <button className="action-btn delete" onClick={() => handleDeleteClick(p._id)}><Trash2 size={16} /></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="inventory-panel glass-panel">
+                            <div className="inventory-header">
+                                <h3 className="inventory-title">Order Management</h3>
+                            </div>
+                            <div className="inventory-table-wrapper">
+                                <table className="inventory-table">
+                                    <thead>
+                                        <tr className="table-head-row">
+                                            <th className="th-cell pl">Order ID</th>
+                                            <th className="th-cell">Item</th>
+                                            <th className="th-cell">Price</th>
+                                            <th className="th-cell">Status</th>
+                                            <th className="th-cell pr text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {orders.map(order => (
+                                            <tr key={order._id} className="table-body-row">
+                                                <td className="td-cell pl font-mono text-xs" data-label="Order ID">{order._id.substring(0, 8)}...</td>
+                                                <td className="td-cell" data-label="Item">{order.orderItems[0]?.name || 'Unknown Item'}</td>
+                                                <td className="td-cell font-mono" data-label="Price">₦{order.itemsPrice.toLocaleString()}</td>
+                                                <td className="td-cell" data-label="Status">
+                                                    <span className={`status-badge-pill ${
+                                                        order.status === 'pending_vendor' ? 'pending' :
+                                                        order.status === 'ready_for_pickup' ? 'pickup' :
+                                                        order.status === 'goods_received' ? 'completed' : 'completed'
+                                                    }`}>
+                                                        {order.status === 'goods_received' ? 'RECEIVED' : order.status.replace('_', ' ').toUpperCase()}
+                                                    </span>
+                                                </td>
+                                                <td className="td-cell pr text-right" data-label="Action">
+                                                    {order.status === 'pending_vendor' && (
+                                                        <button 
+                                                            onClick={() => {
+                                                                if (!isVerified) {
+                                                                    addToast('Complete verification to confirm orders', 'error');
+                                                                    return;
+                                                                }
+                                                                handleConfirmOrderClick(order._id);
+                                                            }}
+                                                            className={`confirm-btn ${!isVerified ? 'disabled' : ''}`}
+                                                        >
+                                                            Confirm Order
+                                                        </button>
+                                                    )}
+                                                    {order.status === 'ready_for_pickup' && (
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <span className="pickup-wait-text">Code: {order.pickupCode}</span>
+                                                            <p className="payment-pending-note" style={{ margin: 0 }}>💰 Payment on user confirmation</p>
+                                                        </div>
+                                                    )}
+                                                    {order.status === 'goods_received' && (
+                                                        <span className="paid-badge">✓ Paid</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {orders.length === 0 && (
+                                            <tr><td colSpan="5" className="table-empty-message">No orders found.</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
+
+            {!isVerified && (
+                <div className="restricted-overlay-message" style={{ textAlign: 'center', padding: '4rem 2rem', color: '#6b7280' }}>
+                    <Lock size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                    <p style={{ fontSize: '1.1rem' }}>Dashboard content is locked until your account is verified.</p>
                 </div>
             )}
             </div>
 
-            {/* Add/Edit Modal (unchanged)... */}
 
             {/* Add/Edit Product Modal */}
             {showAddProduct && (

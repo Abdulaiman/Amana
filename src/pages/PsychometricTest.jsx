@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Check, ChevronRight, ChevronLeft, CreditCard, ShieldCheck, UploadCloud, FileText } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, CreditCard, ShieldCheck, UploadCloud, FileText, Loader } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import './PsychometricTest.css';
 
@@ -18,7 +18,8 @@ const PsychometricTest = () => {
   const [step, setStep] = useState(0); 
   const [answers, setAnswers] = useState({});
   const [nin, setNin] = useState('');
-  const [bankStatement, setBankStatement] = useState(null);
+  const [bankStatementUrl, setBankStatementUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -31,26 +32,41 @@ const PsychometricTest = () => {
     setTimeout(() => setStep(prev => prev + 1), 400); 
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
       const file = e.target.files[0];
-      if (file) setBankStatement(file);
+      if (!file) return;
+
+      // Strict PDF check
+      if (file.type !== 'application/pdf') {
+          addToast('Please upload a PDF file only.', 'error');
+          e.target.value = ''; // Reset input
+          return;
+      }
+
+      setUploading(true);
+      const data = new FormData();
+      data.append('files', file);
+
+      try {
+          const res = await api.post('/upload', data, {
+              headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          setBankStatementUrl(res.data[0]);
+          addToast('Statement uploaded successfully', 'success');
+      } catch (error) {
+          console.error('Upload Error', error);
+          addToast('Upload failed. Please try again.', 'error');
+      } finally {
+          setUploading(false);
+      }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
-    // Scoring Logic: 
-    // We start with a base.
-    // Each question has 4 options. Index 0 is best, Index 3 is worst.
-    // (3 - index) * 5 gives:
-    // Index 0 (Best) = 15 pts
-    // Index 3 (Worst) = 0 pts
-    // Max Score for 5 questions = 75 pts.
-    
     let rawScore = 0; 
     Object.values(answers).forEach(val => {
-        // Assuming 4 options per question
         const points = (3 - val) * 5; 
         rawScore += Math.max(0, points);
     });
@@ -58,7 +74,7 @@ const PsychometricTest = () => {
     try {
       await api.post('/retailer/onboarding', {
         testScore: rawScore,
-        hasBankStatement: !!bankStatement,
+        bankStatementUrl,
         nin
       });
       navigate('/dashboard');
@@ -173,12 +189,17 @@ const PsychometricTest = () => {
                         {/* File Upload */}
                         <div className="form-group">
                              <label className="form-label">Bank Statement <span className="highlight-teal">(Optional)</span></label>
-                             <div className="upload-zone group">
-                                <input type="file" className="file-input-hidden" onChange={handleFileUpload} />
-                                {bankStatement ? (
+                             <label className="upload-zone group">
+                                <input type="file" className="file-input-hidden" onChange={handleFileUpload} accept="application/pdf" />
+                                {uploading ? (
+                                    <div className="file-placeholder">
+                                        <Loader className="animate-spin" size={40} />
+                                        <p className="file-msg">Uploading Statement...</p>
+                                    </div>
+                                ) : bankStatementUrl ? (
                                     <div className="file-success">
                                         <FileText size={40} />
-                                        <span className="file-name">{bankStatement.name}</span>
+                                        <span className="file-name">Statement Uploaded</span>
                                         <span className="file-hint">Tap to change</span>
                                     </div>
                                 ) : (
@@ -188,12 +209,12 @@ const PsychometricTest = () => {
                                         <p className="file-sub">Boosts limit to ₦20,000</p>
                                     </div>
                                 )}
-                             </div>
+                             </label>
                         </div>
 
                         <button 
                             onClick={handleSubmit} 
-                            disabled={!nin || loading}
+                            disabled={!nin || loading || uploading}
                             className="submit-btn"
                         >
                             {loading ? 'Verifying...' : 'Complete Profile'}

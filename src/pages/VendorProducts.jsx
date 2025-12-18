@@ -202,15 +202,27 @@ const VendorProducts = () => {
         <div className="admin-dashboard-container animate-fade-in">
             <div className="admin-max-width">
                 {/* Header */}
-                <header className="admin-header" style={{ marginBottom: '1.5rem' }}>
-                    <div>
-                        <button onClick={() => navigate('/vendor')} className="back-btn" style={{ marginBottom: '0.5rem' }}>
-                            <ChevronLeft size={18} /> Back to Dashboard
+                <header className="admin-header pwa-header" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
+                    <div style={{ width: '100%' }}>
+                        <button onClick={() => navigate('/vendor')} className="back-btn" style={{ 
+                            marginBottom: '1rem', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '0.5rem', 
+                            background: 'rgba(255,255,255,0.05)', 
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            padding: '0.4rem 0.8rem',
+                            borderRadius: '0.5rem',
+                            color: '#9ca3af',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem'
+                        }}>
+                            <ChevronLeft size={16} /> Back
                         </button>
                         <h1 className="admin-title">Product Management</h1>
                         <p className="admin-subtitle">Manage your inventory</p>
                     </div>
-                    <button onClick={openAddModal} className="add-product-main-btn">
+                    <button onClick={openAddModal} className="add-product-main-btn" style={{ width: '100%' }}>
                         <Plus size={20} /> Add Product
                     </button>
                 </header>
@@ -274,7 +286,7 @@ const VendorProducts = () => {
                                 <p>No products found.</p>
                             </div>
                         ) : (
-                            <table className="payouts-table">
+                            <table className="payouts-table inventory-table">
                                 <thead>
                                     <tr className="payouts-head-row">
                                         <th className="th-cell pl">Product</th>
@@ -287,8 +299,8 @@ const VendorProducts = () => {
                                 </thead>
                                 <tbody className="payouts-body">
                                     {filteredProducts.map(product => (
-                                        <tr key={product._id} className="payouts-row group">
-                                            <td className="td-cell pl">
+                                        <tr key={product._id} className="payouts-row table-body-row group">
+                                            <td className="td-cell pl" data-label="Product">
                                                 <div className="product-cell">
                                                     <div className="product-thumb">
                                                         {product.images?.[0] ? (
@@ -300,16 +312,16 @@ const VendorProducts = () => {
                                                     <span className="vendor-name-text">{product.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="td-cell">
+                                            <td className="td-cell" data-label="Price">
                                                 <span className="amount-text">₦{product.price.toLocaleString()}</span>
                                             </td>
-                                            <td className="td-cell font-mono">
+                                            <td className="td-cell font-mono" data-label="Stock">
                                                 {product.countInStock}
                                             </td>
-                                            <td className="td-cell">
+                                            <td className="td-cell" data-label="Category">
                                                 <span className="vendor-id-text">{product.category}</span>
                                             </td>
-                                            <td className="td-cell">
+                                            <td className="td-cell" data-label="Status">
                                                 <button 
                                                     onClick={() => handleToggleActive(product)}
                                                     className={`status-toggle-btn ${product.isActive && product.countInStock > 0 ? 'active' : 'inactive'}`}
@@ -321,7 +333,7 @@ const VendorProducts = () => {
                                                     )}
                                                 </button>
                                             </td>
-                                            <td className="td-cell pr text-right">
+                                            <td className="td-cell pr text-right" data-label="Actions">
                                                 <div className="action-buttons">
                                                     <button className="action-btn edit" onClick={() => openEditModal(product)}>
                                                         <Edit2 size={16} />

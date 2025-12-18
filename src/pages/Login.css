@@ -41,6 +41,11 @@
     .login-page {
         padding: 1rem;
     }
+
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
 }
 
 /* Subtle gloss line effect */

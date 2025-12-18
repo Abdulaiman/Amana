@@ -137,26 +137,43 @@
 
 /* Mobile: 1 Column */
 @media (max-width: 640px) {
-    .product-grid { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: 1fr; gap: 1rem; }
     
     .marketplace-content {
-        padding: 1rem;
+        padding: 0.75rem;
     }
     
     .mp-title {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
+    }
+
+    .mp-header {
+        align-items: flex-start;
+        gap: 0.75rem;
     }
     
     .product-details-container {
-        padding: 1.5rem;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        gap: 1.5rem;
     }
     
     .details-product-title {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
     }
     
     .price-tag-large {
-        font-size: 2.5rem;
+        font-size: 2rem;
+    }
+
+    .search-input {
+        padding: 0.625rem 1rem 0.625rem 2.25rem;
+        font-size: 0.9rem;
+    }
+
+    .search-icon {
+        top: 0.85rem;
+        left: 0.85rem;
     }
 }
 

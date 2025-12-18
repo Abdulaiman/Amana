@@ -130,14 +130,14 @@ const VendorTransactions = () => {
 
             {/* Table */}
             <div className="transactions-table-container">
-                <table className="transactions-table">
+                <table className="transactions-table inventory-table">
                     <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Status</th>
+                        <tr className="table-head-row">
+                            <th className="th-cell">Type</th>
+                            <th className="th-cell">Description</th>
+                            <th className="th-cell">Date</th>
+                            <th className="th-cell">Amount</th>
+                            <th className="th-cell">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -145,8 +145,8 @@ const VendorTransactions = () => {
                             <tr><td colSpan="5" className="empty-state">Loading transactions...</td></tr>
                         ) : currentItems.length > 0 ? (
                             currentItems.map((tx) => (
-                                <tr key={tx._id}>
-                                    <td>
+                                <tr key={tx._id} className="table-body-row">
+                                    <td className="td-cell" data-label="Type">
                                         <div className={`tx-type-badge ${tx.type === 'payout' ? 'payout' : 'earning'}`}>
                                             <div className="tx-icon-wrapper">
                                                 {tx.type === 'payout' ? <TrendingDown size={18} /> : <TrendingUp size={18} />}
@@ -154,22 +154,22 @@ const VendorTransactions = () => {
                                             <span>{tx.type === 'payout' ? 'Payout' : 'Earning'}</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td className="td-cell" data-label="Description">
                                         <span className="tx-description-main">{tx.description}</span>
                                         <span className="tx-description-sub">Ref: {tx.reference}</span>
                                     </td>
-                                    <td>
+                                    <td className="td-cell" data-label="Date">
                                         <div className="tx-date-cell">
                                             <Clock size={14} />
                                             {new Date(tx.date).toLocaleDateString()}
                                         </div>
                                     </td>
-                                    <td>
+                                    <td className="td-cell" data-label="Amount">
                                         <span className={`tx-amount ${tx.type === 'payout' ? 'negative' : 'positive'}`}>
                                             {tx.type === 'payout' ? '-' : '+'} ₦{tx.amount.toLocaleString()}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td className="td-cell" data-label="Status">
                                         <span className={`status-pill ${tx.status}`}>
                                             {tx.status}
                                         </span>

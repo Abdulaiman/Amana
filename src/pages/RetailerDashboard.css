@@ -2074,3 +2074,45 @@
     color: #d1d5db; /* gray-300 */
     font-family: monospace;
 }
+
+/* Mobile Overrides */
+@media (max-width: 640px) {
+    .kyc-gatekeeper {
+        padding: 1.5rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .kyc-card {
+        padding: 2rem 1.5rem;
+        width: 100%;
+        text-align: center;
+    }
+    .kyc-title {
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+    .kyc-text {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .kyc-card .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .onboarding-card {
+        padding: 2rem 1.5rem;
+        text-align: center;
+    }
+    .onboarding-title {
+        font-size: 1.75rem;
+    }
+    .onboarding-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .onboarding-card .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

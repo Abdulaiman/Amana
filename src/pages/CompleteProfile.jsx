@@ -20,6 +20,7 @@ const CompleteProfile = () => {
         description: '',
         address: '',
         bvn: '',
+        nin: '',
         
         // Next of Kin
         nokName: '',
@@ -51,7 +52,27 @@ const CompleteProfile = () => {
                 const res = await api.get('/retailer/profile');
                 if (res.data.isProfileComplete || res.data.sensitiveDataLocked) {
                     setIsLocked(true);
-                    // Pre-fill data for display (optional) or just show locked state
+                }
+                
+                // Pre-fill existing data
+                setFormData(prev => ({
+                    ...prev,
+                    businessName: res.data.businessInfo?.businessName || '',
+                    businessType: res.data.businessInfo?.businessType || 'Retail',
+                    yearsInBusiness: res.data.businessInfo?.yearsInBusiness || '',
+                    startingCapital: res.data.businessInfo?.startingCapital || 'low',
+                    description: res.data.businessInfo?.description || '',
+                    address: res.data.address || '',
+                    nin: res.data.kyc?.nin || '',
+                    bvn: res.data.kyc?.bvn || ''
+                }));
+
+                if (res.data.kyc) {
+                    setFiles({
+                        profilePicUrl: res.data.kyc.profilePicUrl || '',
+                        idCardUrl: res.data.kyc.idCardUrl || '',
+                        locationProofUrl: res.data.kyc.locationProofUrl || ''
+                    });
                 }
             } catch (error) {
                 console.error('Profile check failed', error);
@@ -133,13 +154,15 @@ const CompleteProfile = () => {
                     phone: formData.nokPhone,
                     relationship: formData.nokRelationship,
                     address: formData.nokAddress
-                }
+                },
+                nin: formData.nin,
+                bvn: formData.bvn
             };
 
             const res = await api.put('/retailer/profile/complete', payload);
             
             // Success!
-            addToast(`Success! Profile Verified. Your Score is ${res.data.amanaScore} and Limit is ₦${res.data.creditLimit.toLocaleString()}.`, 'success');
+            addToast('Profile submitted successfully! Awaiting admin verification.', 'success');
             navigate('/dashboard');
         } catch (error) {
             console.error('Submission Error', error);
@@ -300,15 +323,20 @@ const CompleteProfile = () => {
                             </div>
 
                             <div className="form-group mt-4">
+                                <label className="form-label">NIN (National Identification Number)</label>
+                                <input name="nin" value={formData.nin} onChange={handleInputChange} className="input-field font-mono tracking-wide" placeholder="Enter 11-digit NIN" maxLength={11} />
+                            </div>
+
+                            <div className="form-group mt-4">
                                 <label className="form-label">BVN (Bank Verification Number)</label>
-                                <input name="bvn" value={formData.bvn} onChange={handleInputChange} className="input-field font-mono tracking-wide" placeholder="2222..." maxLength={11} />
+                                <input name="bvn" value={formData.bvn} onChange={handleInputChange} className="input-field font-mono tracking-wide" placeholder="Enter 11-digit BVN" maxLength={11} />
                             </div>
 
                             <div className="btn-row">
                                 <button onClick={() => setStep(1)} className="btn btn-outline btn-lg">Back</button>
                                 <button 
                                     onClick={() => setStep(3)} 
-                                    disabled={!files.idCardUrl || !files.locationProofUrl || !formData.bvn}
+                                    disabled={!files.idCardUrl || !files.locationProofUrl || !formData.bvn || !formData.nin}
                                     className="btn btn-primary btn-lg flex-center"
                                 >
                                     Next Step <ArrowRight size={20} />

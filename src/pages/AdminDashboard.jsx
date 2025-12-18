@@ -7,13 +7,18 @@ import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 
 const AdminDashboard = () => {
-    const [stats, setStats] = useState({ totalUsers: 0, totalVendors: 0, totalOrders: 0, pendingPayouts: 0, pendingVendorVerifications: 0 });
+    const [stats, setStats] = useState({ totalUsers: 0, totalVendors: 0, totalOrders: 0, pendingPayouts: 0, pendingVendorVerifications: 0, pendingRetailerVerifications: 0 });
     const [withdrawals, setWithdrawals] = useState([]);
     const [vendors, setVendors] = useState([]);
     const [retailers, setRetailers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('payouts');
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Detail Modal State
+    const [selectedEntity, setSelectedEntity] = useState(null); // { type: 'vendor'|'retailer', data: {} }
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isDestructive: false });
     const { addToast } = useToast();
@@ -42,70 +47,73 @@ const AdminDashboard = () => {
         }
     };
 
-    const executeConfirmPayout = async (id) => {
-        try {
-            await api.put(`/admin/withdrawals/${id}/confirm`);
-            loadData();
-            addToast('Payout Confirmed & Wallet Deducted', 'success');
-        } catch (e) {
-            console.error(e);
-            addToast('Payout Confirmation Failed', 'error');
-        }
-    };
-
-    const handleConfirmPayoutClick = (id) => {
-        setConfirmModal({
-            isOpen: true,
-            title: 'Confirm Payout Transfer',
-            message: 'Are you sure this payout has been manually transferred? This will deduct the amount from the vendor\'s wallet.',
-            onConfirm: () => executeConfirmPayout(id),
-            isDestructive: false,
-            confirmText: 'Confirm Transfer'
-        });
-    };
-
-    const executeVerifyVendor = async (id) => {
+    const handleVerifyVendor = async (id) => {
+        setIsActionLoading(true);
         try {
             await api.put(`/admin/vendor/${id}/verify`);
-            loadData();
+            await loadData();
             addToast('Vendor Verified Successfully', 'success');
+            setSelectedEntity(null);
         } catch (e) {
-            console.error(e);
             addToast('Verification Failed', 'error');
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
-    const handleVerifyVendorClick = (id) => {
-        setConfirmModal({
-            isOpen: true,
-            title: 'Verify Vendor',
-            message: 'Are you sure you want to verify this vendor? They will be able to start selling immediately.',
-            onConfirm: () => executeVerifyVendor(id),
-            isDestructive: false,
-            confirmText: 'Verify Vendor'
-        });
-    };
-
-    const executeRejectVendor = async (id) => {
+    const handleRejectVendor = async (id) => {
+        if (!rejectionReason) return addToast('Please provide a reason for rejection', 'error');
+        setIsActionLoading(true);
         try {
-            await api.put(`/admin/vendor/${id}/reject`);
-            loadData();
-            addToast('Vendor Rejected', 'info');
+            await api.put(`/admin/vendor/${id}/reject`, { reason: rejectionReason });
+            await loadData();
+            addToast('Vendor Application Rejected', 'info');
+            setSelectedEntity(null);
+            setRejectionReason('');
         } catch (e) {
-            console.error(e);
             addToast('Rejection Failed', 'error');
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
-    const handleRejectVendorClick = (id) => {
-        setConfirmModal({
-            isOpen: true,
-            title: 'Reject Vendor',
-            message: 'Are you sure you want to reject this vendor application? This action cannot be undone.',
-            onConfirm: () => executeRejectVendor(id),
-            isDestructive: true,
-            confirmText: 'Reject Application'
-        });
+    const handleVerifyRetailer = async (id) => {
+        setIsActionLoading(true);
+        try {
+            await api.put(`/admin/retailer/${id}/verify`);
+            await loadData();
+            addToast('Retailer Verified & Credit Assigned', 'success');
+            setSelectedEntity(null);
+        } catch (e) {
+            addToast('Verification Failed', 'error');
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleRejectRetailer = async (id) => {
+        if (!rejectionReason) return addToast('Please provide a reason for rejection', 'error');
+        setIsActionLoading(true);
+        try {
+            await api.put(`/admin/retailer/${id}/reject`, { reason: rejectionReason });
+            await loadData();
+            addToast('Retailer KYC Rejected', 'info');
+            setSelectedEntity(null);
+            setRejectionReason('');
+        } catch (e) {
+            addToast('Rejection Failed', 'error');
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const openReviewModal = async (type, id) => {
+        try {
+            const res = await api.get(`/admin/${type}/${id}`);
+            setSelectedEntity({ type, data: res.data });
+        } catch (e) {
+            addToast('Failed to fetch details', 'error');
+        }
     };
 
     const filteredWithdrawals = withdrawals.filter(w => 
@@ -144,7 +152,6 @@ const AdminDashboard = () => {
                     </div>
                 </header>
 
-                {/* Stats Overview */}
                 <div className="admin-stats-grid">
                     <div className="stat-card-wrapper gradient-purple">
                         <div className="admin-stat-card group">
@@ -195,44 +202,26 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* Main Content Area */}
                 <div className="admin-panel glass-panel">
-                    {/* Tabs */}
                     <div className="admin-tabs-header">
                         <div className="admin-tabs-list">
-                            <button 
-                                className={`tab-btn ${activeTab === 'payouts' ? 'active' : ''}`} 
-                                onClick={() => setActiveTab('payouts')}
-                            >
+                            <button className={`tab-btn ${activeTab === 'payouts' ? 'active' : ''}`} onClick={() => setActiveTab('payouts')}>
                                 <Wallet size={16} /> Payouts {stats.pendingPayouts > 0 && <span className="badge">{stats.pendingPayouts}</span>}
                             </button>
-                            <button 
-                                className={`tab-btn ${activeTab === 'vendors' ? 'active' : ''}`} 
-                                onClick={() => setActiveTab('vendors')}
-                            >
+                            <button className={`tab-btn ${activeTab === 'vendors' ? 'active' : ''}`} onClick={() => setActiveTab('vendors')}>
                                 <Briefcase size={16} /> Vendors {stats.pendingVendorVerifications > 0 && <span className="badge">{stats.pendingVendorVerifications}</span>}
                             </button>
-                            <button 
-                                className={`tab-btn ${activeTab === 'retailers' ? 'active' : ''}`} 
-                                onClick={() => setActiveTab('retailers')}
-                            >
-                                <Users size={16} /> Retailers
+                            <button className={`tab-btn ${activeTab === 'retailers' ? 'active' : ''}`} onClick={() => setActiveTab('retailers')}>
+                                <Users size={16} /> Retailers {stats.pendingRetailerVerifications > 0 && <span className="badge">{stats.pendingRetailerVerifications}</span>}
                             </button>
                         </div>
                         <div className="admin-search-wrapper">
                             <Search className="admin-search-icon" size={16} />
-                            <input 
-                                type="text" 
-                                placeholder="Filter records..." 
-                                className="admin-search-input"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                            />
+                            <input type="text" placeholder="Filter records..." className="admin-search-input" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                         </div>
                     </div>
 
                     <div className="admin-content-area">
-                        {/* PAYOUTS TAB */}
                         {activeTab === 'payouts' && (
                             <div className="w-full">
                                 {filteredWithdrawals.length === 0 ? (
@@ -254,32 +243,44 @@ const AdminDashboard = () => {
                                         <tbody className="payouts-body">
                                             {filteredWithdrawals.map(req => (
                                                 <tr key={req._id} className="payouts-row group">
-                                                    <td className="td-cell pl">
+                                                    <td className="td-cell pl" data-label="Vendor">
                                                         <div>
                                                             <p className="vendor-name-text">{req.vendor?.businessName || 'Unknown'}</p>
                                                             <p className="vendor-id-text">ID: {req.vendor?._id?.substring(0,8)}</p>
                                                         </div>
                                                     </td>
-                                                    <td className="td-cell">
+                                                    <td className="td-cell" data-label="Amount">
                                                         <span className="amount-text">₦{req.amount.toLocaleString()}</span>
                                                     </td>
-                                                    <td className="td-cell">
+                                                    <td className="td-cell" data-label="Bank Details">
                                                         <div className="bank-details-box">
                                                             <p className="bank-name">{req.bankDetailsSnapshot?.bankName}</p>
                                                             <p className="account-number">{req.bankDetailsSnapshot?.accountNumber}</p>
                                                             <p className="account-name">{req.bankDetailsSnapshot?.accountName}</p>
                                                         </div>
                                                     </td>
-                                                    <td className="td-cell">
+                                                    <td className="td-cell" data-label="Status">
                                                         <span className={`status-pill ${req.status}`}>
                                                             {req.status === 'approved' ? <Check size={12} /> : <AlertCircle size={12} />}
                                                             {req.status.toUpperCase()}
                                                         </span>
                                                     </td>
-                                                    <td className="td-cell pr text-right">
+                                                    <td className="td-cell pr text-right" data-label="Action">
                                                         {req.status === 'pending' && (
                                                             <button 
-                                                                onClick={() => handleConfirmPayoutClick(req._id)}
+                                                                onClick={() => {
+                                                                    setConfirmModal({
+                                                                        isOpen: true,
+                                                                        title: 'Confirm Payout',
+                                                                        message: `Are you sure you have paid ₦${req.amount.toLocaleString()} to ${req.vendor.businessName}?`,
+                                                                        onConfirm: () => {
+                                                                            api.put(`/admin/withdrawals/${req._id}/confirm`).then(() => {
+                                                                                loadData();
+                                                                                addToast('Payout confirmed', 'success');
+                                                                            });
+                                                                        }
+                                                                    });
+                                                                }}
                                                                 className="confirm-transfer-btn"
                                                             >
                                                                 Confirm Paid
@@ -294,7 +295,6 @@ const AdminDashboard = () => {
                             </div>
                         )}
 
-                        {/* VENDORS TAB */}
                         {activeTab === 'vendors' && (
                             <div className="w-full">
                                 {filteredVendors.length === 0 ? (
@@ -316,20 +316,20 @@ const AdminDashboard = () => {
                                         <tbody className="payouts-body">
                                             {filteredVendors.map(vendor => (
                                                 <tr key={vendor._id} className="payouts-row group">
-                                                    <td className="td-cell pl">
+                                                    <td className="td-cell pl" data-label="Business">
                                                         <div>
                                                             <p className="vendor-name-text">{vendor.businessName}</p>
                                                             <p className="vendor-id-text">{vendor.address}</p>
                                                         </div>
                                                     </td>
-                                                    <td className="td-cell">
+                                                    <td className="td-cell" data-label="Contact">
                                                         <p className="vendor-id-text">{vendor.email}</p>
                                                         <p className="vendor-id-text">{vendor.phones?.[0]}</p>
                                                     </td>
-                                                    <td className="td-cell">
+                                                    <td className="td-cell" data-label="Wallet">
                                                         <span className="amount-text">₦{(vendor.walletBalance || 0).toLocaleString()}</span>
                                                     </td>
-                                                    <td className="td-cell">
+                                                    <td className="td-cell" data-label="Status">
                                                         <span className={`status-pill ${vendor.verificationStatus}`}>
                                                             {vendor.verificationStatus === 'verified' ? <ShieldCheck size={12} /> : 
                                                              vendor.verificationStatus === 'rejected' ? <ShieldX size={12} /> : 
@@ -337,20 +337,13 @@ const AdminDashboard = () => {
                                                             {vendor.verificationStatus?.toUpperCase() || 'PENDING'}
                                                         </span>
                                                     </td>
-                                                    <td className="td-cell pr text-right">
-                                                        {vendor.verificationStatus === 'pending' && vendor.isProfileComplete && (
-                                                            <div className="action-btns">
-                                                                <button onClick={() => handleVerifyVendorClick(vendor._id)} className="confirm-transfer-btn">
-                                                                    <Check size={14} /> Verify
-                                                                </button>
-                                                                <button onClick={() => handleRejectVendorClick(vendor._id)} className="reject-btn">
-                                                                    <X size={14} /> Reject
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                        {!vendor.isProfileComplete && (
-                                                            <span className="vendor-id-text">Profile Incomplete</span>
-                                                        )}
+                                                    <td className="td-cell pr text-right" data-label="Action">
+                                                        <button 
+                                                            onClick={() => openReviewModal('vendor', vendor._id)}
+                                                            className="review-btn"
+                                                        >
+                                                            Review Documents
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -360,7 +353,6 @@ const AdminDashboard = () => {
                             </div>
                         )}
 
-                        {/* RETAILERS TAB */}
                         {activeTab === 'retailers' && (
                             <div className="w-full">
                                 {filteredRetailers.length === 0 ? (
@@ -374,37 +366,41 @@ const AdminDashboard = () => {
                                             <tr className="payouts-head-row">
                                                 <th className="th-cell pl">Name</th>
                                                 <th className="th-cell">Contact</th>
-                                                <th className="th-cell">Amana Score</th>
-                                                <th className="th-cell">Credit</th>
-                                                <th className="th-cell pr">Status</th>
+                                                <th className="th-cell">Score/Tier</th>
+                                                <th className="th-cell">Status</th>
+                                                <th className="th-cell pr text-right">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="payouts-body">
                                             {filteredRetailers.map(user => (
                                                 <tr key={user._id} className="payouts-row group">
-                                                    <td className="td-cell pl">
+                                                    <td className="td-cell pl" data-label="Name">
                                                         <div>
                                                             <p className="vendor-name-text">{user.name}</p>
                                                             <p className="vendor-id-text">{user.businessName || 'N/A'}</p>
                                                         </div>
                                                     </td>
-                                                    <td className="td-cell">
+                                                    <td className="td-cell" data-label="Contact">
                                                         <p className="vendor-id-text">{user.email}</p>
                                                         <p className="vendor-id-text">{user.phone}</p>
                                                     </td>
-                                                    <td className="td-cell">
-                                                        <span className="amount-text">{user.amanaScore || 0}</span>
+                                                    <td className="td-cell" data-label="Score/Tier">
+                                                        <p className="amount-text">{user.amanaScore || 0}</p>
                                                         <p className="vendor-id-text">{user.tier || 'Bronze'}</p>
                                                     </td>
-                                                    <td className="td-cell">
-                                                        <p className="amount-text">₦{(user.creditLimit || 0).toLocaleString()}</p>
-                                                        <p className="vendor-id-text">Used: ₦{(user.usedCredit || 0).toLocaleString()}</p>
-                                                    </td>
-                                                    <td className="td-cell pr">
-                                                        <span className={`status-pill ${user.isProfileComplete ? 'approved' : 'pending'}`}>
-                                                            {user.isProfileComplete ? <UserCheck size={12} /> : <Clock size={12} />}
-                                                            {user.isProfileComplete ? 'VERIFIED' : 'INCOMPLETE'}
+                                                    <td className="td-cell" data-label="Status">
+                                                        <span className={`status-pill ${user.verificationStatus === 'approved' ? 'approved' : user.verificationStatus === 'rejected' ? 'rejected' : 'pending'}`}>
+                                                            {user.verificationStatus === 'approved' ? <UserCheck size={12} /> : user.verificationStatus === 'rejected' ? <ShieldX size={12} /> : <Clock size={12} />}
+                                                            {(user.verificationStatus || 'PENDING').toUpperCase()}
                                                         </span>
+                                                    </td>
+                                                    <td className="td-cell pr text-right" data-label="Action">
+                                                        <button 
+                                                            onClick={() => openReviewModal('retailer', user._id)}
+                                                            className="review-btn"
+                                                        >
+                                                            Review KYC
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -416,6 +412,183 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* REVIEW MODAL */}
+            {selectedEntity && (
+                <div className="admin-modal-overlay">
+                    <div className="admin-modal-content animate-slide-up">
+                        <div className="admin-modal-header">
+                            <div>
+                                <h2 className="modal-title">Review {selectedEntity.type === 'vendor' ? 'Vendor' : 'Retailer'}</h2>
+                                <p className="modal-subtitle">ID: {selectedEntity.data._id}</p>
+                            </div>
+                            <button className="close-btn" onClick={() => setSelectedEntity(null)}><X size={20} /></button>
+                        </div>
+                        
+                        <div className="admin-modal-body">
+                            <div className="review-comprehensive-grid">
+                                {/* Left Column: Info Sections */}
+                                <div className="info-column">
+                                    <section className="modal-section">
+                                        <h3 className="section-title">👤 Personal / Owner Information</h3>
+                                        <div className="info-card-grid">
+                                            {selectedEntity.type === 'vendor' ? (
+                                                <>
+                                                    <div className="info-item"><label>Owner Name</label><p>{selectedEntity.data.ownerName}</p></div>
+                                                    <div className="info-item"><label>Owner Phone</label><p>{selectedEntity.data.ownerPhone}</p></div>
+                                                    <div className="info-item"><label>Business Email</label><p>{selectedEntity.data.email}</p></div>
+                                                    <div className="info-item"><label>Business Address</label><p>{selectedEntity.data.address}</p></div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="info-item"><label>Full Name</label><p>{selectedEntity.data.name}</p></div>
+                                                    <div className="info-item"><label>Email</label><p>{selectedEntity.data.email}</p></div>
+                                                    <div className="info-item"><label>Phone</label><p>{selectedEntity.data.phone}</p></div>
+                                                    <div className="info-item"><label>NIN</label><p>{selectedEntity.data.kyc?.nin}</p></div>
+                                                    <div className="info-item"><label>BVN</label><p>{selectedEntity.data.kyc?.bvn}</p></div>
+                                                    <div className="info-item full-width"><label>Home Address</label><p>{selectedEntity.data.address}</p></div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </section>
+
+                                    <section className="modal-section mt-6">
+                                        <h3 className="section-title">🏢 Business Operations</h3>
+                                        <div className="info-card-grid">
+                                            {selectedEntity.type === 'vendor' ? (
+                                                <>
+                                                    <div className="info-item"><label>Business Name</label><p>{selectedEntity.data.businessName}</p></div>
+                                                    <div className="info-item"><label>CAC Number</label><p>{selectedEntity.data.cacNumber}</p></div>
+                                                    <div className="info-item full-width"><label>Description</label><p>{selectedEntity.data.description}</p></div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="info-item"><label>Business Name</label><p>{selectedEntity.data.businessInfo?.businessName}</p></div>
+                                                    <div className="info-item"><label>Industry</label><p>{selectedEntity.data.businessInfo?.businessType}</p></div>
+                                                    <div className="info-item"><label>Years in Biz</label><p>{selectedEntity.data.businessInfo?.yearsInBusiness} Yrs</p></div>
+                                                    <div className="info-item"><label>Initial Capital</label><p>{selectedEntity.data.businessInfo?.startingCapital}</p></div>
+                                                    <div className="info-item full-width"><label>Business Description</label><p>{selectedEntity.data.businessInfo?.description}</p></div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </section>
+
+                                    <section className="modal-section mt-6">
+                                        <h3 className="section-title">📋 Supplemental Records</h3>
+                                        <div className="info-card-grid">
+                                            {selectedEntity.type === 'vendor' ? (
+                                                <>
+                                                    <div className="info-item"><label>Bank Name</label><p>{selectedEntity.data.bankDetails?.bankName}</p></div>
+                                                    <div className="info-item"><label>Account Number</label><p>{selectedEntity.data.bankDetails?.accountNumber}</p></div>
+                                                    <div className="info-item full-width"><label>Account Name</label><p>{selectedEntity.data.bankDetails?.accountName}</p></div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="info-item"><label>Next of Kin</label><p>{selectedEntity.data.nextOfKin?.name}</p></div>
+                                                    <div className="info-item"><label>NOK Relationship</label><p>{selectedEntity.data.nextOfKin?.relationship}</p></div>
+                                                    <div className="info-item"><label>NOK Phone</label><p>{selectedEntity.data.nextOfKin?.phone}</p></div>
+                                                    <div className="info-item"><label>Assessment Score</label><p className="highlight-score">{selectedEntity.data.testScore}/75</p></div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </section>
+                                </div>
+                                
+                                {/* Right Column: Documents */}
+                                <div className="docs-column">
+                                    <h3 className="section-title">📂 Document Verification</h3>
+                                    <div className="docs-scroll-grid">
+                                        {selectedEntity.type === 'vendor' ? (
+                                            <>
+                                                <div className="doc-review-card">
+                                                    <label>CAC Documents</label>
+                                                    <a href={selectedEntity.data.cacDocumentUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
+                                                        <img src={selectedEntity.data.cacDocumentUrl} alt="CAC" className="doc-preview" />
+                                                        <div className="viewer-overlay">View Full Document</div>
+                                                    </a>
+                                                </div>
+                                                <div className="doc-review-card">
+                                                    <label>Owner Profile Pic</label>
+                                                    <a href={selectedEntity.data.profilePicUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
+                                                        <img src={selectedEntity.data.profilePicUrl} alt="Profile" className="doc-preview" />
+                                                    </a>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="doc-review-card">
+                                                    <label>ID Card (Front/Back)</label>
+                                                    <a href={selectedEntity.data.kyc?.idCardUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
+                                                        <img src={selectedEntity.data.kyc?.idCardUrl} alt="ID" className="doc-preview" />
+                                                    </a>
+                                                </div>
+                                                <div className="doc-review-card">
+                                                    <label>Proof of Location</label>
+                                                    <a href={selectedEntity.data.kyc?.locationProofUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
+                                                        <img src={selectedEntity.data.kyc?.locationProofUrl} alt="Location" className="doc-preview" />
+                                                    </a>
+                                                </div>
+                                                <div className="doc-review-card">
+                                                    <label>Profile Picture</label>
+                                                    <a href={selectedEntity.data.kyc?.profilePicUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
+                                                        <img src={selectedEntity.data.kyc?.profilePicUrl} alt="Profile" className="doc-preview" />
+                                                    </a>
+                                                </div>
+                                                
+                                                {/* BANK STATEMENT PDF */}
+                                                <div className="doc-review-card">
+                                                    <label>Bank Statement (PDF)</label>
+                                                    {selectedEntity.data.kyc?.bankStatementUrl ? (
+                                                        <a href={selectedEntity.data.kyc.bankStatementUrl} target="_blank" rel="noreferrer" className="pdf-doc-viewer">
+                                                            <div className="pdf-icon-box">
+                                                                <FileText size={48} className="pdf-icon" />
+                                                                <span>Click to view PDF</span>
+                                                            </div>
+                                                        </a>
+                                                    ) : (
+                                                        <div className="no-doc-fallback">Not Uploaded</div>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    <div className="rejection-card mt-6">
+                                        <label className="rejection-label">Admin Decision Note</label>
+                                        <textarea 
+                                            placeholder="Provide reason if rejecting, or notes for internal use..."
+                                            value={rejectionReason}
+                                            onChange={e => setRejectionReason(e.target.value)}
+                                            className="admin-decision-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="admin-modal-footer">
+                            <button className="cancel-pill" onClick={() => setSelectedEntity(null)}>Cancel</button>
+                            <div className="action-pills">
+                                <button 
+                                    className="reject-pill" 
+                                    onClick={() => selectedEntity.type === 'vendor' ? handleRejectVendor(selectedEntity.data._id) : handleRejectRetailer(selectedEntity.data._id)}
+                                    disabled={isActionLoading}
+                                >
+                                    Reject Application
+                                </button>
+                                <button 
+                                    className="approve-pill" 
+                                    onClick={() => selectedEntity.type === 'vendor' ? handleVerifyVendor(selectedEntity.data._id) : handleVerifyRetailer(selectedEntity.data._id)}
+                                    disabled={isActionLoading}
+                                >
+                                    {isActionLoading ? 'Processing...' : 'Approve & Verify'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <ConfirmModal 
                 isOpen={confirmModal.isOpen}
                 onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}

@@ -313,6 +313,74 @@
   opacity: 0.5;
 }
 
-.glow-primary {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+
+@media (max-width: 480px) {
+  .credit-info .value {
+    font-size: 1.25rem;
+  }
+  
+  .credit-card-visual {
+    padding: 1rem;
+    min-height: 150px;
+  }
+  
+  .card-logo {
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.7rem;
+  }
+
+  .dashboard-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .action-area .btn-block {
+    padding: 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* KYC Gatekeeper Enhancements */
+.kyc-icon.pending {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.kyc-icon.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.rejection-text {
+    color: #ef4444;
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    font-style: italic;
+    background: rgba(239, 68, 68, 0.05);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px dashed rgba(239, 68, 68, 0.2);
+}
+
+.pending-badge {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
 }

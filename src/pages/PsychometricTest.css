@@ -295,6 +295,7 @@
 .highlight-teal { color: var(--color-primary); }
 
 .upload-zone {
+    display: block;
     position: relative;
     border: 2px dashed rgba(255, 255, 255, 0.2);
     border-radius: 1rem;
@@ -383,35 +384,62 @@
 
 @media (max-width: 640px) {
     .quiz-header {
-        padding: 1.5rem 1rem;
+        padding: 1rem 1rem 0.5rem;
     }
     
     .quiz-content {
-        padding: 1rem 1rem 4rem;
+        padding: 1rem 1rem 3rem;
+    }
+
+    .intro-icon-box {
+        width: 4.5rem;
+        height: 4.5rem;
+        margin-bottom: 1.5rem;
     }
 
     .intro-title {
-        font-size: 2.25rem;
+        font-size: 2rem;
         line-height: 1.1;
+        margin-bottom: 1rem;
     }
 
     .intro-text {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
     }
 
     .step-question {
         max-width: 100%;
     }
 
-    .question-text {
+    .question-emoji-box {
+        width: 3.5rem;
+        height: 3.5rem;
+        margin-bottom: 1.5rem;
         font-size: 1.5rem;
     }
 
+    .question-text {
+        font-size: 1.35rem;
+        margin-bottom: 2rem;
+    }
+
     .option-card {
-        padding: 1rem;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
     }
 
     .option-label {
+        font-size: 0.95rem;
+    }
+
+    .upload-zone {
+        padding: 1rem;
+        border-radius: 0.75rem;
+    }
+
+    .submit-btn {
+        padding: 1rem;
         font-size: 1rem;
     }
 }

@@ -1,29 +1,71 @@
-import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation, Navigate } from 'react-router-dom';
 import { Home, ShoppingBag, User, LayoutDashboard, Settings, LogOut, Package, Zap, DollarSign } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import './AppLayout.css';
 import ThemeToggle from './ThemeToggle';
+import KYCStatusGate from './KYCStatusGate';
 
 const AppLayout = ({ children }) => {
     const { user, isVendor, isAdmin, logout } = useAuth();
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
     const location = useLocation();
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const endpoint = isVendor ? '/vendor/profile' : '/retailer/profile';
+                const { data } = await api.get(endpoint);
+                setProfile(data);
+            } catch (error) {
+                console.error('Failed to load profile in layout', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (user && !isAdmin) {
+            fetchProfile();
+        } else {
+            setLoading(false);
+        }
+    }, [user, isVendor, isAdmin]);
+
+    const isVerified = isAdmin || 
+        (isVendor && profile?.verificationStatus === 'verified') || 
+        (!isVendor && profile?.verificationStatus === 'approved');
+
+    const isRestrictedPath = (path) => {
+        if (isAdmin) return false;
+        if (isVendor) {
+            // Vendors can see their dashboard home and profile, but not products or transactions until verified
+            const restricted = ['/products', '/vendor/transactions'];
+            return restricted.some(r => path.startsWith(r));
+        }
+        // Retailers are restricted from marketplace
+        return path.startsWith('/marketplace');
+    };
 
     // Bottom Nav Items (Mobile)
     const navItems = [
         { path: isVendor ? '/vendor' : (isAdmin ? '/admin' : '/dashboard'), icon: <Home size={22} />, label: 'Home' },
         ...(isVendor ? [
             { path: '/products', icon: <Package size={22} />, label: 'Products' },
-            { path: '/vendor/transactions', icon: <DollarSign size={22} />, label: 'History' } 
+            { path: '/vendor/transactions', icon: <DollarSign size={22} />, label: 'History', hidden: !isVerified } 
         ] : []),
         ...(!isVendor && !isAdmin ? [
-            { path: '/marketplace', icon: <ShoppingBag size={22} />, label: 'Shop' }
+            { path: '/marketplace', icon: <ShoppingBag size={22} />, label: 'Shop', hidden: !isVerified }
         ] : []),
         ...(isAdmin ? [
             { path: '/admin/transactions', icon: <DollarSign size={22} />, label: 'Finance' }
         ] : []),
         { path: isVendor ? '/vendor/profile' : '/profile', icon: <User size={22} />, label: 'Me' }, 
-    ];
+    ].filter(item => !item.hidden);
+
+    if (loading) return <div className="loading-overlay"><div className="loading-spinner"></div></div>;
+
+    const showGate = !isVerified && !isAdmin && isRestrictedPath(location.pathname);
 
     return (
         <div className="layout-root">
@@ -81,7 +123,11 @@ const AppLayout = ({ children }) => {
                 </header>
                 
                 <div className="page-container animate-fade-in">
-                    {children}
+                    {showGate ? (
+                        <KYCStatusGate profile={profile} role={user.role} />
+                    ) : (
+                        children
+                    )}
                 </div>
             </main>
 
@@ -96,7 +142,7 @@ const AppLayout = ({ children }) => {
                             {item.icon}
                         </div>
                         {/* Active Indicator Dot */}
-                        <div className={`active-dot ${window.location.pathname === item.path ? 'visible' : ''}`}></div>
+                        <div className={`active-dot ${location.pathname === item.path ? 'visible' : ''}`}></div>
                     </NavLink>
                 ))}
                  <button onClick={logout} className="mobile-nav-item logout">
