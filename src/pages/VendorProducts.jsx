@@ -259,96 +259,105 @@ const VendorProducts = () => {
                 </div>
 
                 {/* Table Panel */}
-                <div className="admin-panel glass-panel">
-                    <div className="admin-tabs-header">
-                        <div className="admin-tabs-list">
-                            <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
-                                <Filter size={16} style={{ marginRight: '0.5rem' }} />
-                                {filterStatus === 'all' ? 'All Products' : filterStatus === 'active' ? 'Active Products' : 'Out of Stock'}
-                            </span>
+                <div className="product-management-content">
+                    <div className="content-filters-bar glass-panel">
+                        <div className="filter-pills">
+                            <button 
+                                onClick={() => setFilterStatus('all')} 
+                                className={`filter-pill ${filterStatus === 'all' ? 'active' : ''}`}
+                            >
+                                All Products
+                            </button>
+                            <button 
+                                onClick={() => setFilterStatus('active')} 
+                                className={`filter-pill ${filterStatus === 'active' ? 'active' : ''}`}
+                            >
+                                Active
+                            </button>
+                            <button 
+                                onClick={() => setFilterStatus('outofstock')} 
+                                className={`filter-pill ${filterStatus === 'outofstock' ? 'active' : ''}`}
+                            >
+                                Out of Stock
+                            </button>
                         </div>
-                        <div className="admin-search-wrapper">
-                            <Search className="admin-search-icon" size={16} />
+                        <div className="search-box-premium">
+                            <Search size={18} />
                             <input 
                                 type="text" 
                                 placeholder="Search products..." 
-                                className="admin-search-input"
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
                         </div>
                     </div>
 
-                    <div className="admin-content-area">
-                        {filteredProducts.length === 0 ? (
-                            <div className="empty-state">
-                                <Package size={48} className="empty-icon" />
-                                <p>No products found.</p>
+                    {filteredProducts.length === 0 ? (
+                        <div className="empty-state-card glass-panel">
+                            <div className="empty-illustration">
+                                <Package size={64} strokeWidth={1} />
                             </div>
-                        ) : (
-                            <table className="payouts-table inventory-table">
-                                <thead>
-                                    <tr className="payouts-head-row">
-                                        <th className="th-cell pl">Product</th>
-                                        <th className="th-cell">Price</th>
-                                        <th className="th-cell">Stock</th>
-                                        <th className="th-cell">Category</th>
-                                        <th className="th-cell">Status</th>
-                                        <th className="th-cell pr text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="payouts-body">
-                                    {filteredProducts.map(product => (
-                                        <tr key={product._id} className="payouts-row table-body-row group">
-                                            <td className="td-cell pl" data-label="Product">
-                                                <div className="product-cell">
-                                                    <div className="product-thumb">
-                                                        {product.images?.[0] ? (
-                                                            <img src={product.images[0]} alt="" className="thumb-img" />
-                                                        ) : (
-                                                            <div className="no-img-placeholder">N/A</div>
-                                                        )}
-                                                    </div>
-                                                    <span className="vendor-name-text">{product.name}</span>
-                                                </div>
-                                            </td>
-                                            <td className="td-cell" data-label="Price">
-                                                <span className="amount-text">₦{product.price.toLocaleString()}</span>
-                                            </td>
-                                            <td className="td-cell font-mono" data-label="Stock">
-                                                {product.countInStock}
-                                            </td>
-                                            <td className="td-cell" data-label="Category">
-                                                <span className="vendor-id-text">{product.category}</span>
-                                            </td>
-                                            <td className="td-cell" data-label="Status">
-                                                <button 
-                                                    onClick={() => handleToggleActive(product)}
-                                                    className={`status-toggle-btn ${product.isActive && product.countInStock > 0 ? 'active' : 'inactive'}`}
-                                                >
-                                                    {product.isActive && product.countInStock > 0 ? (
-                                                        <><ToggleRight size={18} /> Active</>
-                                                    ) : (
-                                                        <><ToggleLeft size={18} /> Inactive</>
-                                                    )}
-                                                </button>
-                                            </td>
-                                            <td className="td-cell pr text-right" data-label="Actions">
-                                                <div className="action-buttons">
-                                                    <button className="action-btn edit" onClick={() => openEditModal(product)}>
-                                                        <Edit2 size={16} />
-                                                    </button>
-                                                    <button className="action-btn delete" onClick={() => handleDeleteProduct(product._id)}>
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
-                    </div>
+                            <h3>No Products Found</h3>
+                            <p>Try adjusting your search or filters to find what you're looking for.</p>
+                            <button onClick={openAddModal} className="add-product-main-btn">
+                                <Plus size={20} /> Add Your First Product
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="products-grid">
+                            {filteredProducts.map(product => (
+                                <div key={product._id} className="modern-product-card glass-panel group">
+                                    <div className="product-card-image">
+                                        {product.images?.[0] ? (
+                                            <img src={product.images[0]} alt={product.name} />
+                                        ) : (
+                                            <div className="no-image-visual">
+                                                <ImageIcon size={40} />
+                                            </div>
+                                        )}
+                                        <div className="product-status-tag">
+                                            <span className={`status-pill ${product.isActive && product.countInStock > 0 ? 'active' : 'inactive'}`}>
+                                                {product.isActive && product.countInStock > 0 ? 'In Stock' : 'Out of Stock'}
+                                            </span>
+                                        </div>
+                                        <div className="product-price-tag">
+                                            ₦{product.price.toLocaleString()}
+                                        </div>
+                                        <div className="product-card-actions-overlay">
+                                            <button className="overlay-action-btn edit" onClick={() => openEditModal(product)} title="Edit Product">
+                                                <Edit2 size={18} />
+                                            </button>
+                                            <button className="overlay-action-btn delete" onClick={() => handleDeleteProduct(product._id)} title="Delete Product">
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="product-card-info">
+                                        <div className="product-card-top">
+                                            <span className="product-category-label">{product.category}</span>
+                                            <div className="product-stock-counter">
+                                                <span className="count">{product.countInStock}</span>
+                                                <span className="label">available</span>
+                                            </div>
+                                        </div>
+                                        <h4 className="product-name-title">{product.name}</h4>
+                                        <div className="product-card-footer">
+                                            <button 
+                                                onClick={() => handleToggleActive(product)}
+                                                className={`toggle-status-bar ${product.isActive && product.countInStock > 0 ? 'active' : 'inactive'}`}
+                                            >
+                                                {product.isActive && product.countInStock > 0 ? (
+                                                  <><Check size={14} /> Active on Marketplace</>
+                                                ) : (
+                                                  <><X size={14} /> Hidden from Shop</>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

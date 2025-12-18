@@ -2075,7 +2075,80 @@
     font-family: monospace;
 }
 
-/* Mobile Overrides */
+/* Mobile Overrides for Tables and Cards */
+@media (max-width: 768px) {
+    .orders-section {
+        padding-top: 1.5rem;
+    }
+
+    .orders-table, .orders-table thead, .orders-table tbody, .orders-table th, .orders-table td, .orders-table tr {
+        display: block;
+        width: 100%;
+    }
+
+    .table-header-row {
+        display: none !important;
+    }
+
+    .table-row {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1.25rem;
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        position: relative;
+    }
+
+    .td-cell {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0 !important;
+        text-align: right !important;
+    }
+
+    .td-cell:last-child {
+        border-bottom: none;
+        padding-top: 1rem !important;
+    }
+
+    .td-cell::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #6b7280;
+        text-align: left;
+    }
+
+    .item-avatars {
+        justify-content: flex-end;
+    }
+
+    /* Agent Card Mobile Refinement */
+    .agent-card-mini {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .agent-status-tag {
+        align-self: flex-start;
+    }
+
+    .order-modal {
+        max-width: 100%;
+        border-radius: 1.5rem 1.5rem 0 0;
+        position: fixed;
+        bottom: 0;
+    }
+
+    .order-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 640px) {
     .kyc-gatekeeper {
         padding: 1.5rem 1rem;
@@ -2114,5 +2187,289 @@
     .onboarding-card .btn {
         width: 100%;
         justify-content: center;
+    }
+}
+/* Agent Related Styles for Retailer Dashboard */
+
+.order-agent-info-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+
+.agent-card-mini {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.agent-avatar-mini {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #9ca3af;
+}
+
+.agent-avatar-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.agent-details-mini {
+    flex: 1;
+}
+
+.agent-name-mini {
+    font-weight: 700;
+    color: white;
+    font-size: 1rem;
+}
+
+.agent-phone-mini {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.agent-status-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.agent-status-tag.pending {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.agent-status-tag.verified {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.agent-instruction-text {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-top: 1rem;
+    line-height: 1.5;
+}
+
+.agent-instruction-text strong {
+    color: white;
+}
+
+.agent-instruction-text.success {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+/* Modal Action Button Disabled State */
+.confirm-pickup-btn.disabled {
+    background: #1f2937;
+    color: #4b5563;
+    border-color: #374151;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.confirm-pickup-btn.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.waiting-txt {
+    font-size: 0.75rem;
+    color: #eab308;
+    font-style: italic;
+}
+
+/* Premium Transaction History Styles */
+.compact-transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.premium-tx-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-tx-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(6px);
+}
+
+.tx-date-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.tx-day {
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1;
+    color: white;
+}
+
+.tx-month {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.tx-main-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.tx-row-top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tx-id {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.05em;
+}
+
+.status-pill-small {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+    letter-spacing: 0.05em;
+}
+
+.status-pill-small.delivered, .status-pill-small.completed {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.status-pill-small.pending-vendor, .status-pill-small.pending, .status-pill-small.ready-for-pickup, .status-pill-small.vendor-settled {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.tx-items-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.item-avatars {
+    display: flex;
+    align-items: center;
+}
+
+.item-avatar-small {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #374151;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border: 2px solid #111827;
+    margin-left: -8px;
+}
+
+.item-avatar-small:first-child {
+    margin-left: 0;
+}
+
+.items-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.tx-amount-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.tx-amount {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: white;
+}
+
+.tx-type {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tx-arrow {
+    color: #374151;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.premium-tx-card:hover .tx-arrow {
+    color: var(--color-primary);
+    transform: translateX(3px);
+}
+
+@media (max-width: 640px) {
+    .premium-tx-card {
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .tx-date-col {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .tx-amount-col {
+        display: none;
     }
 }

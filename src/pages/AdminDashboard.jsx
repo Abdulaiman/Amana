@@ -11,9 +11,12 @@ const AdminDashboard = () => {
     const [withdrawals, setWithdrawals] = useState([]);
     const [vendors, setVendors] = useState([]);
     const [retailers, setRetailers] = useState([]);
+    const [agents, setAgents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('payouts');
     const [searchTerm, setSearchTerm] = useState('');
+    const [agentSearchQuery, setAgentSearchQuery] = useState('');
+    const [agentSearchResults, setAgentSearchResults] = useState([]);
 
     // Detail Modal State
     const [selectedEntity, setSelectedEntity] = useState(null); // { type: 'vendor'|'retailer', data: {} }
@@ -29,16 +32,18 @@ const AdminDashboard = () => {
 
     const loadData = async () => {
         try {
-            const [statsRes, withdrawalsRes, vendorsRes, retailersRes] = await Promise.all([
+            const [statsRes, withdrawalsRes, vendorsRes, retailersRes, agentsRes] = await Promise.all([
                 api.get('/admin/analytics'),
                 api.get('/admin/withdrawals'),
                 api.get('/admin/vendors'),
-                api.get('/admin/retailers')
+                api.get('/admin/retailers'),
+                api.get('/admin/agents')
             ]);
             setStats(statsRes.data);
             setWithdrawals(withdrawalsRes.data);
             setVendors(vendorsRes.data);
             setRetailers(retailersRes.data);
+            setAgents(agentsRes.data);
         } catch (e) {
             console.error(e);
             addToast('Failed to load dashboard data', 'error');
@@ -104,6 +109,30 @@ const AdminDashboard = () => {
             addToast('Rejection Failed', 'error');
         } finally {
             setIsActionLoading(false);
+        }
+    };
+
+    const handleToggleAgent = async (id) => {
+        try {
+            await api.put(`/admin/retailer/${id}/agent`);
+            await loadData();
+            addToast('Agent status updated', 'success');
+        } catch (e) {
+            addToast('Failed to update agent status', 'error');
+        }
+    };
+
+    const handleAgentSearch = async (e) => {
+        e.preventDefault();
+        if (!agentSearchQuery) return;
+        setLoading(true);
+        try {
+            const res = await api.get(`/admin/retailers/search?query=${agentSearchQuery}`);
+            setAgentSearchResults(res.data);
+        } catch (e) {
+            addToast('Search failed', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -213,6 +242,9 @@ const AdminDashboard = () => {
                             </button>
                             <button className={`tab-btn ${activeTab === 'retailers' ? 'active' : ''}`} onClick={() => setActiveTab('retailers')}>
                                 <Users size={16} /> Retailers {stats.pendingRetailerVerifications > 0 && <span className="badge">{stats.pendingRetailerVerifications}</span>}
+                            </button>
+                            <button className={`tab-btn ${activeTab === 'agents' ? 'active' : ''}`} onClick={() => setActiveTab('agents')}>
+                                <ShieldCheck size={16} /> Agents
                             </button>
                         </div>
                         <div className="admin-search-wrapper">
@@ -407,6 +439,110 @@ const AdminDashboard = () => {
                                         </tbody>
                                     </table>
                                 )}
+                            </div>
+                        )}
+
+                        {activeTab === 'agents' && (
+                            <div className="w-full">
+                                <section className="agent-search-section">
+                                    <div className="section-header-inline">
+                                        <h3 className="sub-panel-title">Search & Assign Agents</h3>
+                                        <p className="sub-panel-desc">Search for verified retailers by Phone or NIN to grant them Agent status.</p>
+                                    </div>
+                                    <form onSubmit={handleAgentSearch} className="agent-search-form mt-4">
+                                        <div className="search-input-group">
+                                            <Search size={18} className="search-icon-abs" />
+                                            <input 
+                                                type="text" 
+                                                placeholder="Enter Phone Number or NIN..." 
+                                                className="agent-search-input-field"
+                                                value={agentSearchQuery}
+                                                onChange={e => setAgentSearchQuery(e.target.value)}
+                                            />
+                                            <button type="submit" className="agent-search-submit">Search</button>
+                                        </div>
+                                    </form>
+
+                                    {agentSearchResults.length > 0 && (
+                                        <div className="search-results-mini mt-6">
+                                            <h4 className="results-label">Search Results</h4>
+                                            <div className="results-grid">
+                                                {agentSearchResults.map(res => (
+                                                    <div key={res._id} className="search-result-card glass-panel">
+                                                        <div className="res-info">
+                                                            <div className="res-avatar">
+                                                                {res.kyc?.profilePicUrl ? <img src={res.kyc.profilePicUrl} alt={res.name} /> : <Users size={20} />}
+                                                            </div>
+                                                            <div>
+                                                                <p className="res-name">{res.name}</p>
+                                                                <p className="res-sub">{res.phone} | NIN: {res.kyc?.nin || 'N/A'}</p>
+                                                            </div>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => handleToggleAgent(res._id)}
+                                                            className={`agent-toggle-btn ${res.isAgent ? 'remove' : 'add'}`}
+                                                        >
+                                                            {res.isAgent ? 'Remove Agent' : 'Add as Agent'}
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+
+                                <div className="active-agents-section mt-10">
+                                    <h3 className="sub-panel-title">Active Agents</h3>
+                                    {agents.length === 0 ? (
+                                        <div className="empty-state">
+                                            <ShieldCheck size={48} className="empty-icon" />
+                                            <p>No active agents assigned yet.</p>
+                                        </div>
+                                    ) : (
+                                        <table className="payouts-table mt-4">
+                                            <thead>
+                                                <tr className="payouts-head-row">
+                                                    <th className="th-cell pl">Agent</th>
+                                                    <th className="th-cell">Contact</th>
+                                                    <th className="th-cell">Score</th>
+                                                    <th className="th-cell pr text-right">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="payouts-body">
+                                                {agents.map(agent => (
+                                                    <tr key={agent._id} className="payouts-row group">
+                                                        <td className="td-cell pl" data-label="Agent">
+                                                            <div className="agent-info-cell">
+                                                                <div className="mini-avatar">
+                                                                    {agent.kyc?.profilePicUrl ? <img src={agent.kyc.profilePicUrl} alt={agent.name} /> : <Users size={14} />}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="vendor-name-text">{agent.name}</p>
+                                                                    <p className="vendor-id-text">ID: {agent._id.substring(0,8)}</p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Contact">
+                                                            <p className="vendor-id-text">{agent.phone}</p>
+                                                            <p className="vendor-id-text">{agent.email}</p>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Score">
+                                                            <span className="amount-text">{agent.amanaScore || 0}</span>
+                                                        </td>
+                                                        <td className="td-cell pr text-right" data-label="Actions">
+                                                            <button 
+                                                                onClick={() => handleToggleAgent(agent._id)}
+                                                                className="remove-agent-btn"
+                                                            >
+                                                                Revoke Agent Status
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>

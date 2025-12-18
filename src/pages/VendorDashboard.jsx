@@ -422,49 +422,52 @@ const VendorDashboard = () => {
                                 </div>
                             </div>
 
-                            <div className="inventory-table-wrapper">
-                                <table className="inventory-table">
-                                    <thead>
-                                        <tr className="table-head-row">
-                                            <th className="th-cell pl">Product</th>
-                                            <th className="th-cell">Category</th>
-                                            <th className="th-cell">Price</th>
-                                            <th className="th-cell">Stock</th>
-                                            <th className="th-cell pr text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredProducts.map(p => (
-                                            <tr key={p._id} className="table-body-row">
-                                                <td className="td-cell pl" data-label="Product">
-                                                    <div className="product-cell">
-                                                        <div className="product-thumb">
-                                                            {p.images && p.images.length > 0 ? (
-                                                                <img src={p.images[0]} alt="" className="thumb-img" />
-                                                            ) : (
-                                                                <div className="no-img-placeholder">No Img</div>
-                                                            )}
-                                                        </div>
-                                                        <span className="product-name-text">{p.name}</span>
+                            <div className="compact-product-list">
+                                {filteredProducts.length === 0 ? (
+                                    <div className="empty-state">
+                                        <Package size={48} className="empty-icon" />
+                                        <p>No products found in your inventory.</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {filteredProducts.slice(0, 10).map(p => (
+                                            <div key={p._id} className="premium-product-row">
+                                                <div className="pp-thumb">
+                                                    {p.images && p.images.length > 0 ? (
+                                                        <img src={p.images[0]} alt="" />
+                                                    ) : (
+                                                        <div className="pp-no-img"><Package size={14} /></div>
+                                                    )}
+                                                </div>
+                                                <div className="pp-info">
+                                                    <span className="pp-name">{p.name}</span>
+                                                    <span className="pp-category">{p.category}</span>
+                                                </div>
+                                                <div className="pp-stats">
+                                                    <div className="pp-stat">
+                                                        <span className="pp-val">₦{p.price.toLocaleString()}</span>
+                                                        <span className="pp-label">Price</span>
                                                     </div>
-                                                </td>
-                                                <td className="td-cell" data-label="Category">{p.category}</td>
-                                                <td className="td-cell font-mono" data-label="Price">₦{p.price.toLocaleString()}</td>
-                                                <td className="td-cell" data-label="Stock">
-                                                    <span className={`stock-badge ${p.countInStock > 5 ? 'in-stock' : 'low-stock'}`}>
-                                                        {p.countInStock} Units
-                                                    </span>
-                                                </td>
-                                                <td className="td-cell pr text-right" data-label="Actions">
-                                                    <div className="action-buttons">
-                                                        <button className="action-btn edit" onClick={() => handleEditClick(p)}><Edit2 size={16} /></button>
-                                                        <button className="action-btn delete" onClick={() => handleDeleteClick(p._id)}><Trash2 size={16} /></button>
+                                                    <div className="pp-stat">
+                                                        <span className={`pp-val ${p.countInStock < 5 ? 'low-stock' : ''}`}>{p.countInStock}</span>
+                                                        <span className="pp-label">Stock</span>
                                                     </div>
-                                                </td>
-                                            </tr>
+                                                </div>
+                                                <button 
+                                                    onClick={() => navigate('/products')}
+                                                    className="pp-action-btn"
+                                                >
+                                                    Manage <ChevronRight size={14} />
+                                                </button>
+                                            </div>
                                         ))}
-                                    </tbody>
-                                </table>
+                                        {filteredProducts.length > 10 && (
+                                            <button onClick={() => navigate('/products')} className="view-all-link">
+                                                View all {filteredProducts.length} products <ChevronRight size={16} />
+                                            </button>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         </div>
                     ) : (
@@ -472,64 +475,70 @@ const VendorDashboard = () => {
                             <div className="inventory-header">
                                 <h3 className="inventory-title">Order Management</h3>
                             </div>
-                            <div className="inventory-table-wrapper">
-                                <table className="inventory-table">
-                                    <thead>
-                                        <tr className="table-head-row">
-                                            <th className="th-cell pl">Order ID</th>
-                                            <th className="th-cell">Item</th>
-                                            <th className="th-cell">Price</th>
-                                            <th className="th-cell">Status</th>
-                                            <th className="th-cell pr text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {orders.map(order => (
-                                            <tr key={order._id} className="table-body-row">
-                                                <td className="td-cell pl font-mono text-xs" data-label="Order ID">{order._id.substring(0, 8)}...</td>
-                                                <td className="td-cell" data-label="Item">{order.orderItems[0]?.name || 'Unknown Item'}</td>
-                                                <td className="td-cell font-mono" data-label="Price">₦{order.itemsPrice.toLocaleString()}</td>
-                                                <td className="td-cell" data-label="Status">
+                            <div className="compact-product-list">
+                                {orders.length === 0 ? (
+                                    <div className="empty-state">
+                                        <Package size={48} className="empty-icon" />
+                                        <p>No orders found yet.</p>
+                                    </div>
+                                ) : (
+                                    orders.map(order => (
+                                        <div key={order._id} className="premium-product-row">
+                                            <div className="pp-info">
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+                                                    <span className="pp-name">Order #{order._id.substring(order._id.length - 8).toUpperCase()}</span>
                                                     <span className={`status-badge-pill ${
-                                                        order.status === 'pending_vendor' ? 'pending' :
-                                                        order.status === 'ready_for_pickup' ? 'pickup' :
-                                                        order.status === 'goods_received' ? 'completed' : 'completed'
-                                                    }`}>
+                                                                order.status === 'pending_vendor' ? 'pending' :
+                                                                order.status === 'ready_for_pickup' ? 'pickup' : 'completed'
+                                                            }`}>
                                                         {order.status === 'goods_received' ? 'RECEIVED' : order.status.replace('_', ' ').toUpperCase()}
                                                     </span>
-                                                </td>
-                                                <td className="td-cell pr text-right" data-label="Action">
-                                                    {order.status === 'pending_vendor' && (
-                                                        <button 
-                                                            onClick={() => {
-                                                                if (!isVerified) {
-                                                                    addToast('Complete verification to confirm orders', 'error');
-                                                                    return;
-                                                                }
-                                                                handleConfirmOrderClick(order._id);
-                                                            }}
-                                                            className={`confirm-btn ${!isVerified ? 'disabled' : ''}`}
-                                                        >
-                                                            Confirm Order
-                                                        </button>
-                                                    )}
-                                                    {order.status === 'ready_for_pickup' && (
-                                                        <div style={{ textAlign: 'right' }}>
-                                                            <span className="pickup-wait-text">Code: {order.pickupCode}</span>
-                                                            <p className="payment-pending-note" style={{ margin: 0 }}>💰 Payment on user confirmation</p>
+                                                </div>
+                                                <span className="pp-category">{order.retailer?.name || 'Retailer'} • {order.orderItems?.[0]?.name || 'Item'}</span>
+                                                {order.agent && (
+                                                    <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                        <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'rgba(20, 184, 166, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <User size={10} color="#14b8a6" />
                                                         </div>
-                                                    )}
-                                                    {order.status === 'goods_received' && (
-                                                        <span className="paid-badge">✓ Paid</span>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {orders.length === 0 && (
-                                            <tr><td colSpan="5" className="table-empty-message">No orders found.</td></tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                                        <span style={{ fontSize: '0.7rem', color: '#14b8a6', fontWeight: 700 }}>Agent: {order.agent.name}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="pp-stats">
+                                                <div className="pp-stat">
+                                                    <span className="pp-val">₦{order.itemsPrice.toLocaleString()}</span>
+                                                    <span className="pp-label">Total</span>
+                                                </div>
+                                            </div>
+                                            <div className="pp-actions" style={{ marginLeft: 'auto' }}>
+                                                {order.status === 'pending_vendor' && (
+                                                    <button 
+                                                        onClick={() => {
+                                                            if (!isVerified) {
+                                                                addToast('Complete verification to confirm orders', 'error');
+                                                                return;
+                                                            }
+                                                            handleConfirmOrderClick(order._id);
+                                                        }}
+                                                        className={`pp-action-btn ${!isVerified ? 'disabled' : ''}`}
+                                                        style={{ background: 'var(--color-primary)', color: '#000', borderColor: 'var(--color-primary)' }}
+                                                    >
+                                                        Confirm <Check size={14} />
+                                                    </button>
+                                                )}
+                                                {order.status === 'ready_for_pickup' && (
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <span className="pp-val" style={{ fontSize: '0.9rem', color: 'var(--color-primary)' }}>CODE: {order.pickupCode}</span>
+                                                        <p className="pp-label" style={{ fontSize: '0.6rem', color: '#14b8a6' }}>AWAITING PICKUP</p>
+                                                    </div>
+                                                )}
+                                                {order.status === 'goods_received' && (
+                                                    <span className="pp-val" style={{ color: '#10b981', fontSize: '0.8rem' }}>✓ SETTLED</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     )}

@@ -36,6 +36,7 @@ import VendorCompleteProfile from './pages/VendorCompleteProfile';
 import PsychometricTest from './pages/PsychometricTest';
 import AdminPlayground from './pages/AdminPlayground';
 import Marketplace from './pages/Marketplace';
+import AgentDashboard from './pages/AgentDashboard';
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
                     <Route path="/onboarding" element={<PsychometricTest />} />
                     <Route path="/payment/callback" element={<PaymentCallback />} />
                     <Route path="/marketplace" element={<Marketplace />} />
+                    <Route path="/agent/tasks" element={<AgentDashboard />} />
 
                     {/* Vendor Routes */}
                     <Route path="/vendor" element={<ProtectedRoute allowedRoles={['vendor']} />}>

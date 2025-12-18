@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, Navigate } from 'react-router-dom';
-import { Home, ShoppingBag, User, LayoutDashboard, Settings, LogOut, Package, Zap, DollarSign } from 'lucide-react';
+import { Home, ShoppingBag, User, LayoutDashboard, Settings, LogOut, Package, Zap, DollarSign, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import './AppLayout.css';
@@ -59,6 +59,9 @@ const AppLayout = ({ children }) => {
         ] : []),
         ...(isAdmin ? [
             { path: '/admin/transactions', icon: <DollarSign size={22} />, label: 'Finance' }
+        ] : []),
+        ...(profile?.isAgent ? [
+            { path: '/agent/tasks', icon: <ShieldCheck size={22} />, label: 'Agent Tasks' }
         ] : []),
         { path: isVendor ? '/vendor/profile' : '/profile', icon: <User size={22} />, label: 'Me' }, 
     ].filter(item => !item.hidden);

@@ -4,7 +4,7 @@ import api from '../services/api';
 import './RetailerDashboard.css';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
-import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock } from 'lucide-react';
+import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock, Phone, User } from 'lucide-react';
 import KYCStatusGate from '../components/KYCStatusGate';
 
 const RetailerDashboard = () => {
@@ -377,51 +377,42 @@ const RetailerDashboard = () => {
                             </button>
                         </div>
                     ) : (
-                        <div className="table-responsive">
-                            <table className="orders-table">
-                                <thead>
-                                    <tr className="table-header-row">
-                                        <th className="th-cell pl">Order ID</th>
-                                        <th className="th-cell">Date</th>
-                                        <th className="th-cell">Items</th>
-                                        <th className="th-cell">Total</th>
-                                        <th className="th-cell">Status</th>
-                                        <th className="th-cell pr">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {orders.map(order => (
-                                        <tr key={order._id} className="table-row group">
-                                            <td className="td-cell pl font-mono">#{order._id.substring(order._id.length - 6).toUpperCase()}</td>
-                                            <td className="td-cell">{new Date(order.createdAt).toLocaleDateString()}</td>
-                                            <td className="td-cell">
-                                                <div className="item-avatars">
-                                                    {order.orderItems.map((item, idx) => (
-                                                        <div key={idx} className="item-avatar" title={item.name}>
-                                                            {item.name?.[0] || '?'}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </td>
-                                            <td className="td-cell font-bold">₦{(order.totalPrice || order.totalRepaymentAmount || 0).toLocaleString()}</td>
-                                            <td className="td-cell">
-                                                <span className={`status-badge ${order.status?.replace(/_/g, '-') || 'pending'}`}>
-                                                    {order.status === 'delivered' || order.status === 'completed' ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
-                                                    {order.status?.replace(/_/g, ' ') || 'Pending'}
-                                                </span>
-                                            </td>
-                                            <td className="td-cell pr">
-                                                <button 
-                                                    className="action-icon-btn"
-                                                    onClick={() => viewOrderDetails(order._id)}
-                                                >
-                                                    <ChevronRight size={20} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="compact-transaction-list">
+                            {orders.map(order => (
+                                <div key={order._id} className="premium-tx-card glass-panel" onClick={() => viewOrderDetails(order._id)}>
+                                    <div className="tx-date-col">
+                                        <span className="tx-day">{new Date(order.createdAt).getDate()}</span>
+                                        <span className="tx-month">{new Date(order.createdAt).toLocaleString('default', { month: 'short' }).toUpperCase()}</span>
+                                    </div>
+                                    <div className="tx-main-info">
+                                        <div className="tx-row-top">
+                                            <span className="tx-id">ORDER #{order._id.substring(order._id.length - 6).toUpperCase()}</span>
+                                            <span className={`status-pill-small ${order.status?.replace(/_/g, '-') || 'pending'}`}>
+                                                {order.status?.replace(/_/g, ' ') || 'Pending'}
+                                            </span>
+                                        </div>
+                                        <div className="tx-items-preview">
+                                            <div className="item-avatars">
+                                                {order.orderItems.map((item, idx) => (
+                                                    <div key={idx} className="item-avatar-small" title={item.name}>
+                                                        {item.name?.[0] || '?'}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <span className="items-text">
+                                                {order.orderItems.length} {order.orderItems.length === 1 ? 'item' : 'items'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="tx-amount-col">
+                                        <span className="tx-amount">₦{(order.totalPrice || order.totalRepaymentAmount || 0).toLocaleString()}</span>
+                                        <span className="tx-type">Repayment</span>
+                                    </div>
+                                    <div className="tx-arrow">
+                                        <ChevronRight size={20} />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
@@ -508,33 +499,67 @@ const RetailerDashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Actions */}
-                            {(selectedOrder.status === 'pending_vendor' || selectedOrder.status === 'ready_for_pickup') && (
-                                <div className="order-actions-section">
+                            {/* Agent Information (if Murabaha Flow) */}
+                            {selectedOrder.agent && (
+                                <div className="order-agent-info-card mt-6">
+                                    <h4 className="section-label">Your Assigned Agent</h4>
+                                    <div className="agent-card-mini">
+                                        <div className="agent-avatar-mini">
+                                            {selectedOrder.agent.kyc?.profilePicUrl ? <img src={selectedOrder.agent.kyc.profilePicUrl} alt={selectedOrder.agent.name} /> : <User size={20} />}
+                                        </div>
+                                        <div className="agent-details-mini">
+                                            <p className="agent-name-mini">{selectedOrder.agent.name}</p>
+                                            <p className="agent-phone-mini"><Phone size={12} /> {selectedOrder.agent.phone}</p>
+                                        </div>
+                                        <div className={`agent-status-tag ${selectedOrder.status === 'vendor_settled' ? 'verified' : 'pending'}`}>
+                                            {selectedOrder.status === 'vendor_settled' ? 'Goods with Agent' : 'Meeting with Agent'}
+                                        </div>
+                                    </div>
                                     {selectedOrder.status === 'ready_for_pickup' && (
-                                        <>
-                                            <button 
-                                                className="confirm-pickup-btn"
-                                                onClick={() => handleConfirmGoodsReceived(selectedOrder._id)}
-                                            >
-                                                ✓ Confirm Goods Received
-                                            </button>
-                                            <p className="pickup-instructions">
-                                                Show your pickup code to the vendor, collect your goods, then confirm receipt above.
-                                            </p>
-                                        </>
+                                        <p className="agent-instruction-text">
+                                            Meet with <strong>{selectedOrder.agent.name}</strong> at the vendor's location. The agent will settle the vendor and take possession of the goods for you.
+                                        </p>
                                     )}
-                                    <button 
-                                        className="cancel-order-btn-large"
-                                        onClick={() => handleCancelOrder(selectedOrder._id)}
-                                        disabled={cancellingOrderId === selectedOrder._id}
-                                    >
-                                        {cancellingOrderId === selectedOrder._id ? 'Cancelling...' : 'Cancel Order'}
-                                    </button>
+                                    {selectedOrder.status === 'vendor_settled' && (
+                                        <p className="agent-instruction-text success">
+                                            The agent has settled the vendor. You can now take the goods from the agent and confirm receipt below.
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
-                            {selectedOrder.status === 'ready_for_pickup' && selectedOrder.pickupCode && (
+                            {/* Actions */}
+                            {(selectedOrder.status === 'pending_vendor' || selectedOrder.status === 'ready_for_pickup' || selectedOrder.status === 'vendor_settled') && (
+                                <div className="order-actions-section">
+                                    {(selectedOrder.status === 'ready_for_pickup' || selectedOrder.status === 'vendor_settled') && (
+                                        <>
+                                            <button 
+                                                className={`confirm-pickup-btn ${selectedOrder.status !== 'vendor_settled' ? 'disabled' : ''}`}
+                                                onClick={() => handleConfirmGoodsReceived(selectedOrder._id)}
+                                                disabled={selectedOrder.status !== 'vendor_settled'}
+                                            >
+                                                {selectedOrder.status === 'vendor_settled' ? '✓ I have received the goods' : 'Waiting for Agent to Settle'}
+                                            </button>
+                                            {selectedOrder.status === 'ready_for_pickup' && (
+                                                <p className="pickup-instructions">
+                                                    Once you meet the agent and they settle the vendor, you can confirm receipt here.
+                                                </p>
+                                            )}
+                                        </>
+                                    )}
+                                    {selectedOrder.status === 'pending_vendor' && (
+                                        <button 
+                                            className="cancel-order-btn-large"
+                                            onClick={() => handleCancelOrder(selectedOrder._id)}
+                                            disabled={cancellingOrderId === selectedOrder._id}
+                                        >
+                                            {cancellingOrderId === selectedOrder._id ? 'Cancelling...' : 'Cancel Order'}
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+
+                            {selectedOrder.status === 'vendor_settled' && selectedOrder.pickupCode && (
                                 <div className="pickup-code-box">
                                     <span className="pickup-label">Pickup Code</span>
                                     <span className="pickup-code">{selectedOrder.pickupCode}</span>
