@@ -5,7 +5,7 @@ import './VendorDashboard.css';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 
-import { Plus, DollarSign, Package, TrendingUp, Search, Edit2, Trash2, X, ChevronRight, Lock, Wallet, ArrowRight, Building, AlertTriangle, UploadCloud, Clock } from 'lucide-react';
+import { Plus, DollarSign, Package, TrendingUp, Search, Edit2, Trash2, X, ChevronRight, Lock, Wallet, ArrowRight, Building, AlertTriangle, UploadCloud, Clock, User, Check } from 'lucide-react';
 import KYCStatusGate from '../components/KYCStatusGate';
 
 const VendorDashboard = () => {
