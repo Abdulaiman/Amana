@@ -60,7 +60,7 @@
     color: transparent;
 }
 
-.admin-subtitle { color: #9ca3af; }
+.admin-subtitle { color: var(--color-text-muted); }
 
 .header-status { text-align: right; }
 
@@ -109,7 +109,7 @@
 .admin-stat-icon.orange { background: var(--color-primary-glow); color: var(--color-primary); }
 
 .admin-stat-value { font-size: 1.875rem; font-weight: 700; color: var(--color-text); }
-.admin-stat-label { font-size: 0.875rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+.admin-stat-label { font-size: 0.875rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
 
 
 /* Main Panel */
@@ -138,14 +138,14 @@
     font-size: 0.875rem;
     font-weight: 600;
     border-bottom: 2px solid transparent;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     background: transparent;
     border: none;
     cursor: pointer;
     transition: all 0.2s;
-    border-radius: 0; /* Override default */
+    border-radius: 0;
 }
-.tab-btn:hover { color: white; }
+.tab-btn:hover { color: var(--color-text); }
 .tab-btn.active { border-bottom-color: var(--color-primary); color: var(--color-primary); }
 
 .admin-search-wrapper { position: relative; }
@@ -155,16 +155,16 @@
     left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: var(--color-text-muted);
 }
 
 .admin-search-input {
     padding: 0.5rem 1rem 0.5rem 2.25rem;
     font-size: 0.875rem;
-    background: var(--color-bg);
+    background: var(--color-input-bg);
     border: 1px solid var(--color-border);
     border-radius: 0.5rem;
-    color: white;
+    color: var(--color-text);
     outline: none;
     width: 16rem;
 }
@@ -367,14 +367,14 @@
 }
 
 .admin-modal-content {
-    background: #0a0a0a;
+    background: var(--color-bg-soft);
     width: 100%;
     max-width: 900px;
     height: 90%;
     display: flex;
     flex-direction: column;
     border-radius: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--color-border);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     overflow: hidden;
 }
@@ -387,8 +387,8 @@
     align-items: center;
 }
 
-.admin-modal-header .modal-title { font-size: 1.25rem; font-weight: 700; color: white; }
-.admin-modal-header .modal-subtitle { font-size: 0.75rem; color: #9ca3af; }
+.admin-modal-header .modal-title { font-size: 1.25rem; font-weight: 700; color: var(--color-text); }
+.admin-modal-header .modal-subtitle { font-size: 0.75rem; color: var(--color-text-muted); }
 
 .admin-modal-body {
     flex: 1;
@@ -420,8 +420,8 @@
 
 .info-item { margin-bottom: 1.25rem; }
 .info-item:last-child { margin-bottom: 0; }
-.info-item label { display: block; font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin-bottom: 0.25rem; }
-.info-item p { font-size: 1rem; font-weight: 600; color: white; }
+.info-item label { display: block; font-size: 0.7rem; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 0.25rem; }
+.info-item p { font-size: 1rem; font-weight: 600; color: var(--color-text); }
 
 .rejection-box {
     margin-top: 2rem;
@@ -435,7 +435,7 @@
     border: 1px solid rgba(239, 68, 68, 0.2);
     border-radius: 0.75rem;
     padding: 1rem;
-    color: white;
+    color: var(--color-text);
     font-size: 0.9rem;
     outline: none;
     resize: none;
@@ -510,18 +510,18 @@
 .cancel-pill {
     padding: 0.75rem 1.5rem;
     background: transparent;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     font-weight: 600;
     border: none;
     cursor: pointer;
 }
 
-.cancel-pill:hover { color: white; }
+.cancel-pill:hover { color: var(--color-text); }
 
 .close-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: none;
-    color: #9ca3af;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--color-text-muted);
     width: 36px;
     height: 36px;
     display: flex;
@@ -530,7 +530,7 @@
     border-radius: 50%;
     cursor: pointer;
 }
-.close-btn:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+.close-btn:hover { background: var(--color-bg); color: var(--color-text); }
 
 @media (max-width: 768px) {
     .review-grid { grid-template-columns: 1fr; gap: 2rem; }
@@ -586,7 +586,7 @@
 .doc-review-card label {
     display: block;
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     margin-bottom: 0.75rem;
     font-weight: 600;
 }
@@ -673,11 +673,11 @@
 .admin-decision-input {
     width: 100%;
     min-height: 120px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-input-bg);
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     padding: 1rem;
-    color: white;
+    color: var(--color-text);
     outline: none;
     resize: none;
 }
@@ -807,11 +807,11 @@
 .sub-panel-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: white;
+    color: var(--color-text);
 }
 
 .sub-panel-desc {
-    color: #9ca3af;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
 }
 
@@ -825,15 +825,15 @@
 .search-icon-abs {
     position: absolute;
     left: 1.25rem;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     pointer-events: none;
 }
 
 .agent-search-input-field {
     flex: 1;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+    background: var(--color-input-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
     padding: 0.875rem 1rem 0.875rem 3.5rem;
     border-radius: 0.75rem;
     outline: none;
@@ -911,13 +911,13 @@
 
 .res-name {
     font-weight: 700;
-    color: white;
+    color: var(--color-text);
     font-size: 0.95rem;
 }
 
 .res-sub {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--color-text-muted);
 }
 
 .agent-toggle-btn {

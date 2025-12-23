@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShieldCheck, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -55,6 +56,16 @@ const Navbar = () => {
               <Link to="/register" className="btn btn-primary btn-sm glow-effect" onClick={closeMenu}>Get Started</Link>
             </>
           )}
+          
+          {/* Theme Toggle - visible on mobile menu */}
+          <div className="mobile-theme-toggle">
+            <ThemeToggle />
+          </div>
+        </div>
+
+        {/* Theme Toggle - visible on desktop */}
+        <div className="desktop-theme-toggle">
+          <ThemeToggle />
         </div>
 
         <button className="navbar-toggle" onClick={toggleMenu}>
@@ -66,3 +77,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

@@ -100,7 +100,7 @@
 .stat-value {
     font-size: 1.75rem;
     font-weight: 700;
-    color: white;
+    color: var(--color-text);
     text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     font-feature-settings: "tnum";
     font-variant-numeric: tabular-nums;
@@ -137,7 +137,7 @@
 }
 
 .detail-row span {
-    color: #888;
+    color: var(--color-text-muted);
 }
 
 .detail-row p {
@@ -194,9 +194,9 @@
 
 /* Typography & Elements */
 .profile-name {
-    font-size: 1.5rem; /* text-2xl */
+    font-size: 1.5rem;
     font-weight: 700;
-    color: white;
+    color: var(--color-text);
     margin: 0;
 }
 
@@ -208,7 +208,7 @@
 }
 
 .icon-white {
-    color: white;
+    color: var(--color-text);
 }
 
 .profile-grid {
@@ -255,12 +255,12 @@
 }
 
 .detail-label {
-    color: #9ca3af;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
 }
 
 .detail-value {
-    color: white;
+    color: var(--color-text);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -283,13 +283,13 @@
 
 .verification-title {
     font-weight: 700;
-    color: white;
+    color: var(--color-text);
     margin: 0;
 }
 
 .verification-subtitle {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     margin: 0;
 }
 
@@ -314,7 +314,7 @@
 .locked-message {
     margin-top: 16px;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
     display: flex;
     align-items: center;
     gap: 8px;

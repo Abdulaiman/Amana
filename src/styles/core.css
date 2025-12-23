@@ -140,24 +140,41 @@ h1, h2, h3, h4, h5, h6 {
     to { transform: rotate(360deg); }
 }
 
+/* Additional Semantic Variables for Theme Support */
+:root {
+  --color-input-bg: rgba(255, 255, 255, 0.03);
+  --color-input-bg-focus: rgba(255, 255, 255, 0.05);
+  --color-overlay-bg: rgba(0, 0, 0, 0.8);
+  --color-card-bg: rgba(17, 17, 17, 0.8);
+  --color-card-gradient: linear-gradient(145deg, #111111 0%, #1a1a1a 50%, #0a0a0a 100%);
+  --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
 /* Light Mode Overrides - Maximum Contrast */
 [data-theme='light'] {
   --color-bg: #f1f5f9; /* Slate 100 - Distinct Light Gray Background */
   --color-bg-soft: #ffffff; /* Pure White for Cards */
   --color-text: #0f172a; /* Slate 900 - Deep Black-Blue */
-  --color-text-muted: #334155; /* Slate 700 - Dark Gray (High Legibility) */
+  --color-text-muted: #475569; /* Slate 600 - Darker for better contrast */
   
-  --glass-bg: #ffffff; /* Solid White for maximum contrast, minimal transparency */
+  --glass-bg: #ffffff; /* Solid White for maximum contrast */
   --glass-border: #cbd5e1; /* Slate 300 - Clearly visible grey border */
   --glass-blur: none; /* Disable blur in light mode for crispness */
   
-  --color-border: #94a3b8; /* Slate 400 - Stronger general borders */
-  --color-neutral-glow: rgba(0, 0, 0, 0.05);
+  --color-border: #cbd5e1; /* Slate 300 - Visible borders */
+  --color-neutral-glow: rgba(0, 0, 0, 0.03);
+  --color-primary-glow: rgba(16, 185, 129, 0.15);
   
-  /* Add specific shadow for light mode cards to make them pop */
+  /* Light mode specific variables */
+  --color-input-bg: #f8fafc; /* Slate 50 */
+  --color-input-bg-focus: #ffffff;
+  --color-overlay-bg: rgba(0, 0, 0, 0.5);
+  --color-card-bg: #ffffff;
+  --color-card-gradient: linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+/* Light Mode Component Overrides */
 [data-theme='light'] .glass-panel,
 [data-theme='light'] .hud-card,
 [data-theme='light'] .stat-card,
@@ -165,11 +182,58 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme='light'] .admin-panel,
 [data-theme='light'] .admin-stat-card {
   box-shadow: var(--shadow-card);
-  background: #ffffff; /* Enforce solid white */
+  background: #ffffff;
+  border-color: var(--color-border);
 }
 
 [data-theme='light'] .navbar {
   background: #ffffff;
-  border-bottom: 1px solid #cbd5e1;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Light mode body background */
+[data-theme='light'] body {
+  background-color: var(--color-bg);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%);
+}
+
+/* Light mode form inputs */
+[data-theme='light'] .form-input,
+[data-theme='light'] .input-field,
+[data-theme='light'] input,
+[data-theme='light'] textarea,
+[data-theme='light'] select {
+  background: var(--color-input-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme='light'] .form-input:focus,
+[data-theme='light'] .input-field:focus,
+[data-theme='light'] input:focus,
+[data-theme='light'] textarea:focus {
+  background: var(--color-input-bg-focus);
+  border-color: var(--color-primary);
+}
+
+/* Light mode modals */
+[data-theme='light'] .modal-content,
+[data-theme='light'] .admin-modal-content {
+  background: #ffffff;
+  border-color: var(--color-border);
+}
+
+/* Light mode buttons */
+[data-theme='light'] .btn-outline {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+[data-theme='light'] .btn-outline:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+  background: #f8fafc;
 }

@@ -1,26 +1,7 @@
+/* Import core theme styles with light mode overrides */
+@import './core.css';
+
 :root {
-  /* Colors - Monochrome + Green Theme */
-  --color-bg: #000000; /* Pure Black */
-  --color-bg-soft: #111111; /* Dark Gray */
-  --color-bg-card: rgba(17, 17, 17, 0.8); /* Dark Gray with opacity for glass */
-  
-  --color-primary: #10b981; /* Emerald 500 - Clean Green */
-  --color-primary-dark: #059669; /* Emerald 600 */
-  --color-primary-glow: rgba(16, 185, 129, 0.25);
-
-  /* Accent is now also green - no amber/purple */
-  --color-accent: #10b981; /* Same as primary */
-  --color-accent-glow: rgba(16, 185, 129, 0.25);
-
-  --color-text: #ffffff; /* Pure White */
-  --color-text-muted: #9ca3af; /* Gray 400 */
-  
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-hover: rgba(16, 185, 129, 0.5);
-
-  --color-danger: #ef4444; /* Red 500 */
-  --color-success: #10b981; /* Emerald 500 */
-
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   
@@ -45,9 +26,7 @@
   --radius-lg: 1rem;
   --radius-full: 9999px;
 
-  /* Glassmorphism */
-  --glass-bg: rgba(20, 20, 20, 0.7);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Glassmorphism - handled by core.css, keep backdrop-blur */
   --backdrop-blur: blur(12px);
 }
 

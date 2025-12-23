@@ -2,7 +2,7 @@
   max-width: 1000px;
   margin: 0 auto;
   padding: 1.5rem;
-  color: white;
+  color: var(--color-text);
 }
 
 .vendor-dashboard.mobile-view {
@@ -10,7 +10,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #000000;
+  background: var(--color-bg);
 }
 
 /* Header */
@@ -56,15 +56,13 @@
 
 /* Balance Card - Now using green instead of amber */
 .balance-card {
-  background: linear-gradient(145deg, #111111 0%, #1a1a1a 50%, #0a0a0a 100%) !important;
+  background: var(--color-card-gradient) !important;
   border: 1px solid rgba(16, 185, 129, 0.2) !important;
   border-radius: 16px !important;
   padding: 1.25rem !important;
   position: relative;
   overflow: hidden;
-  box-shadow: 
-    0 15px 35px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-card);
 }
 
 .balance-card::before {
@@ -83,7 +81,7 @@
   margin-bottom: 0.75rem;
   position: relative;
   z-index: 1;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 /* Requests Card */
@@ -165,7 +163,7 @@
 }
 
 .empty-state .text-muted {
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 /* Utility overrides for vendor dashboard */
@@ -213,7 +211,7 @@
 }
 
 .text-muted {
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .text-primary {
@@ -221,7 +219,7 @@
 }
 
 .text-white {
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .font-bold {

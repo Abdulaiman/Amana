@@ -4,7 +4,7 @@
   flex-direction: column;
   min-height: 100vh;
   background-color: var(--color-bg);
-  color: white;
+  color: var(--color-text);
   position: relative;
   overflow: hidden;
 }
@@ -213,10 +213,10 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(10, 15, 28, 0.9);
+  background: var(--color-bg-soft);
   backdrop-filter: blur(12px);
   padding: 1rem 1.5rem;
-  margin-left: -1rem; /* Adjusting for parent padding but maintaining full width */
+  margin-left: -1rem;
   margin-right: -1rem;
   border-bottom: 1px solid var(--glass-border);
 }
@@ -245,7 +245,7 @@
   height: 4rem;
   
   /* Glass Island */
-  background: rgba(10, 15, 28, 0.8);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: 1rem;
@@ -254,7 +254,7 @@
   justify-content: space-around;
   align-items: center;
   z-index: 50;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-card);
 }
 
 @media(min-width: 768px) { .mobile-nav { display: none; } }
