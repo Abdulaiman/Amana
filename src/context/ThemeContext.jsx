@@ -9,8 +9,8 @@ export const ThemeProvider = ({ children }) => {
     if (savedTheme) {
       return savedTheme;
     }
-    // Default to light theme
-    return 'light';
+    // Default to dark theme
+    return 'dark';
   });
 
   useEffect(() => {
