@@ -350,7 +350,10 @@ const AdminDashboard = () => {
                                                 <tr key={vendor._id} className="payouts-row group">
                                                     <td className="td-cell pl" data-label="Business">
                                                         <div>
-                                                            <p className="vendor-name-text">{vendor.businessName}</p>
+                                                            <div className="flex-align-center gap-2">
+                                                                <p className="vendor-name-text">{vendor.businessName}</p>
+                                                                {vendor.linkedProfileId && <span className="linked-badge" title="Linked to Retailer Account">Linked</span>}
+                                                            </div>
                                                             <p className="vendor-id-text">{vendor.address}</p>
                                                         </div>
                                                     </td>
@@ -408,7 +411,10 @@ const AdminDashboard = () => {
                                                 <tr key={user._id} className="payouts-row group">
                                                     <td className="td-cell pl" data-label="Name">
                                                         <div>
-                                                            <p className="vendor-name-text">{user.name}</p>
+                                                            <div className="flex-align-center gap-2">
+                                                                <p className="vendor-name-text">{user.name}</p>
+                                                                {user.linkedProfileId && <span className="linked-badge" title="Linked to Vendor Account">Linked</span>}
+                                                            </div>
                                                             <p className="vendor-id-text">{user.businessName || 'N/A'}</p>
                                                         </div>
                                                     </td>

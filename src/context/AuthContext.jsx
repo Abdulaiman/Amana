@@ -54,6 +54,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Switch Role
+  const switchRole = async () => {
+    try {
+      const { data } = await api.post('/auth/switch-role');
+      setUser(data);
+      localStorage.setItem('user', JSON.stringify(data));
+      // Refresh to clear any role-specific state if needed 
+      // or just redirect to dashboard
+      window.location.href = data.role === 'vendor' ? '/vendor/dashboard' : '/retailer/dashboard';
+      return data;
+    } catch (error) {
+       throw error.response?.data?.message || 'Role switch failed';
+    }
+  };
+
   // Logout
   const logout = () => {
     setUser(null);
@@ -69,9 +84,11 @@ export const AuthProvider = ({ children }) => {
         login,
         registerRetailer,
         registerVendor,
+        switchRole,
         logout,
         isAuthenticated: !!user,
         isVendor: user?.role === 'vendor',
+        hasOtherRole: user?.hasOtherRole,
         isAdmin: user?.role === 'admin'
       }}
     >

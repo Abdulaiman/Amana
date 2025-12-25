@@ -189,6 +189,55 @@
 .btn-text { display: none; font-weight: 500; }
 @media(min-width: 1024px) { .btn-text { display: inline; } }
 
+.role-switch-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  color: var(--color-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+@media(min-width: 1024px) { .role-switch-btn { justify-content: flex-start; } }
+
+.role-switch-btn:hover { 
+  background: rgba(16, 185, 129, 0.1); 
+  transform: translateY(-2px);
+}
+
+.active-zap {
+  color: var(--color-primary);
+  filter: drop-shadow(0 0 5px var(--color-primary));
+  animation: zapGlow 2s infinite alternate;
+}
+
+@keyframes zapGlow {
+  from { filter: drop-shadow(0 0 2px var(--color-primary)); }
+  to { filter: drop-shadow(0 0 8px var(--color-primary)); }
+}
+
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-role-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Main Content Area */
 /* Default/Mobile view */
 .layout-root .main-content {

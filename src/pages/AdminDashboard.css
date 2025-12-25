@@ -1035,3 +1035,19 @@
         display: flex;
     }
 }
+.flex-align-center {
+    display: flex;
+    align-items: center;
+}
+
+.linked-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-primary);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

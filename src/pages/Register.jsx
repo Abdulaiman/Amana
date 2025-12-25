@@ -5,14 +5,24 @@ import { useToast } from '../context/ToastContext';
 import './Login.css'; // Shared Auth Styles
 
 const Register = () => {
-    const [role, setRole] = useState('retailer');
+    const { search } = require('react-router-dom').useLocation();
+    const queryParams = new URLSearchParams(search);
+    const initialRole = queryParams.get('role') || 'retailer';
+
+    const { user, registerRetailer, registerVendor } = useAuth();
+    const [role, setRole] = useState(initialRole);
     const [formData, setFormData] = useState({
-        name: '', email: '', password: '', phone: '',
-        businessName: '', address: '', description: '', phones: ['', '']
+        name: user?.name || '', 
+        email: user?.email || '', 
+        password: '', 
+        phone: user?.phone || '',
+        businessName: '', 
+        address: '', 
+        description: '', 
+        phones: [user?.phone || '', '']
     });
     const [loading, setLoading] = useState(false);
 
-    const { registerRetailer, registerVendor } = useAuth();
     const navigate = useNavigate();
     const { addToast } = useToast();
 
@@ -118,14 +128,23 @@ const Register = () => {
                          </>
                     )}
 
-                    <div className="form-group">
-                        <label className="form-label">Email Address</label>
-                        <input name="email" type="email" className="form-input" onChange={handleChange} required />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Password</label>
-                        <input name="password" type="password" className="form-input" onChange={handleChange} required />
-                    </div>
+                    {!user && (
+                        <>
+                            <div className="form-group">
+                                <label className="form-label">Email Address</label>
+                                <input name="email" type="email" className="form-input" value={formData.email} onChange={handleChange} required />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Password</label>
+                                <input name="password" type="password" className="form-input" onChange={handleChange} required />
+                            </div>
+                        </>
+                    )}
+                    {user && (
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                            We'll use your existing <b>{user.email}</b> login for your {role} profile.
+                        </p>
+                    )}
 
                     <div className="form-actions">
                         <button type="submit" className="btn-auth" disabled={loading}>

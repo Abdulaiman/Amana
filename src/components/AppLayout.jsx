@@ -8,7 +8,7 @@ import ThemeToggle from './ThemeToggle';
 import KYCStatusGate from './KYCStatusGate';
 
 const AppLayout = ({ children }) => {
-    const { user, isVendor, isAdmin, logout } = useAuth();
+    const { user, isVendor, isAdmin, logout, switchRole } = useAuth();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const location = useLocation();
@@ -104,6 +104,35 @@ const AppLayout = ({ children }) => {
                 <div className="sidebar-footer">
                      <div className="footer-actions">
                         <ThemeToggle />
+                        
+                        {!isAdmin && (
+                            <button 
+                                onClick={async () => {
+                                    if (user?.hasOtherRole) {
+                                        try {
+                                            addToast('Switching mode...', 'info');
+                                            await switchRole();
+                                            addToast('Welcome back!', 'success');
+                                        } catch (err) {
+                                            addToast(err?.message || 'Failed to switch', 'error');
+                                        }
+                                    } else {
+                                        window.location.href = isVendor ? '/register?role=retailer' : '/register?role=vendor';
+                                    }
+                                }} 
+                                className="role-switch-btn"
+                                title={user?.hasOtherRole ? `Switch to ${isVendor ? 'Retailer' : 'Vendor'} Mode` : `Become a ${isVendor ? 'Retailer' : 'Vendor'}`}
+                            >
+                                <Zap size={20} className={user?.hasOtherRole ? 'active-zap' : ''} />
+                                <span className="btn-text">
+                                    {user?.hasOtherRole 
+                                        ? `Switch to ${isVendor ? 'Buying' : 'Selling'}` 
+                                        : `Become a ${isVendor ? 'Retailer' : 'Vendor'}`
+                                    }
+                                </span>
+                            </button>
+                        )}
+
                         <button onClick={logout} className="logout-btn">
                             <LogOut size={20} />
                             <span className="btn-text">Logout</span>
@@ -122,7 +151,29 @@ const AppLayout = ({ children }) => {
                         </div>
                         <span className="brand-name">Amana</span>
                     </div>
-                    <ThemeToggle />
+                    <div className="mobile-header-actions">
+                        {!isAdmin && (
+                            <button 
+                                onClick={async () => {
+                                    if (user?.hasOtherRole) {
+                                        try {
+                                            addToast('Switching mode...', 'info');
+                                            await switchRole();
+                                            addToast('Welcome back!', 'success');
+                                        } catch (err) {
+                                            addToast(err?.message || 'Failed to switch', 'error');
+                                        }
+                                    } else {
+                                        window.location.href = isVendor ? '/register?role=retailer' : '/register?role=vendor';
+                                    }
+                                }} 
+                                className="mobile-role-btn"
+                            >
+                                <Zap size={20} className={user?.hasOtherRole ? 'active-zap' : ''} />
+                            </button>
+                        )}
+                        <ThemeToggle />
+                    </div>
                 </header>
                 
                 <div className="page-container animate-fade-in">
