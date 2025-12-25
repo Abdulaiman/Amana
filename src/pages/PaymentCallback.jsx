@@ -10,6 +10,8 @@ const PaymentCallback = () => {
     const [message, setMessage] = useState('Verifying your payment...');
     const reference = searchParams.get('reference');
 
+    const isMobile = searchParams.get('mobile') === 'true';
+
     useEffect(() => {
         const verify = async () => {
             if (!reference) {
@@ -22,6 +24,12 @@ const PaymentCallback = () => {
                 const res = await api.get(`/payment/verify?reference=${reference}`);
                 setStatus('success');
                 setMessage(`Payment Successful! Paid: ₦${res.data.amountPaid.toLocaleString()}. Your credit limit has been updated.`);
+                
+                if (isMobile) {
+                    setTimeout(() => {
+                        window.location.href = `amana://payment/callback?reference=${reference}`;
+                    }, 2500);
+                }
             } catch (error) {
                 console.error(error);
                 setStatus('error');
@@ -30,17 +38,18 @@ const PaymentCallback = () => {
         };
 
         verify();
-    }, [reference]);
+    }, [reference, isMobile]);
 
-    // Inline styles for this specific page to match "Premium Dark" without Tailwind
     const containerStyle = {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '80vh',
+        minHeight: '100vh',
         textAlign: 'center',
-        padding: '2rem'
+        padding: '2rem',
+        backgroundColor: '#0a0a0a', 
+        color: 'white'
     };
 
     const cardStyle = {
@@ -83,13 +92,27 @@ const PaymentCallback = () => {
                         </div>
                         <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'white' }}>Payment Successful!</h2>
                         <p style={{ color: '#d1d5db', lineHeight: '1.6' }}>{message}</p>
-                        <button 
-                            onClick={() => navigate('/dashboard')}
-                            className="btn-primary"
-                            style={{ width: '100%', padding: '1rem', marginTop: '1rem', display: 'flex', justifyContent: 'center' }}
-                        >
-                            Back to Dashboard
-                        </button>
+                        
+                        {isMobile ? (
+                            <div style={{ width: '100%', gap: '1rem', display: 'flex', flexDirection: 'column' }}>
+                                <button 
+                                    onClick={() => window.location.href = `amana://payment/callback?reference=${reference}`}
+                                    className="btn-primary"
+                                    style={{ width: '100%', padding: '1rem', display: 'flex', justifyContent: 'center', backgroundColor: '#10b981' }}
+                                >
+                                    Return to Amana App
+                                </button>
+                                <p style={{ fontSize: '0.8rem', color: '#9ca3af' }}>If you aren't redirected automatically, click the button above.</p>
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={() => navigate('/dashboard')}
+                                className="btn-primary"
+                                style={{ width: '100%', padding: '1rem', marginTop: '1rem', display: 'flex', justifyContent: 'center' }}
+                            >
+                                Back to Dashboard
+                            </button>
+                        )}
                     </>
                 )}
 

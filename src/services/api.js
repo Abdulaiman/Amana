@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create axios instance
 const api = axios.create({
   baseURL: 'https://amana-server-production.up.railway.app/api', 
-  // baseURL: 'http://localhost:5000/api', // Uncomment for local development
+  // baseURL: 'http://172.20.10.5:5000/api', 
   headers: {
     'Content-Type': 'application/json',
   },

@@ -43,6 +43,8 @@ function App() {
     <Router>
       <div className="app-container">
         <Routes>
+            <Route path="/payment/callback" element={<PaymentCallback />} />
+            
             {/* Public Routes with Standard Navbar/Footer */}
             <Route element={
                 <>
@@ -79,7 +81,6 @@ function App() {
                     <Route path="/profile" element={<UserProfile />} />
                     <Route path="/complete-profile" element={<CompleteProfile />} />
                     <Route path="/onboarding" element={<PsychometricTest />} />
-                    <Route path="/payment/callback" element={<PaymentCallback />} />
                     <Route path="/marketplace" element={<Marketplace />} />
                     <Route path="/agent/tasks" element={<AgentDashboard />} />
 
