@@ -1,0 +1,194 @@
+.app-promo {
+  padding: 100px 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.app-promo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 80px;
+}
+
+.app-promo-visual {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.app-promo-content {
+  flex: 1.2;
+}
+
+.app-promo-content h2 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.app-promo-content p {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  max-width: 500px;
+  margin-bottom: 32px;
+}
+
+.app-features-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.app-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.app-feature-item span {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.feature-icon {
+  color: var(--primary);
+}
+
+.app-download-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.download-hint {
+  font-size: 0.85rem !important;
+  margin-top: 12px;
+  opacity: 0.6;
+}
+
+/* Mock App Styles */
+.mock-app-screen {
+  background: #0f172a;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  color: white;
+}
+
+.mock-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.mock-user-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+
+.mock-logo-text {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.mock-balance-card {
+  background: linear-gradient(135deg, #10b981, #059669);
+  padding: 24px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.mock-balance-card small {
+  opacity: 0.8;
+  font-size: 0.8rem;
+}
+
+.mock-balance-card h2 {
+  font-size: 1.8rem;
+  margin: 8px 0;
+  color: white !important;
+}
+
+.mock-progress {
+  height: 6px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mock-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 70%;
+  background: white;
+}
+
+.mock-stat {
+  height: 60px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.mock-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.mock-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+}
+
+.mock-item-text {
+  height: 12px;
+  width: 60%;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+}
+
+@media (max-width: 992px) {
+  .app-promo-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 40px;
+  }
+  
+  .app-promo-visual {
+    justify-content: center;
+    order: 2;
+  }
+  
+  .app-promo-content {
+    border: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .app-download-actions {
+    align-items: center;
+  }
+}

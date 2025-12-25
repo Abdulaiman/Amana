@@ -23,9 +23,9 @@ const Hero = () => {
           <Link to="/demo" className="btn btn-primary btn-lg glow-primary">
             Launch Demo
           </Link>
-          <Link to="/how-it-works" className="btn btn-outline btn-lg">
-            How It Works
-          </Link>
+          <a href="/builds/amana-latest.apk" download className="btn btn-outline btn-lg">
+            Download for Android
+          </a>
         </div>
       </div>
       

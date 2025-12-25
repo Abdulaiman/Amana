@@ -146,5 +146,9 @@
   .mobile-theme-toggle {
     display: flex;
   }
+
+  .hide-mobile {
+    display: none !important;
+  }
 }
 

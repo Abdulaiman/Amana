@@ -38,6 +38,7 @@ const Navbar = () => {
           <Link to="/problem" className={`nav-link ${isActive('/problem')}`} onClick={closeMenu}>Problem</Link>
           <Link to="/solution" className={`nav-link ${isActive('/solution')}`} onClick={closeMenu}>Solution</Link>
           <Link to="/how-it-works" className={`nav-link ${isActive('/how-it-works')}`} onClick={closeMenu}>How It Works</Link>
+          <a href="#download-app" className="nav-link" onClick={closeMenu}>App</a>
           <Link to="/demo" className={`nav-link ${isActive('/demo')}`} onClick={closeMenu}>Demo</Link>
           
           {user ? (
@@ -52,6 +53,7 @@ const Navbar = () => {
              </>
           ) : (
             <>
+              <a href="/builds/amana-latest.apk" download className="nav-link hide-mobile">Download App</a>
               <Link to="/login" className={`nav-link ${isActive('/login')}`} onClick={closeMenu}>Login</Link>
               <Link to="/register" className="btn btn-primary btn-sm glow-effect" onClick={closeMenu}>Get Started</Link>
             </>
