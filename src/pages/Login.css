@@ -222,3 +222,165 @@
     text-align: center;
     margin-bottom: 1.5rem;
 }
+
+/* Forgot Password Link Row */
+.form-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.forgot-password-link {
+    font-size: 0.8rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+}
+
+/* Banned Page Styles */
+.banned-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg);
+    padding: 1.5rem;
+}
+
+.banned-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    max-width: 28rem;
+    width: 100%;
+    text-align: center;
+    border-left: 4px solid var(--color-danger);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.banned-icon-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.banned-icon-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-danger);
+}
+
+.banned-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.75rem;
+}
+
+.banned-text {
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.contact-card {
+    background: var(--color-bg-soft);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    text-align: left;
+    border: 1px solid var(--color-border);
+}
+
+.contact-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.contact-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+}
+
+.contact-row:last-child {
+    margin-bottom: 0;
+}
+
+.contact-icon {
+    color: var(--color-primary);
+}
+
+.contact-value {
+    font-family: monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.btn-outline {
+    width: 100%;
+    padding: 0.875rem;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-outline:hover {
+    border-color: var(--color-text);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Success Message Box */
+.success-message {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.success-icon {
+    color: var(--color-primary);
+    margin-top: 0.25rem;
+}
+
+.success-title {
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.success-text {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}

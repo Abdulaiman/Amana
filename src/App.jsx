@@ -22,6 +22,9 @@ import Contact from './pages/Contact';
 // Auth & Dashboards
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Banned from './pages/Banned';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import RetailerDashboard from './pages/RetailerDashboard';
 import VendorDashboard from './pages/VendorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -37,6 +40,12 @@ import PsychometricTest from './pages/PsychometricTest';
 import AdminPlayground from './pages/AdminPlayground';
 import Marketplace from './pages/Marketplace';
 import AgentDashboard from './pages/AgentDashboard';
+import AdminLayout from './pages/admin/AdminLayout';
+import UserManagement from './pages/admin/UserManagement';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import DebtManager from './pages/admin/DebtManager';
+import AdminOperations from './pages/admin/AdminOperations';
+import UserProfileView from './pages/admin/UserProfileView';
 
 function App() {
   return (
@@ -71,6 +80,9 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/banned" element={<Banned />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Route>
 
             {/* Protected Dashboard Routes with AppLayout */}
@@ -101,17 +113,20 @@ function App() {
                         <Route index element={<VendorCompleteProfile />} />
                     </Route>
 
-                    {/* Admin Routes */}
-                     <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
-                        <Route index element={<AdminDashboard />} />
-                    </Route>
-                     <Route path="/admin/transactions" element={<ProtectedRoute allowedRoles={['admin']} />}>
-                        <Route index element={<AdminTransactions />} />
-                    </Route>
-                    <Route path="/admin-playground" element={<ProtectedRoute allowedRoles={['admin']} />}>
-                        <Route index element={<AdminPlayground />} />
-                    </Route>
                 </Route>
+            </Route>
+
+            {/* Admin Console (Dedicated Layout) */}
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="user/:id" element={<UserProfileView />} />
+                <Route path="analytics" element={<AdminAnalytics />} />
+                <Route path="debt" element={<DebtManager />} />
+                <Route path="ops" element={<AdminOperations />} />
+                <Route path="audit" element={<AdminOperations />} />
+                {/* Legacy redirects or specific sub-pages can go here */}
             </Route>
         </Routes>
       </div>

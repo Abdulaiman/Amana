@@ -53,7 +53,10 @@ const Login = () => {
           </div>
           
           <div className="form-group">
-            <label className="form-label">Password</label>
+            <div className="form-label-row">
+                <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
+                <Link to="/forgot-password" className="forgot-password-link">Forgot Password?</Link>
+            </div>
             <input 
               type="password" 
               className="form-input"

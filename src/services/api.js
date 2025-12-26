@@ -21,4 +21,17 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Handle Global Errors (401, 403)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 403 && 
+        (error.response.data.message.toLowerCase().includes('banned') || error.response.data.message.includes('suspended'))) {
+        // Redirect to Banned Page
+        window.location.href = '/banned';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
