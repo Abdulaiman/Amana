@@ -74,6 +74,27 @@ const AdminAnalytics = () => {
                     icon={<Wallet style={{ color: '#a855f7' }} size={24} />}
                     tooltip="The total amount currently owed by Retailers. This includes both Principal and Markup."
                 />
+                <MetricCard 
+                    label="Credit Capacity" 
+                    amount={stats.totalCreditLimit} 
+                    sub="Total Approved Limits"
+                    icon={<Activity style={{ color: '#3b82f6' }} size={24} />}
+                    tooltip="The sum of all credit limits assigned to verified Retailers. This is the max potential exposure."
+                />
+                <MetricCard 
+                    label="Total Credit Spent" 
+                    amount={stats.totalUsedCredit} 
+                    sub="Currently In Use"
+                    icon={<TrendingUp style={{ color: '#fba5a5' }} size={24} />}
+                    tooltip="The total amount of credit retailers have currently drawn against their limits."
+                />
+                <MetricCard 
+                    label="Available Liquidity" 
+                    amount={stats.availableCredit} 
+                    sub="Unused Credit Lines"
+                    icon={<ArrowDownRight style={{ color: '#10b981' }} size={24} />}
+                    tooltip="How much more credit is currently available for retailers to use for new orders."
+                />
                  <MetricCard 
                     label="Total Payouts" 
                     amount={stats.totalPayouts} 
@@ -82,9 +103,9 @@ const AdminAnalytics = () => {
                     tooltip="Total actual cash that has been transferred out of the system to Vendors' bank accounts."
                 />
                 <MetricCard 
-                    label="Pending Payouts" 
+                    label="Vendor Liabilities" 
                     amount={stats.pendingPayouts} 
-                    sub="Vendor Wallet Balances"
+                    sub="Held in Vendor Wallets"
                     icon={<Activity style={{ color: '#f43f5e' }} size={24} />}
                     tooltip="Money currently held in Vendor wallets that they have earned but not yet requested to withdraw."
                 />
@@ -105,9 +126,11 @@ const AdminAnalytics = () => {
                         <div className="flex justify-between items-center p-md rounded" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
                             <div>
                                 <p style={{ fontWeight: 600, color: '#ef4444' }}>Overdue Debt</p>
-                                <p className="text-muted" style={{ fontSize: '0.8rem' }}>Needs immediate attention</p>
+                                <p className="text-muted" style={{ fontSize: '0.8rem' }}>Orders past due date</p>
                             </div>
-                            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ef4444' }}>₦0.00</span>
+                            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ef4444' }}>
+                                {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(stats.overdueDebt)}
+                            </span>
                         </div>
                         <div className="flex justify-between items-center p-md rounded" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
                             <div>
