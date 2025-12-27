@@ -16,6 +16,7 @@ const Marketplace = () => {
     const { addToast } = useToast();
     const [viewMode, setViewMode] = useState('details'); // 'details' | 'checkout'
     const [acceptedTerms, setAcceptedTerms] = useState(false); // Murabaha agreement state
+    const [repaymentTerm, setRepaymentTerm] = useState(14); // 3, 7, or 14 days
     const [agentStatus, setAgentStatus] = useState({ isPurchaseFacilitatable: true, otherAgents: null });
 
     const categories = ['All', 'Electronics', 'Phones', 'Laptops', 'Fashion', 'Home'];
@@ -101,7 +102,8 @@ const Marketplace = () => {
                 markupPercentage: user ? getMarkupPercentage(user.amanaScore) : 5,
                 markupAmount: calculateFinance(selectedProduct.price).markup,
                 totalRepaymentAmount: calculateFinance(selectedProduct.price).total,
-                totalPrice: selectedProduct.price // Base price for reference
+                totalPrice: selectedProduct.price, // Base price for reference
+                repaymentTerm // Send chosen term
             });
             addToast('Order Placed! The vendor will process it shortly.', 'success');
             setSelectedProduct(null);
@@ -112,11 +114,17 @@ const Marketplace = () => {
         }
     };
 
-    const getMarkupPercentage = (score) => {
-        if (score >= 80) return 5.0;
-        if (score >= 60) return 8.0;
-        if (score >= 40) return 12.0;
-        return 15.0;
+    const getMarkupPercentage = (score, term = repaymentTerm) => {
+        let base = 15.0;
+        if (score >= 80) base = 5.0;
+        else if (score >= 60) base = 8.0;
+        else if (score >= 40) base = 12.0;
+
+        let multiplier = 1.0;
+        if (term <= 3) multiplier = 0.5;
+        else if (term <= 7) multiplier = 0.75;
+
+        return Math.max(base * multiplier, 4.0);
     };
 
     const calculateFinance = (price) => {
@@ -348,9 +356,9 @@ const Marketplace = () => {
                                     </button>
                                 </div>
                                 
-                                <div className="text-center mb-8">
+                                <div className="checkout-header-section">
                                     <h2 className="checkout-header-title">Financing Agreement</h2>
-                                    <p className="text-gray-400 text-sm">Review the Murabaha terms and confirm your purchase.</p>
+                                    <p className="checkout-header-subtitle">Review the Murabaha terms and confirm your purchase.</p>
                                 </div>
 
                                 {/* Financing Offer Card */}
@@ -382,28 +390,49 @@ const Marketplace = () => {
                                                 </div>
                                             </div>
                                         )}
+
+                                        {/* REPAYMENT TERM SELECTOR */}
+                                        <div className="term-selector-container">
+                                            <span className="term-selector-label">Choose Repayment Term</span>
+                                            <div className="term-options-grid">
+                                                {[3, 7, 14].map(term => (
+                                                    <button
+                                                        key={term}
+                                                        onClick={() => setRepaymentTerm(term)}
+                                                        className={`term-option-btn ${repaymentTerm === term ? 'active' : ''}`}
+                                                    >
+                                                        <span className="term-days">{term} Days</span>
+                                                        {term < 14 ? (
+                                                            <span className="term-discount">-{term === 3 ? '50' : '25'}% Markup</span>
+                                                        ) : (
+                                                            <span className="term-standard">Standard</span>
+                                                        )}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {/* Financial Breakdown (Contract Style) */}
                                     <div className="contract-breakdown">
                                         <div className="contract-row">
-                                            <span>Principal Amount (Item Price)</span>
-                                            <span className="font-mono">₦{selectedProduct.price.toLocaleString()}</span>
+                                            <span className="contract-label">Principal Amount (Item Price)</span>
+                                            <span className="contract-value">₦{selectedProduct.price.toLocaleString()}</span>
                                         </div>
                                         <div className="contract-row">
-                                            <span>Profit Markup ({(user ? getMarkupPercentage(user.amanaScore) : 5)}%)</span>
-                                            <span className="font-mono text-green-400">+ ₦{calculateFinance(selectedProduct.price).markup.toLocaleString()}</span>
+                                            <span className="contract-label">Profit Markup ({(user ? getMarkupPercentage(user.amanaScore) : 5)}%)</span>
+                                            <span className="markup-value">+ ₦{calculateFinance(selectedProduct.price).markup.toLocaleString()}</span>
                                         </div>
                                         <div className="contract-divider"></div>
                                         <div className="contract-total-row">
-                                            <span>Total Repayment Consignment</span>
+                                            <span className="total-label">Total Repayment Consignment</span>
                                             <span className="total-mono">₦{calculateFinance(selectedProduct.price).total.toLocaleString()}</span>
                                         </div>
                                     </div>
 
                                     {/* Agent Availability Warning */}
                                     {user && user.isAgent && agentStatus.otherAgents === 0 && (
-                                        <div className="credit-warning-box bg-red-900/20 border-red-500/50 text-red-200">
+                                        <div className="credit-warning-box self-dealing-warning">
                                             ⚠️ <strong>Self-Dealing Block:</strong> As the system's current agent, you cannot facilitate your own orders. Since no other agents are available, this purchase cannot be processed.
                                         </div>
                                     )}

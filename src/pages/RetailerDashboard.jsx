@@ -233,7 +233,7 @@ const RetailerDashboard = () => {
                                 {profile.tier} Tier
                             </span>
                             <span className="fee-badge">
-                                {profile.markupTier}% Fee
+                                Markup from 4%
                             </span>
                         </div>
                     </div>
@@ -447,6 +447,10 @@ const RetailerDashboard = () => {
                                 <div className="order-info-item">
                                     <span className="info-label">Date Placed</span>
                                     <span className="info-value">{new Date(selectedOrder.createdAt).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                </div>
+                                <div className="order-info-item">
+                                    <span className="info-label">Chosen Term</span>
+                                    <span className="info-value">{selectedOrder.repaymentTerm || 14} Days</span>
                                 </div>
                             </div>
 
