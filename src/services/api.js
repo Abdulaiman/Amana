@@ -1,9 +1,20 @@
 import axios from 'axios';
 
+// API Base URL - Dynamic based on environment
+const getBaseUrl = () => {
+  if (process.env.NODE_ENV === 'development') {
+    // Standard localhost for web dev
+    return 'http://localhost:5000/api'; 
+  }
+  // Production URL (Railway)
+  return 'https://amana-server-production.up.railway.app/api';
+};
+
+const BASE_URL = getBaseUrl();
+
 // Create axios instance
 const api = axios.create({
-  baseURL: 'https://amana-server-production.up.railway.app/api', 
-  // baseURL: 'http://172.20.10.5:5000/api', 
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
