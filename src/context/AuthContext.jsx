@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(data));
       // Refresh to clear any role-specific state if needed 
       // or just redirect to dashboard
-      window.location.href = data.role === 'vendor' ? '/vendor/dashboard' : '/retailer/dashboard';
+      window.location.href = data.role === 'vendor' ? '/vendor' : '/dashboard';
       return data;
     } catch (error) {
        throw error.response?.data?.message || 'Role switch failed';

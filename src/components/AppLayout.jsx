@@ -6,9 +6,11 @@ import api from '../services/api';
 import './AppLayout.css';
 import ThemeToggle from './ThemeToggle';
 import KYCStatusGate from './KYCStatusGate';
+import { useToast } from '../context/ToastContext';
 
 const AppLayout = ({ children }) => {
     const { user, isVendor, isAdmin, logout, switchRole } = useAuth();
+    const { addToast } = useToast();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const location = useLocation();

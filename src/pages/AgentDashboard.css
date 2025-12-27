@@ -1,0 +1,456 @@
+/* Agent Dashboard - State-of-the-Art Overhaul */
+.agent-dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    color: #fff;
+    min-height: 100vh;
+}
+
+/* Luxury Header Shimmer */
+.agent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4rem;
+    position: relative;
+}
+
+.agent-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--color-primary);
+    border-radius: 2px;
+    box-shadow: 0 0 15px var(--color-primary);
+}
+
+.agent-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.agent-subtitle {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.agent-badge {
+    background: rgba(16, 185, 129, 0.08); /* primary color tint */
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* Deep Glass Role Card */
+.agent-role-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 32px;
+    padding: 2.5rem;
+    margin-bottom: 5rem;
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.agent-role-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(16, 185, 129, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.role-icon-box {
+    font-size: 3.5rem;
+    background: rgba(255,255,255,0.03);
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
+}
+
+.role-text h3 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+.role-text p {
+    color: var(--color-text-muted);
+    line-height: 1.8;
+    max-width: 800px;
+    font-size: 1.05rem;
+}
+
+/* Capsule Tab Switcher */
+.tasks-section {
+    position: relative;
+}
+
+.tasks-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+}
+
+.tab-pill-container {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px;
+    border-radius: 18px;
+    display: flex;
+    gap: 4px;
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.tab-pill {
+    padding: 0.75rem 1.75rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tab-pill:hover {
+    color: #fff;
+}
+
+.tab-pill.active {
+    background: var(--color-primary);
+    color: #000;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
+.tab-count {
+    font-size: 0.75rem;
+    background: rgba(0,0,0,0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.tab-pill.active .tab-count {
+    background: rgba(0,0,0,0.15);
+}
+
+/* Luxury Grid & Cards */
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 2.5rem;
+}
+
+.agent-task-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 36px;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.agent-task-card:hover {
+    transform: translateY(-12px) scale(1.01);
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(16, 185, 129, 0.1);
+}
+
+.task-card-header {
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.task-id-tag {
+    display: flex;
+    flex-direction: column;
+}
+
+.tag-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 2px;
+}
+
+.tag-value {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+.status-pill {
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.status-pill.ready_for_pickup {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-primary);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.status-pill.pending_vendor {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.status-pill.vendor_settled,
+.status-pill.completed,
+.status-pill.goods_received {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.task-card-body {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.info-block-premium {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 24px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.info-block-premium:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+}
+
+.block-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.block-content .entity-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+}
+
+.block-content .entity-detail {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+.contact-btn-premium {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(255,255,255,0.05);
+    padding: 0.6rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.contact-btn-premium:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.mini-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.item-name-text {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.item-qty-pill {
+    background: rgba(255,255,255,0.05);
+    padding: 2px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.price-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.price-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+
+.price-value {
+    font-size: 1.5rem;
+    font-weight: 950;
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
+}
+
+.task-card-footer {
+    padding: 2rem;
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid rgba(255,255,255,0.03);
+}
+
+.settle-action-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: var(--color-primary);
+    color: #000;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 15px 30px rgba(16, 185, 129, 0.2);
+}
+
+.settle-action-btn:hover {
+    background: #1de9b6;
+}
+
+.settle-action-btn:active { transform: scale(0.98); }
+
+.instruction-pill {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.instruction-pill.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-primary);
+}
+
+.empty-tasks {
+    max-width: 400px;
+    margin: 100px auto;
+    text-align: center;
+    padding: 3rem;
+    border-radius: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.empty-icon-box {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--color-text-muted);
+}
+
+.empty-tasks h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.empty-tasks p {
+    color: var(--color-text-muted);
+}

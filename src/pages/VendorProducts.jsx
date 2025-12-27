@@ -202,8 +202,8 @@ const VendorProducts = () => {
         <div className="admin-dashboard-container animate-fade-in">
             <div className="admin-max-width">
                 {/* Header */}
-                <header className="admin-header pwa-header" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
-                    <div style={{ width: '100%' }}>
+                <header className="vendor-header" style={{ marginBottom: '2rem' }}>
+                    <div>
                         <button onClick={() => navigate('/vendor')} className="back-btn" style={{ 
                             marginBottom: '1rem', 
                             display: 'flex', 
@@ -222,7 +222,7 @@ const VendorProducts = () => {
                         <h1 className="admin-title">Product Management</h1>
                         <p className="admin-subtitle">Manage your inventory</p>
                     </div>
-                    <button onClick={openAddModal} className="add-product-main-btn" style={{ width: '100%' }}>
+                    <button onClick={openAddModal} className="add-product-main-btn">
                         <Plus size={20} /> Add Product
                     </button>
                 </header>

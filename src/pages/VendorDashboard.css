@@ -1269,6 +1269,7 @@ select.form-input option {
     align-items: center;
     padding: 1rem 1.5rem;
     gap: 1.5rem;
+    flex-wrap: wrap; /* Prevent overlap */
 }
 
 .filter-pills {

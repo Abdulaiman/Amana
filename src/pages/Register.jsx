@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import './Login.css'; // Shared Auth Styles
 
 const Register = () => {
-    const { search } = require('react-router-dom').useLocation();
+    const { search } = useLocation();
     const queryParams = new URLSearchParams(search);
     const initialRole = queryParams.get('role') || 'retailer';
 

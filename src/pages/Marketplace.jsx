@@ -16,6 +16,7 @@ const Marketplace = () => {
     const { addToast } = useToast();
     const [viewMode, setViewMode] = useState('details'); // 'details' | 'checkout'
     const [acceptedTerms, setAcceptedTerms] = useState(false); // Murabaha agreement state
+    const [agentStatus, setAgentStatus] = useState({ isPurchaseFacilitatable: true, otherAgents: null });
 
     const categories = ['All', 'Electronics', 'Phones', 'Laptops', 'Fashion', 'Home'];
 
@@ -33,7 +34,17 @@ const Marketplace = () => {
         };
         fetchProducts();
         fetchUserProfile();
+        fetchAgentAvailability();
     }, []);
+
+    const fetchAgentAvailability = async () => {
+        try {
+            const { data } = await api.get('/orders/agent-availability');
+            setAgentStatus(data);
+        } catch (e) {
+            console.error('Failed to check agent availability', e);
+        }
+    };
 
     const fetchUserProfile = async () => {
         try {
@@ -102,10 +113,10 @@ const Marketplace = () => {
     };
 
     const getMarkupPercentage = (score) => {
-        if (!score) return 5;
-        if (score >= 80) return 2.5;
-        if (score >= 60) return 3.5;
-        return 5;
+        if (score >= 80) return 5.0;
+        if (score >= 60) return 8.0;
+        if (score >= 40) return 12.0;
+        return 15.0;
     };
 
     const calculateFinance = (price) => {
@@ -366,7 +377,7 @@ const Marketplace = () => {
                                                 <div className="health-stat border-l border-gray-700 pl-4">
                                                     <span className="stat-label">Quality Tier</span>
                                                     <span className="stat-value text-white">
-                                                        {(user.amanaScore || 0) >= 80 ? 'Premium (2.5%)' : (user.amanaScore || 0) >= 60 ? 'Standard (3.5%)' : 'Basic (5.0%)'}
+                                                        {(user.amanaScore || 0) >= 80 ? 'Premium (5.0%)' : (user.amanaScore || 0) >= 60 ? 'Standard (8.0%)' : (user.amanaScore || 0) >= 40 ? 'Basic (12.0%)' : 'High Risk (15.0%)'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -389,6 +400,13 @@ const Marketplace = () => {
                                             <span className="total-mono">₦{calculateFinance(selectedProduct.price).total.toLocaleString()}</span>
                                         </div>
                                     </div>
+
+                                    {/* Agent Availability Warning */}
+                                    {user && user.isAgent && agentStatus.otherAgents === 0 && (
+                                        <div className="credit-warning-box bg-red-900/20 border-red-500/50 text-red-200">
+                                            ⚠️ <strong>Self-Dealing Block:</strong> As the system's current agent, you cannot facilitate your own orders. Since no other agents are available, this purchase cannot be processed.
+                                        </div>
+                                    )}
 
                                     {/* Credit Check Warning */}
                                     {user && (user.creditLimit - user.usedCredit) < calculateFinance(selectedProduct.price).total && (
@@ -414,7 +432,12 @@ const Marketplace = () => {
 
                                     <button 
                                         onClick={confirmPurchase} 
-                                        disabled={!acceptedTerms || purchaseLoading || (user && (user.creditLimit - user.usedCredit) < calculateFinance(selectedProduct.price).total)}
+                                        disabled={
+                                            !acceptedTerms || 
+                                            purchaseLoading || 
+                                            (user && (user.creditLimit - user.usedCredit) < calculateFinance(selectedProduct.price).total) ||
+                                            (user && user.isAgent && agentStatus.otherAgents === 0)
+                                        }
                                         className="confirm-purchase-btn"
                                     >
                                         {purchaseLoading ? 'Processing Agreement...' : 'Accept Offer & Confirm Order'}
