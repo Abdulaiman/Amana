@@ -1,0 +1,323 @@
+.aap-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    color: var(--color-text);
+}
+
+.aap-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.back-btn-ghost {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.header-info h1 {
+    font-size: 1.75rem;
+    font-weight: 850;
+    margin: 0;
+}
+
+.ref-tag {
+    color: var(--color-primary);
+    font-family: 'Mono', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.header-status {
+    margin-left: auto;
+}
+
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 99px;
+    border: 1px solid;
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+/* Grid Layout */
+.aap-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.main-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.side-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Card Common */
+.detail-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 28px;
+    padding: 1.75rem;
+    backdrop-filter: blur(10px);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    opacity: 0.8;
+}
+
+.card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+/* Photo Section */
+.photo-section {
+    padding: 1rem;
+}
+
+.photo-stagger {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.photo-frame {
+    width: 180px;
+    height: 180px;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.photo-frame:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Product Card */
+.product-info-box h2 {
+    font-size: 2.25rem;
+    font-weight: 900;
+    margin: 0 0 0.75rem 0;
+    background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.description {
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+}
+
+.info-row-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+}
+
+.info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.info-cell .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+}
+
+.info-cell .value {
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+/* Cost Breakdown */
+.cost-breakdown-web {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 1.5rem;
+}
+
+.breakdown-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.breakdown-line.markup {
+    color: var(--color-primary);
+}
+
+.breakdown-line.total {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px dashed rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+}
+
+.breakdown-line.total strong {
+    font-size: 1.75rem;
+    font-weight: 950;
+}
+
+/* Actions */
+.btn-primary-action {
+    width: 100%;
+    padding: 1.25rem;
+    background: var(--color-primary);
+    color: #000;
+    border: none;
+    border-radius: 18px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn-primary-action:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+}
+
+.otp-display-card {
+    text-align: center;
+    background: var(--color-primary);
+    color: #000;
+    padding: 2.5rem;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.otp-label {
+    font-size: 0.75rem;
+    font-weight: 900;
+    opacity: 0.6;
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+}
+
+.otp-value {
+    font-size: 4rem;
+    font-weight: 1000;
+    letter-spacing: 0.2em;
+    font-family: 'Mono', monospace;
+    margin-bottom: 1rem;
+}
+
+/* Entity Cards */
+.entity-content h4 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0 0 0.75rem 0;
+}
+
+.contact-item, .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+}
+
+.contact-link:hover {
+    color: var(--color-primary);
+}
+
+.agent-tag {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* Loading & Error */
+.aap-detail-loading, .aap-detail-error {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.05);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 968px) {
+    .aap-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}

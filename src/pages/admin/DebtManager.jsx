@@ -57,7 +57,9 @@ const DebtManager = () => {
                 <table className="data-table">
                     <thead>
                         <tr>
+                            <th>Type</th>
                             <th>Customer</th>
+                            <th>Item/Detail</th>
                             <th>Debt Amount</th>
                             <th>Due Date</th>
                             <th>Health</th>
@@ -79,10 +81,20 @@ const DebtManager = () => {
                             debtors.map((item) => (
                                 <tr key={item.orderId} style={item.isCritical ? { background: 'rgba(239, 68, 68, 0.05)' } : {}}>
                                     <td>
+                                        <span className={`badge ${item.type === 'AAP' ? 'badge-primary' : 'badge-info'}`} style={{ fontSize: '0.7rem' }}>
+                                            {item.type}
+                                        </span>
+                                    </td>
+                                    <td>
                                         <div>
                                             <p style={{ fontWeight: 600 }}>{item.user?.name}</p>
                                             <p className="text-muted" style={{ fontSize: '0.8rem' }}>{item.user?.phone}</p>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <p className="text-muted" style={{ fontSize: '0.85rem' }}>
+                                            {item.type === 'AAP' ? item.productName : `Order #${item.orderId.slice(-6).toUpperCase()}`}
+                                        </p>
                                     </td>
                                     <td style={{ fontFamily: 'monospace', fontWeight: 600 }}>
                                         {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(item.amount)}

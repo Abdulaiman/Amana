@@ -1,0 +1,315 @@
+/* AAP Dashboard Styles - Premium Dark Theme Extension */
+
+/* Stats grid */
+.aap-stat-card {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.aap-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.aap-stat-card.active {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-glow);
+}
+
+/* Icon colors */
+.icon-warning { color: #f59e0b; }
+.icon-success { color: #10b981; }
+.icon-danger { color: #ef4444; }
+.icon-primary { color: var(--color-primary); }
+
+/* Tabs */
+.aap-tabs {
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+/* Grid for cards */
+.aap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+/* AAP Card */
+.aap-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+}
+
+.aap-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.aap-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.25rem 0;
+}
+
+.aap-card-subtitle {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+.aap-product-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.aap-card-body {
+    padding: var(--spacing-lg);
+    flex: 1;
+}
+
+.aap-info-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.aap-info-row svg {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.aap-info-row strong {
+    font-weight: 600;
+}
+
+.aap-info-row.aap-danger {
+    color: #ef4444;
+}
+
+.aap-info-row.aap-danger svg {
+    color: #ef4444;
+}
+
+.aap-card-footer {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    background: var(--glass-bg);
+}
+
+.aap-card-footer .btn {
+    flex: 1;
+}
+
+/* Loading & Empty */
+.aap-loading {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-muted);
+}
+
+.aap-empty {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-muted);
+}
+
+.aap-empty svg {
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+}
+
+/* Modal */
+.aap-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-lg);
+}
+
+.aap-modal {
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--color-bg-soft);
+}
+
+.aap-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.aap-modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.aap-modal-body {
+    padding: var(--spacing-lg);
+}
+
+.aap-photo-gallery {
+    display: flex;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+}
+
+.aap-gallery-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: var(--radius-md, 8px);
+    flex-shrink: 0;
+}
+
+.aap-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.aap-modal-desc {
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.5;
+}
+
+.aap-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+}
+
+.aap-detail-item {
+    background: var(--color-bg);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--color-border);
+}
+
+.aap-detail-item label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.aap-detail-item span {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.aap-detail-item.aap-highlight {
+    background: var(--color-primary-glow);
+    border-color: var(--color-primary);
+}
+
+.aap-detail-item.aap-highlight span {
+    color: var(--color-primary);
+}
+
+.aap-section {
+    padding-top: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.aap-section h4 {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--spacing-sm) 0;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.aap-section p {
+    margin: 0 0 0.25rem 0;
+    color: var(--color-text);
+}
+
+.aap-approval-section {
+    background: var(--color-bg);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg, 12px);
+    margin-top: var(--spacing-lg);
+    border: 1px solid var(--color-border);
+}
+
+.aap-approval-section h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.aap-btn-group {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.aap-btn-group .btn {
+    flex: 1;
+}
+
+/* Button icon */
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm, 4px);
+    transition: all var(--transition-fast);
+}
+
+.btn-icon:hover {
+    background: var(--glass-bg);
+    color: var(--color-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .aap-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .aap-detail-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .aap-btn-group {
+        flex-direction: column;
+    }
+}

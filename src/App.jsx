@@ -26,6 +26,7 @@ import Banned from './pages/Banned';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import RetailerDashboard from './pages/RetailerDashboard';
+import RetailerTransactions from './pages/RetailerTransactions';
 import VendorDashboard from './pages/VendorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import UserProfile from './pages/UserProfile';
@@ -40,12 +41,16 @@ import PsychometricTest from './pages/PsychometricTest';
 import AdminPlayground from './pages/AdminPlayground';
 import Marketplace from './pages/Marketplace';
 import AgentDashboard from './pages/AgentDashboard';
+import AgentAAPCreate from './pages/AgentAAPCreate';
+import AgentAAPLink from './pages/AgentAAPLink';
+import AgentAAPDetail from './pages/AgentAAPDetail';
 import AdminLayout from './pages/admin/AdminLayout';
 import UserManagement from './pages/admin/UserManagement';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import DebtManager from './pages/admin/DebtManager';
 import AdminOperations from './pages/admin/AdminOperations';
 import UserProfileView from './pages/admin/UserProfileView';
+import AdminAAPDashboard from './pages/admin/AdminAAPDashboard';
 
 function App() {
   return (
@@ -90,11 +95,15 @@ function App() {
                 <Route element={<AppLayout><Outlet /></AppLayout>}>
                     {/* Retailer Routes */}
                     <Route path="/dashboard" element={<RetailerDashboard />} />
+                    <Route path="/transactions" element={<RetailerTransactions />} />
                     <Route path="/profile" element={<UserProfile />} />
                     <Route path="/complete-profile" element={<CompleteProfile />} />
                     <Route path="/onboarding" element={<PsychometricTest />} />
                     <Route path="/marketplace" element={<Marketplace />} />
                     <Route path="/agent/tasks" element={<AgentDashboard />} />
+                    <Route path="/agent/aap/new" element={<AgentAAPCreate />} />
+                    <Route path="/agent/aap/:id" element={<AgentAAPDetail />} />
+                    <Route path="/agent/aap/:id/link" element={<AgentAAPLink />} />
 
                     {/* Vendor Routes */}
                     <Route path="/vendor" element={<ProtectedRoute allowedRoles={['vendor']} />}>
@@ -124,6 +133,7 @@ function App() {
                 <Route path="user/:id" element={<UserProfileView />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
                 <Route path="debt" element={<DebtManager />} />
+                <Route path="aap" element={<AdminAAPDashboard />} />
                 <Route path="ops" element={<AdminOperations />} />
                 <Route path="audit" element={<AdminOperations />} />
                 {/* Legacy redirects or specific sub-pages can go here */}

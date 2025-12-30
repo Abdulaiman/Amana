@@ -63,6 +63,38 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
+/* Header Actions Group */
+.agent-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.new-aap-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-primary);
+    color: #000;
+    border: none;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.new-aap-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+}
+
+.new-aap-btn:active {
+    transform: scale(0.98);
+}
+
 /* Deep Glass Role Card */
 .agent-role-card {
     background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
@@ -453,4 +485,104 @@
 
 .empty-tasks p {
     color: var(--color-text-muted);
+}
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .agent-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .agent-title {
+        font-size: 2.75rem;
+    }
+
+    .agent-role-card {
+        padding: 2rem;
+        gap: 1.5rem;
+    }
+
+    .tasks-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .agent-dashboard-container {
+        padding: 2rem 1rem;
+    }
+
+    .agent-title {
+        font-size: 2.25rem;
+    }
+
+    .agent-header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .new-aap-btn, .agent-badge {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .agent-role-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.75rem;
+        margin-bottom: 3rem;
+    }
+
+    .role-icon-box {
+        width: 80px;
+        height: 80px;
+        font-size: 2.5rem;
+    }
+
+    .role-text h3 {
+        font-size: 1.4rem;
+    }
+
+    .tasks-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .tab-pill-container {
+        width: 100%;
+        overflow-x: auto;
+        padding: 4px;
+    }
+
+    .tab-pill {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .tasks-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .task-card-header, .task-card-body, .task-card-footer {
+        padding: 1.5rem;
+    }
+
+    .tag-value {
+        font-size: 0.95rem;
+    }
+
+    .block-content .entity-name {
+        font-size: 1.2rem;
+    }
+
+    .price-value {
+        font-size: 1.35rem;
+    }
 }

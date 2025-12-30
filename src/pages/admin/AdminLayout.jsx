@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, Users, Calculator, Briefcase, Settings, LogOut, Search, Activity, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, Users, Calculator, Briefcase, Settings, LogOut, Search, Activity, AlertTriangle, ShoppingBag } from 'lucide-react';
 import './AdminConsole.css';
 
 const AdminLayout = () => {
@@ -30,6 +30,7 @@ const AdminLayout = () => {
                     
                     <div className="nav-section-label">Management</div>
                     <NavItem to="/admin/users" icon={<Users size={20} />} label="User Universe" />
+                    <NavItem to="/admin/aap" icon={<ShoppingBag size={20} />} label="Agent Purchases" />
                     <NavItem to="/admin/debt" icon={<AlertTriangle size={20} />} label="Debt Manager" />
                     
                     <div className="nav-section-label">Operations</div>

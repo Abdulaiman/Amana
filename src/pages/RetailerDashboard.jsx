@@ -10,9 +10,12 @@ import KYCStatusGate from '../components/KYCStatusGate';
 const RetailerDashboard = () => {
     const [profile, setProfile] = useState(null);
     const [orders, setOrders] = useState([]);
+    const [aaps, setAAPs] = useState([]);
+    const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [cancellingOrderId, setCancellingOrderId] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null); // For order details modal
+    const [selectedAAP, setSelectedAAP] = useState(null); // For AAP details modal
     
     // Payment State
     const [showRepaymentModal, setShowRepaymentModal] = useState(false);
@@ -26,21 +29,26 @@ const RetailerDashboard = () => {
 
     const navigate = useNavigate();
 
+    const fetchData = async () => {
+        try {
+            const [profileRes, ordersRes, aapRes, txRes] = await Promise.all([
+                api.get('/retailer/profile'),
+                api.get('/orders/myorders'),
+                api.get('/aap/retailer/mine'),
+                api.get('/transactions/retailer')
+            ]);
+            setProfile(profileRes.data);
+            setOrders(ordersRes.data);
+            setAAPs(aapRes.data);
+            setTransactions(txRes.data);
+        } catch (error) {
+            console.error('Failed to fetch dashboard data', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const profileRes = await api.get('/retailer/profile');
-                setProfile(profileRes.data);
-                
-                // Fetch orders
-                const ordersRes = await api.get('/orders/myorders');
-                setOrders(ordersRes.data);
-            } catch (error) {
-                console.error('Failed to fetch dashboard data', error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchData();
     }, []);
 
@@ -143,6 +151,40 @@ const RetailerDashboard = () => {
             setRepaymentAmount(profile.usedCredit.toString());
         }
         setShowRepaymentModal(true);
+    };
+
+    const handleAAPConfirm = async (aapId) => {
+        try {
+            await api.put(`/aap/${aapId}/confirm`);
+            addToast('Purchase confirmed! Waiting for Amana admin approval.', 'success');
+            fetchData();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Confirmation failed', 'error');
+        }
+    };
+
+    const handleAAPDecline = async (aapId) => {
+        const reason = prompt('Why are you declining this purchase?');
+        if (!reason) return;
+        try {
+            await api.put(`/aap/${aapId}/decline`, { reason });
+            addToast('Purchase declined.', 'info');
+            fetchData();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Decline failed', 'error');
+        }
+    };
+
+    const handleAAPReceive = async (aapId) => {
+        const pickupCode = prompt('Enter the OTP provided by the agent to confirm receipt:');
+        if (!pickupCode) return;
+        try {
+            await api.put(`/aap/${aapId}/receive`, { pickupCode });
+            addToast('Receipt confirmed! Credit locked.', 'success');
+            fetchData();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Receipt confirmation failed', 'error');
+        }
     };
 
     const viewOrderDetails = async (orderId) => {
@@ -297,6 +339,70 @@ const RetailerDashboard = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Agent Assisted Purchases (AAP) Section */}
+            {aaps.filter(a => ['awaiting_retailer_confirm', 'delivered', 'pending_admin_approval', 'fund_disbursed'].includes(a.status)).length > 0 && (
+                <div className="aap-retailer-section animate-slide-up">
+                    <h2 className="section-title">Agent-Assisted Purchases</h2>
+                    <div className="aap-retailer-grid">
+                        {aaps.filter(a => ['awaiting_retailer_confirm', 'delivered', 'pending_admin_approval', 'fund_disbursed'].includes(a.status)).map(aap => (
+                            <div key={aap._id} className="aap-retailer-card glass-panel">
+                                <div className="aap-header">
+                                    <div className="aap-title-group">
+                                        <h3 className="aap-product-name">{aap.productName}</h3>
+                                        <span className={`status-pill-small ${aap.status.replace(/_/g, '-')}`}>
+                                            {aap.status === 'awaiting_retailer_confirm' ? 'Action Required' : aap.status.replace(/_/g, ' ')}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="aap-body">
+                                    <div className="aap-breakdown-mini">
+                                        <div className="breakdown-item">
+                                            <span className="label">Item Price</span>
+                                            <span className="value">₦{aap.purchasePrice?.toLocaleString()}</span>
+                                        </div>
+                                        <div className="breakdown-item">
+                                            <span className="label">Markup ({aap.markupPercentage}%)</span>
+                                            <span className="value">+ ₦{aap.markupAmount?.toLocaleString()}</span>
+                                        </div>
+                                        <div className="breakdown-item total">
+                                            <span className="label">Your Total</span>
+                                            <span className="value text-primary">₦{aap.totalRetailerCost?.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                    <div className="aap-meta-footer">
+                                        <div className="aap-meta-row">
+                                            <User size={14} /> <span>Agent: {aap.agent?.name}</span>
+                                        </div>
+                                        <div className="aap-meta-row">
+                                            <Clock size={14} /> <span>Term: {aap.repaymentTerm} days</span>
+                                        </div>
+                                    </div>
+                                    {aap.status === 'awaiting_retailer_confirm' ? (
+                                        <p className="aap-instruction">Your agent found this product. Confirm that you are interested in this product. </p>
+                                    ) : (
+                                        <p className={`aap-instruction ${aap.status === 'delivered' ? 'success' : 'muted'}`}>
+                                            Status: {aap.status.replace(/_/g, ' ')}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="aap-actions">
+                                    {aap.status === 'awaiting_retailer_confirm' && (
+                                        <>
+                                            <button className="btn-approve" onClick={() => handleAAPConfirm(aap._id)}>Confirm Interest</button>
+                                            <button className="btn-decline" onClick={() => handleAAPDecline(aap._id)}>Decline</button>
+                                        </>
+                                    )}
+                                    {aap.status === 'delivered' && (
+                                        <button className="btn-approve" onClick={() => handleAAPReceive(aap._id)}>Confirm Receipt (Enter OTP)</button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="credit-utilization-section">
                  <div className="utilization-header">
@@ -324,12 +430,18 @@ const RetailerDashboard = () => {
 
                     {/* Next Payment Specifics */}
                     {(() => {
-                        const earliestOrder = orders
-                            .filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status) && o.dueDate)
-                            .sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+                        const activeOrders = orders.filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status) && o.dueDate);
+                        const activeAAPs = aaps.filter(a => !a.isPaid && a.status === 'received' && a.dueDate);
                         
-                        if (earliestOrder) {
-                            const diff = Math.ceil((new Date(earliestOrder.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
+                        const combined = [
+                            ...activeOrders.map(o => ({ ...o, _type: 'order', _amount: o.totalRepaymentAmount, _name: o.orderItems[0]?.name || 'Order' })),
+                            ...activeAAPs.map(a => ({ ...a, _type: 'aap', _amount: a.totalRetailerCost, _name: a.productName }))
+                        ].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+                        const earliestItem = combined[0];
+                        
+                        if (earliestItem) {
+                            const diff = Math.ceil((new Date(earliestItem.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
                             const statusText = diff > 0 ? `Due in ${diff} days` : `Overdue by ${Math.abs(diff)} days`;
                             const statusClass = diff > 0 ? 'ok' : 'overdue';
 
@@ -340,11 +452,17 @@ const RetailerDashboard = () => {
                                         <span className={`payment-status ${statusClass}`}>{statusText}</span>
                                     </div>
                                     <div className="payment-row">
-                                        <span className="payment-amount">₦{earliestOrder.totalRepaymentAmount.toLocaleString()}</span>
-                                        <span className="payment-id">#{earliestOrder._id.slice(-6)}</span>
+                                        <span className="payment-amount">₦{earliestItem._amount.toLocaleString()}</span>
+                                        <span className="payment-id">
+                                            {earliestItem._type === 'aap' && <span style={{ color: '#10b981', marginRight: '4px' }}>AAP</span>}
+                                            #{earliestItem._id.slice(-6)}
+                                        </span>
                                     </div>
                                 </div>
                             );
+                        } else if (profile.usedCredit > 0) {
+                            // If user has balance but no specific due dates found (unlikely but safe)
+                            return <p className="due-status">Balance due soon</p>;
                         } else {
                             return <p className="due-status">No immediate payments due</p>;
                         }
@@ -360,61 +478,68 @@ const RetailerDashboard = () => {
             )}
 
 
-            {/* Recent Activity / Orders */}
+            {/* Recent Activity / Transactions */}
             <div className="orders-section">
-                <h2 className="section-title">Transaction History</h2>
+                <div className="section-header-flex">
+                    <h2 className="section-title">Recent Activity</h2>
+                    <button onClick={() => navigate('/transactions')} className="see-all-btn">
+                        See All <ChevronRight size={16} />
+                    </button>
+                </div>
                 
                 <div className="orders-table-container glass-panel">
-                    {orders.length === 0 ? (
-                        <div className="empty-state">
-                            <div className="empty-icon-box">
-                                <ShoppingBag className="empty-icon" size={32} />
-                            </div>
-                            <h3 className="empty-title">No orders yet</h3>
-                            <p className="empty-text">Start building your credit history by making your first purchase on the marketplace.</p>
-                            <button onClick={() => navigate('/marketplace')} className="btn btn-outline">
-                                Browse Products
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="compact-transaction-list">
-                            {orders.map(order => (
-                                <div key={order._id} className="premium-tx-card glass-panel" onClick={() => viewOrderDetails(order._id)}>
-                                    <div className="tx-date-col">
-                                        <span className="tx-day">{new Date(order.createdAt).getDate()}</span>
-                                        <span className="tx-month">{new Date(order.createdAt).toLocaleString('default', { month: 'short' }).toUpperCase()}</span>
+                    {(() => {
+                        const recentTxs = transactions.slice(0, 5);
+                        if (recentTxs.length === 0) {
+                            return (
+                                <div className="empty-state">
+                                    <div className="empty-icon-box">
+                                        <ShoppingBag className="empty-icon" size={32} />
                                     </div>
-                                    <div className="tx-main-info">
-                                        <div className="tx-row-top">
-                                            <span className="tx-id">ORDER #{order._id.substring(order._id.length - 6).toUpperCase()}</span>
-                                            <span className={`status-pill-small ${order.status?.replace(/_/g, '-') || 'pending'}`}>
-                                                {order.status?.replace(/_/g, ' ') || 'Pending'}
-                                            </span>
-                                        </div>
-                                        <div className="tx-items-preview">
-                                            <div className="item-avatars">
-                                                {order.orderItems.map((item, idx) => (
-                                                    <div key={idx} className="item-avatar-small" title={item.name}>
-                                                        {item.name?.[0] || '?'}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <span className="items-text">
-                                                {order.orderItems.length} {order.orderItems.length === 1 ? 'item' : 'items'}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="tx-amount-col">
-                                        <span className="tx-amount">₦{(order.totalPrice || order.totalRepaymentAmount || 0).toLocaleString()}</span>
-                                        <span className="tx-type">Repayment</span>
-                                    </div>
-                                    <div className="tx-arrow">
-                                        <ChevronRight size={20} />
-                                    </div>
+                                    <h3 className="empty-title">No activity yet</h3>
+                                    <p className="empty-text">Start building your credit history by making your first purchase on the marketplace.</p>
+                                    <button onClick={() => navigate('/marketplace')} className="btn btn-outline">
+                                        Browse Products
+                                    </button>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+                            );
+                        }
+
+                        return (
+                            <div className="compact-transaction-list">
+                                {recentTxs.map(tx => (
+                                    <div key={tx._id} className="premium-tx-card glass-panel" onClick={() => navigate('/transactions')}>
+                                        <div className="tx-date-col">
+                                            <span className="tx-day">{new Date(tx.date).getDate()}</span>
+                                            <span className="tx-month">{new Date(tx.date).toLocaleString('default', { month: 'short' }).toUpperCase()}</span>
+                                        </div>
+                                        <div className="tx-main-info">
+                                            <div className="tx-row-top">
+                                                <span className="tx-id">{tx.description}</span>
+                                                <span className={`status-pill-small ${tx.status}`}>
+                                                    {tx.status}
+                                                </span>
+                                            </div>
+                                            <div className="tx-items-preview">
+                                                <span className="items-text">
+                                                    Ref: {tx.reference.slice(-8).toUpperCase()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="tx-amount-col">
+                                            <span className="tx-amount">
+                                                {tx.type === 'repayment' ? '-' : '+'}₦{tx.amount.toLocaleString()}
+                                            </span>
+                                            <span className="tx-type">{tx.type.replace(/_/g, ' ')}</span>
+                                        </div>
+                                        <div className="tx-arrow">
+                                            <ChevronRight size={20} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
 
@@ -599,75 +724,94 @@ const RetailerDashboard = () => {
                         {/* Body */}
                         <div className="repayment-body custom-scrollbar">
                            
-                           {orders.filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status)).length === 0 ? (
-                               <div className="repayment-empty-state">
-                                   <div style={{ marginBottom: '1rem', color: '#10b981' }}>
-                                       <ShieldCheck size={48} />
-                                   </div>
-                                   <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>All Caught Up!</h3>
-                                   <p>You have no active loans. Your credit health is looking great.</p>
-                               </div>
-                           ) : (
-                               <div>
-                                   {orders
-                                   .filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status))
-                                   .sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate))
-                                   .map(order => {
-                                       const isSelected = targetOrderId === order._id;
-                                       const isOverdue = !order.dueDate || new Date(order.dueDate) < new Date();
-                                       
-                                       return (
-                                           <div 
-                                               key={order._id}
-                                               onClick={() => {
-                                                   setTargetOrderId(order._id);
-                                                   setRepaymentAmount(order.totalRepaymentAmount.toString());
-                                               }}
-                                               className={`repayment-card ${isSelected ? 'selected' : ''}`}
-                                           >
-                                               <div className="selection-bar" />
+                           {(() => {
+                               const activeOrders = orders.filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status));
+                               const activeAAPs = aaps.filter(a => !a.isPaid && a.status === 'received');
+                               const combined = [
+                                   ...activeOrders.map(o => ({ ...o, _isAAP: false, _amount: o.totalRepaymentAmount, _name: o.orderItems[0]?.name || 'Order', _others: o.orderItems.length - 1 })),
+                                   ...activeAAPs.map(a => ({ ...a, _isAAP: true, _amount: a.totalRetailerCost, _name: a.productName, _others: 0 }))
+                               ].sort((a, b) => {
+                                   if (!a.dueDate) return -1;
+                                   if (!b.dueDate) return 1;
+                                   return new Date(a.dueDate) - new Date(b.dueDate);
+                               });
 
-                                               <div className="card-content">
-                                                   <div className="card-row-top">
-                                                       <div>
-                                                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                               <span className="card-id-badge">
-                                                                   #{order._id.slice(-6)}
-                                                               </span>
-                                                               {isOverdue && 
-                                                                   <span style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 'bold', textTransform: 'uppercase', display: 'flex', gap: '4px', alignItems: 'center', background: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                                                                       <AlertCircle size={10} /> Overdue
+                               if (combined.length === 0) {
+                                   return (
+                                       <div className="repayment-empty-state">
+                                           <div style={{ marginBottom: '1rem', color: '#10b981' }}>
+                                               <ShieldCheck size={48} />
+                                           </div>
+                                           <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>All Caught Up!</h3>
+                                           <p>You have no active loans. Your credit health is looking great.</p>
+                                       </div>
+                                   );
+                               }
+
+                               return (
+                                   <div>
+                                       {combined.map(item => {
+                                           const isSelected = targetOrderId === item._id;
+                                           const isOverdue = !item.dueDate || new Date(item.dueDate) < new Date();
+                                           
+                                           return (
+                                               <div 
+                                                   key={item._id}
+                                                   onClick={() => {
+                                                       setTargetOrderId(item._id);
+                                                       setRepaymentAmount(item._amount.toString());
+                                                   }}
+                                                   className={`repayment-card ${isSelected ? 'selected' : ''}`}
+                                               >
+                                                   <div className="selection-bar" />
+
+                                                   <div className="card-content">
+                                                       <div className="card-row-top">
+                                                           <div>
+                                                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                   <span className="card-id-badge">
+                                                                       #{item._id.slice(-6)}
                                                                    </span>
-                                                               }
+                                                                   {item._isAAP && 
+                                                                       <span className="premium-badge-aap">
+                                                                           AAP
+                                                                       </span>
+                                                                   }
+                                                                   {isOverdue && 
+                                                                       <span style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 'bold', textTransform: 'uppercase', display: 'flex', gap: '4px', alignItems: 'center', background: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                                           <AlertCircle size={10} /> Overdue
+                                                                       </span>
+                                                                   }
+                                                               </div>
+                                                               <h4 className="card-item-title">
+                                                                   {item._name}
+                                                                   {item._others > 0 && <span style={{ color: '#9ca3af', fontWeight: 'normal' }}> +{item._others} others</span>}
+                                                               </h4>
                                                            </div>
-                                                           <h4 className="card-item-title">
-                                                               {order.orderItems[0].name}
-                                                               {order.orderItems.length > 1 && <span style={{ color: '#9ca3af', fontWeight: 'normal' }}> +{order.orderItems.length - 1} others</span>}
-                                                           </h4>
+                                                           <div className="check-indicator">
+                                                               {isSelected && <CheckCircle size={14} strokeWidth={3} />}
+                                                           </div>
                                                        </div>
-                                                       <div className="check-indicator">
-                                                           {isSelected && <CheckCircle size={14} strokeWidth={3} />}
-                                                       </div>
-                                                   </div>
 
-                                                   <div className="card-row-bottom">
-                                                       <div>
-                                                           <p className="due-label">Due Date</p>
-                                                           <p className={`due-date ${isOverdue ? 'overdue' : ''}`}>
-                                                               {order.dueDate ? new Date(order.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Immediate'}
-                                                           </p>
-                                                       </div>
-                                                       <div style={{ textAlign: 'right' }}>
-                                                            <p className="amount-label">+Limit Bonus</p>
-                                                            <p className="amount-value">₦{order.totalRepaymentAmount.toLocaleString()}</p>
+                                                       <div className="card-row-bottom">
+                                                           <div>
+                                                               <p className="due-label">Due Date</p>
+                                                               <p className={`due-date ${isOverdue ? 'overdue' : ''}`}>
+                                                                   {item.dueDate ? new Date(item.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Immediate'}
+                                                               </p>
+                                                           </div>
+                                                           <div style={{ textAlign: 'right' }}>
+                                                                <p className="amount-label">{item._isAAP ? 'Total AAP Cost' : '+Limit Bonus'}</p>
+                                                                <p className="amount-value">₦{item._amount.toLocaleString()}</p>
+                                                           </div>
                                                        </div>
                                                    </div>
                                                </div>
-                                           </div>
-                                       );
-                                   })}
-                               </div>
-                           )}
+                                           );
+                                       })}
+                                   </div>
+                               );
+                           })()}
                         </div>
 
                         {/* Footer */}

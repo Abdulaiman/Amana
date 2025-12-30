@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Check, X, DollarSign, Users, Briefcase, Activity, AlertCircle, ChevronRight, Search, ShieldCheck, ShieldX, UserCheck, Clock, Wallet } from 'lucide-react';
+import { Check, X, DollarSign, Users, Briefcase, Activity, AlertCircle, ChevronRight, Search, ShieldCheck, ShieldX, UserCheck, Clock, Wallet, AlertTriangle } from 'lucide-react';
 import './AdminDashboard.css';
 import './RetailerDashboard.css'; // Shared styles
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 
 const AdminDashboard = () => {
-    const [stats, setStats] = useState({ totalUsers: 0, totalVendors: 0, totalOrders: 0, pendingPayouts: 0, pendingVendorVerifications: 0, pendingRetailerVerifications: 0 });
+    const [stats, setStats] = useState({ totalUsers: 0, totalVendors: 0, totalOrders: 0, totalAAP: 0, pendingPayouts: 0, pendingVendorVerifications: 0, pendingRetailerVerifications: 0 });
     const [withdrawals, setWithdrawals] = useState([]);
     const [vendors, setVendors] = useState([]);
     const [retailers, setRetailers] = useState([]);
     const [agents, setAgents] = useState([]);
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('payouts');
     const [searchTerm, setSearchTerm] = useState('');
@@ -180,7 +182,25 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </header>
-
+ 
+                {stats.pendingAAPCount > 0 && (
+                    <div className="urgent-notification-banner">
+                        <div className="urgent-content">
+                            <div className="urgent-icon-box">
+                                <AlertTriangle size={24} />
+                            </div>
+                            <div className="urgent-text">
+                                <h3>{stats.pendingAAPCount} New Agent Purchase{stats.pendingAAPCount > 1 ? 's' : ''}</h3>
+                                <p>There are new agent-assisted purchases waiting for your review and fund disbursement.</p>
+                            </div>
+                        </div>
+                        <button className="urgent-action-btn" onClick={() => navigate('/admin/aap')}>
+                            Review & Disburse Funds
+                            <ChevronRight size={18} />
+                        </button>
+                    </div>
+                )}
+ 
                 <div className="admin-stats-grid">
                     <div className="stat-card-wrapper gradient-purple">
                         <div className="admin-stat-card group">
@@ -226,6 +246,18 @@ const AdminDashboard = () => {
                             <div>
                                 <h3 className="admin-stat-value">{stats.pendingPayouts}</h3>
                                 <p className="admin-stat-label">Pending Payouts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="stat-card-wrapper gradient-teal">
+                         <div className="admin-stat-card group">
+                            <div className="admin-stat-icon accent group-hover-scale">
+                                <ShieldCheck size={28} />
+                            </div>
+                            <div>
+                                <h3 className="admin-stat-value">{stats.totalAAP}</h3>
+                                <p className="admin-stat-label">Total AAPs</p>
                             </div>
                         </div>
                     </div>

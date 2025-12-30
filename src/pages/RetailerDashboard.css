@@ -711,11 +711,149 @@
     padding-top: 3rem;
 }
 
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
 .section-title {
     font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0 !important;
     color: var(--color-text);
+}
+
+.see-all-btn {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.see-all-btn:hover {
+    background: var(--color-primary);
+    color: #000;
+    transform: translateX(4px);
+}
+
+.compact-transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.premium-tx-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    gap: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.premium-tx-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(16, 185, 129, 0.3);
+    transform: translateX(8px);
+}
+
+.tx-date-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+}
+
+.tx-day {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--color-text);
+}
+
+.tx-month {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+
+.tx-main-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tx-row-top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tx-id {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.4;
+}
+
+.status-pill-small {
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pill-small.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.status-pill-small.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.status-pill-small.failed { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.status-pill-small.completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.status-pill-small.repaid { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+.items-text {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.tx-amount-col {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.tx-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-text);
+}
+
+.tx-type {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-transform: capitalize;
+}
+
+.tx-arrow {
+    color: var(--color-text-muted);
 }
 
 .orders-table-container {
@@ -1699,6 +1837,18 @@
     box-shadow: 0 4px 20px -5px rgba(16, 185, 129, 0.1);
 }
 
+.premium-badge-aap {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
 .selection-bar {
     position: absolute;
     left: 0; top: 0; bottom: 0;
@@ -2472,4 +2622,196 @@
     .tx-amount-col {
         display: none;
     }
+}
+/* AAP Retailer Section */
+.aap-retailer-section {
+    margin-top: 2rem;
+}
+
+.aap-retailer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media(min-width: 900px) {
+    .aap-retailer-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.aap-retailer-card {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.aap-retailer-card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-4px);
+}
+
+.aap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.aap-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.aap-product-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+    color: #fff;
+}
+
+.aap-price {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-primary);
+}
+
+.aap-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.aap-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.aap-instruction {
+    font-size: 0.95rem;
+    color: var(--color-text);
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    line-height: 1.6;
+}
+
+.aap-instruction.success {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid var(--color-primary);
+}
+
+.aap-instruction.muted {
+    opacity: 0.6;
+}
+
+.aap-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.btn-approve {
+    flex: 2;
+    padding: 0.875rem;
+    background: var(--color-primary);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-approve:hover {
+    background: #1de9b6;
+    transform: scale(1.02);
+}
+
+.btn-decline {
+    flex: 1;
+    padding: 0.875rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-decline:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* Reuse existing status pills if possible, or add custom ones */
+.status-pill-small.awaiting-retailer-confirm { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.status-pill-small.delivered { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.status-pill-small.pending-admin-approval { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.status-pill-small.fund-disbursed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+/* AAP Retailer Enhancements */
+.aap-breakdown-mini {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.breakdown-item .label {
+    color: var(--color-text-muted);
+}
+
+.breakdown-item .value {
+    font-weight: 700;
+}
+
+.breakdown-item.total {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.breakdown-item.total .label {
+    color: var(--color-text);
+    font-weight: 800;
+}
+
+.breakdown-item.total .value {
+    font-size: 1.125rem;
+}
+
+.aap-meta-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    padding: 0 0.25rem;
+}
+
+.aap-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.aap-meta-row span {
+    font-weight: 600;
 }
