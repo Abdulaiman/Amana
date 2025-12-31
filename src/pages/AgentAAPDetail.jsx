@@ -1,24 +1,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { 
     Package, MapPin, Store, Calendar, ArrowLeft, 
     CheckCircle, Clock, AlertCircle, ShieldCheck, DollarSign, User,
-    Phone, Mail
+    Phone, Mail, Camera, CreditCard, UploadCloud
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import RepayModal from '../components/RepayModal';
 import './AgentAAPDetail.css';
 
 const AgentAAPDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { addToast } = useToast();
     const { user } = useAuth();
     
     const [aap, setAAP] = useState(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const [repayModalOpen, setRepayModalOpen] = useState(false);
+    const fileInputRef = React.useRef(null);
+    const [pendingAction, setPendingAction] = useState(null); // 'confirm' or 'deliver'
 
     const fetchAAP = useCallback(async () => {
         try {
@@ -36,20 +41,84 @@ const AgentAAPDetail = () => {
         fetchAAP();
     }, [fetchAAP]);
 
+    // Auto-verify payment if redirected with a reference
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const reference = params.get('reference');
+        
+        if (reference) {
+            const verifyPayment = async () => {
+                try {
+                    const { data } = await api.get(`/payment/verify?reference=${reference}`);
+                    if (data.status === 'success') {
+                        addToast('Payment verified successfully!', 'success');
+                        fetchAAP(); // Refresh AAP data
+                    }
+                } catch (error) {
+                    console.error('Auto-verify failed:', error);
+                }
+                // Clean up URL
+                navigate(location.pathname, { replace: true });
+            };
+            verifyPayment();
+        }
+    }, [location.search, addToast, fetchAAP, navigate, location.pathname]);
+
     const handleMarkDelivered = async () => {
-        if (!window.confirm('Mark goods as delivered and generate pickup OTP for retailer?')) return;
+        if (!window.confirm('Mark goods as delivered and generate pickup OTP for retailer to enter?')) return;
         
         setActionLoading(true);
         try {
             const res = await api.put(`/aap/${id}/deliver`);
             addToast('Successfully marked as delivered!', 'success');
-            // Show OTP clearly
             alert(`SHARE THIS OTP WITH RETAILER: ${res.data.pickupCode}`);
             fetchAAP();
         } catch (error) {
             addToast(error.response?.data?.message || 'Failed to update status', 'error');
         } finally {
             setActionLoading(false);
+        }
+    };
+
+    const handleUploadProof = async (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await api.post('/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return res.data.url;
+    };
+
+    const triggerProxyAction = (action) => {
+        setPendingAction(action);
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !pendingAction) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+             addToast('File too large (Max 5MB)', 'warning');
+             return;
+        }
+
+        setActionLoading(true);
+        try {
+            const proofUrl = await handleUploadProof(file);
+            const endpoint = pendingAction === 'confirm' ? `/aap/${id}/proxy-confirm` : `/aap/${id}/proxy-deliver`;
+            
+            await api.put(endpoint, { photoProof: proofUrl });
+            
+            addToast(pendingAction === 'confirm' ? 'Proxy Confirmed!' : 'Proxy Delivered & Received!', 'success');
+            fetchAAP();
+        } catch (error) {
+            console.error(error);
+            addToast('Action failed', 'error');
+        } finally {
+            setActionLoading(false);
+            setPendingAction(null);
+            e.target.value = ''; // Reset input
         }
     };
 
@@ -172,15 +241,64 @@ const AgentAAPDetail = () => {
                                 <h3>Agent Operations</h3>
                             </div>
                             
-                            {aap.status === 'fund_disbursed' && (
-                                <div className="action-box">
-                                    <p>Funds have been disbursed. Visit the seller, verify goods, and pay. Once done, mark as delivered.</p>
+                            {/* Hidden File Input for Proxy Actions */}
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                style={{ display: 'none' }} 
+                                accept="image/*" 
+                                capture="environment"
+                                onChange={handleFileChange} 
+                            />
+
+                            {/* Proxy Confirm Action */}
+                            {aap.status === 'awaiting_retailer_confirm' && (
+                                <div className="action-box warning-box">
+                                    <p>Let's verify together! Take a quick photo of the retailer consenting.</p>
                                     <button 
-                                        className="btn-primary-action" 
-                                        onClick={handleMarkDelivered}
+                                        className="btn-warning-action" 
+                                        onClick={() => triggerProxyAction('confirm')}
                                         disabled={actionLoading}
                                     >
-                                        Mark as Delivered
+                                        <Camera size={16} />
+                                        {actionLoading && pendingAction === 'confirm' ? 'Opening Camera...' : 'Proxy Confirm (Take Photo)'}
+                                    </button>
+                                </div>
+                            )}
+
+                            {aap.status === 'fund_disbursed' && (
+                                <div className="action-box">
+                                    <p>Funds disbursed. Verify goods and pay. Choose delivery method:</p>
+                                    <div className="action-row">
+                                        <button 
+                                            className="btn-primary-action" 
+                                            onClick={handleMarkDelivered}
+                                            disabled={actionLoading}
+                                        >
+                                            Generate OTP (Retailer App)
+                                        </button>
+                                        <button 
+                                            className="btn-outline-action" 
+                                            onClick={() => triggerProxyAction('deliver')}
+                                            disabled={actionLoading}
+                                        >
+                                            <Camera size={16} />
+                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Proxy Deliver (Take Photo)'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                             {/* Settle Debt (Proxy) */}
+                             {aap.status === 'received' && !aap.isPaid && (
+                                <div className="action-box success-box">
+                                    <p>Accept cash and settle debt for the retailer. You will get a receipt.</p>
+                                    <button 
+                                        className="btn-success-action"
+                                        onClick={() => setRepayModalOpen(true)}
+                                    >
+                                        <CreditCard size={16} />
+                                        Settle Debt for Retailer
                                     </button>
                                 </div>
                             )}
@@ -190,26 +308,62 @@ const AgentAAPDetail = () => {
                                     <span className="otp-label">RETAILER PICKUP OTP</span>
                                     <span className="otp-value">{aap.pickupCode}</span>
                                     <p>Share this code with the retailer to confirm receipt.</p>
+                                    
+                                    <div className="otp-divider"></div>
+                                    <p className="description" style={{ fontSize: '0.9rem', margin: '0 0 8px 0', opacity: 0.8 }}>Retailer unable to verify?</p>
+                                    <button 
+                                        className="btn-inverse-action" 
+                                        onClick={() => triggerProxyAction('deliver')}
+                                        disabled={actionLoading}
+                                        style={{ width: '100%', justifyContent: 'center', padding: '1rem', borderRadius: '12px' }}
+                                    >
+                                        <Camera size={16} />
+                                        {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Use Proxy Deliver (Photo)'}
+                                    </button>
                                 </div>
                             )}
 
-                            {['pending_admin_approval', 'awaiting_retailer_confirm', 'draft'].includes(aap.status) && (
+                            {['pending_admin_approval', 'draft'].includes(aap.status) && (
                                 <div className="waiting-box">
                                     <Clock size={24} />
                                     <p>Awaiting next step in Murabaha lifecycle. No actions required right now.</p>
                                 </div>
                             )}
+                            
+                            {/* Proxy Proof removed from here */}
                         </div>
                     )}
+                {/* Proof of Delivery / Consent (Universal View) */}
+                {aap.proxyProofUrl && (
+                    <div className="detail-card proof-card">
+                         <div className="card-header">
+                            <ShieldCheck size={18} className="text-secondary" />
+                            <h3>{['received', 'completed'].includes(aap.status) ? 'Proof of Delivery' : 'Proxy Verification Proof'}</h3>
+                        </div>
+                        <div className="proxy-proof-display" style={{ marginTop: 0, background: 'transparent', padding: 0 }}>
+                            <img 
+                                src={aap.proxyProofUrl} 
+                                alt="Proof" 
+                                onClick={() => window.open(aap.proxyProofUrl, '_blank')} 
+                                style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}
+                            />
+                            <p className="description" style={{ marginTop: '12px', fontSize: '0.9rem' }}>
+                                Verified by Agent <strong>{aap.agent?.name}</strong> via Camera
+                            </p>
+                        </div>
+                    </div>
+                )}
                 </div>
 
                 <aside className="side-info">
-                    {/* Seller Details */}
+                   {/* Seller Details */}
                     <div className="detail-card entity-card">
                         <div className="card-header">
                             <Store size={18} />
                             <h3>Seller Information</h3>
                         </div>
+
+
                         <div className="entity-content">
                             <h4>{aap.sellerName}</h4>
                             <div className="contact-item">
@@ -268,6 +422,19 @@ const AgentAAPDetail = () => {
                     </div>
                 </aside>
             </div>
+
+            {aap && (
+                <RepayModal 
+                    isOpen={repayModalOpen}
+                    onClose={() => setRepayModalOpen(false)}
+                    order={aap}
+                    user={aap.retailer} 
+                    isAgentProxy={true}
+                    onSuccess={() => {
+                        fetchAAP();
+                    }}
+                />
+            )}
         </div>
     );
 };

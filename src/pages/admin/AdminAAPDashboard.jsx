@@ -277,6 +277,53 @@ const AdminAAPDashboard = () => {
                                 </div>
                             )}
 
+                            {/* Proxy Verification Warning */}
+                            {selectedAAP.proxyProofUrl && (
+                                <div className="proxy-verification-box">
+                                    <div className="proxy-header">
+                                        <AlertTriangle size={18} className="text-warning" />
+                                        <h4>Proxy Verification Required</h4>
+                                    </div>
+                                    <p className="proxy-desc">
+                                        Agent <strong>{selectedAAP.agent?.name}</strong> confirmed this on behalf of the retailer. 
+                                        Please verify the identity match below:
+                                    </p>
+                                    
+                                    <div className="proxy-comparison">
+                                        <div className="proxy-img-box">
+                                            <span className="proxy-label">Retailer Profile</span>
+                                            {selectedAAP.retailer?.kyc?.profilePicUrl ? (
+                                                <img 
+                                                    src={selectedAAP.retailer.kyc.profilePicUrl} 
+                                                    alt="Retailer Profile" 
+                                                    className="comparison-img"
+                                                />
+                                            ) : (
+                                                <div className="placeholder-img">
+                                                    <User size={32} />
+                                                    <span>No Profile Pic</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="proxy-vs-badge">VS</div>
+                                        
+                                        <div className="proxy-img-box">
+                                            <span className="proxy-label">Agent's Proof Photo</span>
+                                            <img 
+                                                src={selectedAAP.proxyProofUrl} 
+                                                alt="Agent Proof" 
+                                                className="comparison-img"
+                                                onClick={() => window.open(selectedAAP.proxyProofUrl, '_blank')}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="proxy-tip">
+                                        <small>Does the person in the proof photo match the retailer profile? If not, investigate before approving.</small>
+                                    </div>
+                                </div>
+                            )}
+
                             <h3 className="aap-modal-title">{selectedAAP.productName}</h3>
                             {selectedAAP.productDescription && (
                                 <p className="aap-modal-desc">{selectedAAP.productDescription}</p>

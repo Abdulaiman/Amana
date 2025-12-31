@@ -313,3 +313,97 @@
         flex-direction: column;
     }
 }
+
+/* Proxy Verification Styles */
+.proxy-verification-box {
+    background: rgba(245, 158, 11, 0.1); /* Warning tint */
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-lg, 12px);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.proxy-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    color: #f59e0b; /* Warning color */
+}
+
+.proxy-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.proxy-desc {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.5;
+}
+
+.proxy-comparison {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+}
+
+.proxy-img-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.proxy-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.comparison-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--color-bg);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-soft);
+}
+
+.placeholder-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--color-bg-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+}
+
+.proxy-vs-badge {
+    background: var(--color-bg-soft);
+    color: var(--color-text-muted);
+    font-weight: 900;
+    font-size: 0.9rem;
+    padding: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+}
+
+.proxy-tip {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-style: italic;
+    border-top: 1px solid rgba(245, 158, 11, 0.2);
+    padding-top: var(--spacing-sm);
+}

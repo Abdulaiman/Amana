@@ -127,7 +127,7 @@ const PsychometricTest = () => {
                         Trust Check
                     </h1>
                     <p className="intro-text">
-                        Unlock up to <span className="highlight">₦30,000</span> in classic credit. <br/>
+                        Unlock up to <span className="highlight">₦60,000</span> in classic credit. <br/>
                         No paperwork. Just a few questions.
                     </p>
                     <button onClick={() => setStep(1)} className="start-btn group">
