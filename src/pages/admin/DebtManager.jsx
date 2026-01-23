@@ -80,179 +80,360 @@ const DebtManager = () => {
     const criticalDebts = debtors.filter(d => d.isCritical);
 
     return (
-        <div className="fade-in">
-            <div className="page-header">
+        <div className="fade-in" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div className="page-header" style={{ marginBottom: '1.5rem' }}>
                 <div>
-                    <h1 className="page-title">Debt Manager</h1>
-                    <p className="page-subtitle">Track and recover outstanding repayments</p>
+                    <h1 className="page-title" style={{ fontSize: '1.5rem' }}>Debt Manager</h1>
+                    <p className="page-subtitle" style={{ fontSize: '0.9rem' }}>Track and recover outstanding repayments</p>
+                </div>
+                <div style={{ 
+                    display: 'flex', 
+                    gap: '0.75rem', 
+                    fontSize: '0.85rem',
+                    color: '#888'
+                }}>
+                    <span style={{ 
+                        background: 'rgba(16, 185, 129, 0.1)', 
+                        padding: '0.4rem 0.75rem', 
+                        borderRadius: '20px',
+                        color: '#10b981'
+                    }}>
+                        {debtors.length} Active
+                    </span>
+                    {criticalDebts.length > 0 && (
+                        <span style={{ 
+                            background: 'rgba(239, 68, 68, 0.1)', 
+                            padding: '0.4rem 0.75rem', 
+                            borderRadius: '20px',
+                            color: '#ef4444'
+                        }}>
+                            {criticalDebts.length} Critical
+                        </span>
+                    )}
                 </div>
             </div>
 
             {/* Critical Alert Banner */}
             {criticalDebts.length > 0 && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '1.5rem', borderRadius: '12px', display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-                    <div style={{ color: '#ef4444' }}>
-                        <AlertTriangle size={32} />
-                    </div>
+                <div style={{ 
+                    background: 'rgba(239, 68, 68, 0.08)', 
+                    border: '1px solid rgba(239, 68, 68, 0.15)', 
+                    padding: '1rem 1.25rem', 
+                    borderRadius: '12px', 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    gap: '0.75rem', 
+                    marginBottom: '1.5rem' 
+                }}>
+                    <AlertTriangle size={20} style={{ color: '#ef4444', flexShrink: 0 }} />
                     <div>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#ef4444' }}>{criticalDebts.length} Critical Accounts</h3>
-                        <p style={{ color: '#fca5a5' }}>These users have less than 3 days to repay. Immediate action recommended.</p>
+                        <span style={{ fontWeight: 600, color: '#ef4444' }}>{criticalDebts.length} accounts</span>
+                        <span style={{ color: '#fca5a5' }}> have less than 3 days to repay</span>
                     </div>
                 </div>
             )}
 
-            {/* List */}
-            <div className="glass-panel table-container">
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Customer</th>
-                            <th>Item/Detail</th>
-                            <th>Debt Amount</th>
-                            <th>Due Date</th>
-                            <th>Health</th>
-                            <th style={{ textAlign: 'right' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {debtors.length === 0 ? (
-                            <tr>
-                                <td colSpan="7" className="text-center p-xl">
-                                    <div className="flex flex-col items-center text-success">
-                                        <CheckCircle size={48} style={{ marginBottom: '1rem' }} />
-                                        <p style={{ fontWeight: 600 }}>All Clear!</p>
-                                        <p className="text-muted">No pending debts found.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        ) : (
-                            debtors.map((item) => (
-                                <tr key={item.orderId} style={item.isCritical ? { background: 'rgba(239, 68, 68, 0.05)' } : {}}>
-                                    <td>
-                                        <span className={`badge ${item.type === 'AAP' ? 'badge-primary' : 'badge-info'}`} style={{ fontSize: '0.7rem' }}>
+            {/* Debt Cards */}
+            {debtors.length === 0 ? (
+                <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem' }}>
+                    <CheckCircle size={48} style={{ marginBottom: '1rem', color: '#10b981' }} />
+                    <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>All Clear!</p>
+                    <p className="text-muted">No pending debts found.</p>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                    {debtors.map((item) => (
+                        <div 
+                            key={item.orderId} 
+                            className="glass-panel"
+                            style={{ 
+                                padding: '1rem 1.25rem',
+                                borderRadius: '12px',
+                                border: item.isCritical ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(255,255,255,0.05)',
+                                background: item.isCritical ? 'rgba(239, 68, 68, 0.03)' : undefined
+                            }}
+                        >
+                            <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'minmax(0, 1fr) auto',
+                                gap: '1rem',
+                                alignItems: 'center'
+                            }}>
+                                {/* Left: Info */}
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', minWidth: 0 }}>
+                                    {/* Type Badge */}
+                                    <div style={{ 
+                                        width: '48px', 
+                                        height: '48px', 
+                                        borderRadius: '12px',
+                                        background: item.type === 'AAP' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0
+                                    }}>
+                                        <span style={{ 
+                                            fontSize: '0.7rem', 
+                                            fontWeight: 700, 
+                                            color: item.type === 'AAP' ? '#10b981' : '#3b82f6' 
+                                        }}>
                                             {item.type}
                                         </span>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <p style={{ fontWeight: 600 }}>{item.user?.name}</p>
-                                            <p className="text-muted" style={{ fontSize: '0.8rem' }}>{item.user?.phone}</p>
+                                    </div>
+
+                                    {/* Customer Details */}
+                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                            <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{item.user?.name}</span>
+                                            <span className={`badge ${item.isCritical ? 'badge-danger' : item.daysRemaining < 7 ? 'badge-warning' : 'badge-success'}`} 
+                                                  style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>
+                                                <Clock size={10} style={{ marginRight: '3px' }} />
+                                                {item.daysRemaining}d
+                                            </span>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <p className="text-muted" style={{ fontSize: '0.85rem' }}>
-                                            {item.type === 'AAP' ? item.productName : `Order #${item.orderId.slice(-6).toUpperCase()}`}
-                                        </p>
-                                    </td>
-                                    <td style={{ fontFamily: 'monospace', fontWeight: 600 }}>
-                                        {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(item.amount)}
-                                    </td>
-                                    <td className="text-muted">
-                                        {new Date(item.dueDate).toLocaleDateString()}
-                                    </td>
-                                    <td>
-                                        <span className={`badge ${item.isCritical ? 'badge-danger' : item.daysRemaining < 7 ? 'badge-warning' : 'badge-success'}`}>
-                                            <Clock size={12} />
-                                            {item.daysRemaining} days left
-                                        </span>
-                                    </td>
-                                    <td style={{ textAlign: 'right' }}>
-                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                            <button 
-                                                onClick={() => sendReminder(item.user)}
-                                                className="btn btn-outline"
-                                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}
-                                            >
-                                                <MessageCircle size={14} style={{ marginRight: '0.25rem' }} />
-                                                Remind
-                                            </button>
-                                            <button 
-                                                onClick={() => openConfirmModal(item)}
-                                                className="btn btn-primary"
-                                                style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem' }}
-                                            >
-                                                <Banknote size={14} style={{ marginRight: '0.25rem' }} />
-                                                Cash Paid
-                                            </button>
+                                        <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.25rem' }}>
+                                            {item.user?.phone} • {item.type === 'AAP' ? item.productName : `#${item.orderId.slice(-6).toUpperCase()}`}
                                         </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                        <div style={{ 
+                                            fontSize: '0.75rem', 
+                                            color: '#666', 
+                                            marginTop: '0.25rem' 
+                                        }}>
+                                            Due: {new Date(item.dueDate).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right: Amount & Actions */}
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '1rem',
+                                    flexShrink: 0
+                                }}>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ 
+                                            fontFamily: 'monospace', 
+                                            fontWeight: 700, 
+                                            fontSize: '1.1rem',
+                                            color: item.isCritical ? '#ef4444' : '#fff'
+                                        }}>
+                                            ₦{item.amount.toLocaleString()}
+                                        </div>
+                                    </div>
+                                    
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button 
+                                            onClick={() => sendReminder(item.user)}
+                                            className="btn btn-outline"
+                                            style={{ 
+                                                padding: '0.5rem', 
+                                                fontSize: '0.75rem',
+                                                borderRadius: '8px',
+                                                minWidth: 'unset'
+                                            }}
+                                            title="Send Reminder"
+                                        >
+                                            <MessageCircle size={16} />
+                                        </button>
+                                        <button 
+                                            onClick={() => openConfirmModal(item)}
+                                            className="btn btn-primary"
+                                            style={{ 
+                                                padding: '0.5rem 0.75rem', 
+                                                fontSize: '0.75rem',
+                                                borderRadius: '8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.35rem'
+                                            }}
+                                        >
+                                            <Banknote size={14} />
+                                            <span>Paid</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* Confirm Cash Payment Modal */}
             {confirmModal.open && (
-                <div className="modal-overlay" style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)'
-                }}>
-                    <div className="modal-content glass-panel" style={{
-                        maxWidth: '480px', width: '90%', padding: '2rem', borderRadius: '16px',
-                        border: '1px solid rgba(16, 185, 129, 0.2)'
-                    }}>
+                <div 
+                    className="modal-overlay" 
+                    onClick={(e) => e.target === e.currentTarget && closeConfirmModal()}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.75)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        backdropFilter: 'blur(8px)',
+                        padding: '1rem',
+                        overflow: 'auto'
+                    }}
+                >
+                    <div 
+                        className="glass-panel" 
+                        style={{
+                            width: '100%',
+                            maxWidth: '420px',
+                            maxHeight: '90vh',
+                            overflow: 'auto',
+                            padding: '1.5rem',
+                            borderRadius: '16px',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            background: 'linear-gradient(145deg, rgba(17, 17, 17, 0.98), rgba(10, 10, 10, 0.98))',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.1)'
+                        }}
+                    >
                         {successMessage ? (
-                            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-                                <CheckCircle size={64} style={{ color: '#10b981', marginBottom: '1rem' }} />
-                                <h3 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Payment Confirmed!</h3>
-                                <p className="text-muted">{successMessage}</p>
+                            <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+                                <div style={{
+                                    width: '64px',
+                                    height: '64px',
+                                    borderRadius: '50%',
+                                    background: 'rgba(16, 185, 129, 0.15)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 1rem'
+                                }}>
+                                    <CheckCircle size={32} style={{ color: '#10b981' }} />
+                                </div>
+                                <h3 style={{ color: '#10b981', marginBottom: '0.5rem', fontSize: '1.25rem' }}>Payment Confirmed!</h3>
+                                <p className="text-muted" style={{ fontSize: '0.9rem' }}>{successMessage}</p>
                             </div>
                         ) : (
                             <>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                    <h2 style={{ fontSize: '1.3rem', fontWeight: 700 }}>
-                                        <Banknote size={24} style={{ marginRight: '0.5rem', color: '#10b981', verticalAlign: 'middle' }} />
+                                {/* Header */}
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center', 
+                                    marginBottom: '1.25rem',
+                                    paddingBottom: '1rem',
+                                    borderBottom: '1px solid rgba(255,255,255,0.08)'
+                                }}>
+                                    <h2 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                                        <Banknote size={20} style={{ color: '#10b981' }} />
                                         Confirm Cash Payment
                                     </h2>
-                                    <button onClick={closeConfirmModal} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#888' }}>
-                                        <X size={24} />
+                                    <button 
+                                        onClick={closeConfirmModal} 
+                                        style={{ 
+                                            background: 'rgba(255,255,255,0.05)', 
+                                            border: 'none', 
+                                            cursor: 'pointer', 
+                                            color: '#888',
+                                            borderRadius: '8px',
+                                            padding: '0.4rem',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                                        onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
+                                    >
+                                        <X size={18} />
                                     </button>
                                 </div>
 
-                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-                                    <p style={{ marginBottom: '0.5rem' }}><strong>Customer:</strong> {confirmModal.item?.user?.name}</p>
-                                    <p style={{ marginBottom: '0.5rem' }}><strong>Phone:</strong> {confirmModal.item?.user?.phone}</p>
-                                    <p style={{ marginBottom: '0.5rem' }}><strong>Type:</strong> {confirmModal.item?.type}</p>
-                                    <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#10b981' }}>
-                                        Amount: {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(confirmModal.item?.amount)}
-                                    </p>
+                                {/* Customer Info Card */}
+                                <div style={{ 
+                                    background: 'rgba(16, 185, 129, 0.05)', 
+                                    padding: '1rem', 
+                                    borderRadius: '12px', 
+                                    marginBottom: '1.25rem',
+                                    border: '1px solid rgba(16, 185, 129, 0.1)'
+                                }}>
+                                    <div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.9rem' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#888' }}>Customer</span>
+                                            <span style={{ fontWeight: 600 }}>{confirmModal.item?.user?.name}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#888' }}>Phone</span>
+                                            <span>{confirmModal.item?.user?.phone}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ color: '#888' }}>Type</span>
+                                            <span className={`badge ${confirmModal.item?.type === 'AAP' ? 'badge-primary' : 'badge-info'}`} style={{ fontSize: '0.7rem' }}>
+                                                {confirmModal.item?.type}
+                                            </span>
+                                        </div>
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between', 
+                                            alignItems: 'center',
+                                            marginTop: '0.5rem',
+                                            paddingTop: '0.75rem',
+                                            borderTop: '1px solid rgba(255,255,255,0.05)'
+                                        }}>
+                                            <span style={{ color: '#888' }}>Amount</span>
+                                            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#10b981' }}>
+                                                {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(confirmModal.item?.amount)}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                                {/* Reason Input */}
+                                <div style={{ marginBottom: '1.25rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
                                         Reason / Notes <span style={{ color: '#ef4444' }}>*</span>
                                     </label>
                                     <textarea
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
-                                        placeholder="e.g., Cash received at office on 23rd January 2026. Handed to Admin by retailer in person."
+                                        placeholder="e.g., Cash received at office on 23rd Jan. Handed by retailer in person."
                                         style={{
-                                            width: '100%', minHeight: '100px', padding: '0.75rem',
-                                            borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
-                                            background: 'rgba(0,0,0,0.3)', color: '#fff', resize: 'vertical'
+                                            width: '100%',
+                                            minHeight: '80px',
+                                            padding: '0.75rem',
+                                            borderRadius: '10px',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            background: 'rgba(0,0,0,0.4)',
+                                            color: '#fff',
+                                            resize: 'vertical',
+                                            fontSize: '0.9rem',
+                                            fontFamily: 'inherit',
+                                            boxSizing: 'border-box'
                                         }}
                                     />
-                                    <p style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.25rem' }}>
-                                        Minimum 10 characters. This will be logged for audit purposes.
+                                    <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.35rem' }}>
+                                        Min 10 characters. Logged for audit purposes.
                                     </p>
                                 </div>
 
-                                <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
-                                    <p style={{ color: '#fca5a5', fontSize: '0.85rem' }}>
-                                        <AlertTriangle size={16} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                                        <strong>Warning:</strong> This action bypasses Paystack verification. Ensure you have physically received the cash before confirming. This action is logged and cannot be undone.
+                                {/* Warning */}
+                                <div style={{ 
+                                    background: 'rgba(239, 68, 68, 0.08)', 
+                                    border: '1px solid rgba(239, 68, 68, 0.15)', 
+                                    padding: '0.85rem', 
+                                    borderRadius: '10px', 
+                                    marginBottom: '1.25rem'
+                                }}>
+                                    <p style={{ color: '#f87171', fontSize: '0.8rem', margin: 0, display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                                        <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                                        <span>This bypasses Paystack. Ensure cash is physically received. Action is logged and cannot be undone.</span>
                                     </p>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                {/* Action Buttons */}
+                                <div style={{ display: 'flex', gap: '0.75rem' }}>
                                     <button 
                                         onClick={closeConfirmModal}
                                         className="btn btn-outline"
-                                        style={{ flex: 1 }}
+                                        style={{ flex: 1, padding: '0.75rem' }}
                                         disabled={confirming}
                                     >
                                         Cancel
@@ -260,7 +441,7 @@ const DebtManager = () => {
                                     <button 
                                         onClick={handleConfirmPayment}
                                         className="btn btn-primary"
-                                        style={{ flex: 1 }}
+                                        style={{ flex: 1, padding: '0.75rem' }}
                                         disabled={confirming || reason.length < 10}
                                     >
                                         {confirming ? (
@@ -271,7 +452,7 @@ const DebtManager = () => {
                                         ) : (
                                             <>
                                                 <CheckCircle size={16} style={{ marginRight: '0.5rem' }} />
-                                                Confirm Payment
+                                                Confirm
                                             </>
                                         )}
                                     </button>
