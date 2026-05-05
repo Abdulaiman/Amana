@@ -8,14 +8,14 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-brand">
           <h3>Amana</h3>
-          <p>Sharia-Compliant Inventory Financing</p>
+          <p>Turning Informal Trade into Financial Identity</p>
         </div>
         <div className="footer-links">
           <div className="footer-col">
             <h4>Product</h4>
-            <Link to="/problem">Problem</Link>
-            <Link to="/solution">Solution</Link>
-            <Link to="/how-it-works">How It Works</Link>
+            <Link to="/#problem">Problem</Link>
+            <Link to="/#solution">Solution</Link>
+            <Link to="/#how-it-works">How It Works</Link>
           </div>
           <div className="footer-col">
             <h4>Company</h4>

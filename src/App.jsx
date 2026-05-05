@@ -72,9 +72,9 @@ function App() {
                 </>
             }>
                 <Route path="/" element={<Landing />} />
-                <Route path="/problem" element={<Problem />} />
-                <Route path="/solution" element={<Solution />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/problem" element={<Navigate to="/#problem" replace />} />
+                <Route path="/solution" element={<Navigate to="/#solution" replace />} />
+                <Route path="/how-it-works" element={<Navigate to="/#how-it-works" replace />} />
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/vendor-demo" element={<VendorDemo />} />
                 <Route path="/analytics" element={<Analytics />} />
