@@ -53,7 +53,7 @@ const Navbar = () => {
              </>
           ) : (
             <>
-              <a href="/builds/amana-latest.apk" download className="nav-link hide-mobile">Download App</a>
+              <a href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" download className="nav-link hide-mobile">Download App</a>
               <Link to="/login" className={`nav-link ${isActive('/login')}`} onClick={closeMenu}>Login</Link>
               <Link to="/register" className="btn btn-primary btn-sm glow-effect" onClick={closeMenu}>Get Started</Link>
             </>

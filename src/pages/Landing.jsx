@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Target, Shield, Zap, TrendingUp } from 'lucide-react';
-import './Landing.css';
+import './landing.css';
+import AppPromo from '../components/AppPromo';
 
 const Landing = () => {
   const sectionRefs = useRef([]);
@@ -154,6 +155,8 @@ const Landing = () => {
         </div>
       </section>
 
+      <AppPromo />
+      
       {/* 6. OUR VISION */}
       <section className="fade-in-section" ref={addToRefs}>
         <div className="section-container text-center">

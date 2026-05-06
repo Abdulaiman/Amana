@@ -55,7 +55,7 @@ const AppPromo = () => {
           </div>
 
           <div className="app-download-actions">
-            <a href="/builds/amana-latest.apk" className="btn btn-primary btn-lg glow-primary d-flex align-items-center gap-2">
+            <a href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" className="btn btn-primary btn-lg glow-primary d-flex align-items-center gap-2">
               <Download size={20} />
               <span>Download for Android</span>
             </a>
