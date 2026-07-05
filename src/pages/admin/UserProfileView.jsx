@@ -14,6 +14,10 @@ const UserProfileView = () => {
 
     // Action States
     const [statusLoading, setStatusLoading] = useState(false);
+    const [scoreInput, setScoreInput] = useState('');
+    const [overrideReason, setOverrideReason] = useState('');
+    const [updatingScore, setUpdatingScore] = useState(false);
+    const [updatingAgent, setUpdatingAgent] = useState(false);
 
     useEffect(() => {
         fetchProfile();
@@ -45,6 +49,54 @@ const UserProfileView = () => {
             alert('Failed to update status');
         } finally {
             setStatusLoading(false);
+        }
+    };
+
+    const handleToggleAgent = async () => {
+        if (!window.confirm(`Are you sure you want to toggle Agent status for this user?`)) return;
+
+        setUpdatingAgent(true);
+        try {
+            const { data } = await api.put(`/admin/retailer/${id}/agent`);
+            setProfile(prev => ({
+                ...prev,
+                user: { ...prev.user, isAgent: data.isAgent }
+            }));
+            alert(data.message);
+        } catch (error) {
+            alert(error.response?.data?.message || 'Failed to update agent status');
+        } finally {
+            setUpdatingAgent(false);
+        }
+    };
+
+    const handleOverrideScore = async (e) => {
+        e.preventDefault();
+        if (!scoreInput) return alert('Please enter a new score');
+        if (!overrideReason) return alert('Please provide a reason for the override');
+
+        setUpdatingScore(true);
+        try {
+            const { data } = await api.put(`/admin/retailer/${id}/score`, {
+                score: Number(scoreInput),
+                reason: overrideReason
+            });
+            setProfile(prev => ({
+                ...prev,
+                user: { 
+                    ...prev.user, 
+                    amanaScore: data.user.amanaScore,
+                    creditLimit: data.user.creditLimit,
+                    tier: data.user.tier
+                }
+            }));
+            alert(data.message);
+            setScoreInput('');
+            setOverrideReason('');
+        } catch (error) {
+            alert(error.response?.data?.message || 'Failed to override score');
+        } finally {
+            setUpdatingScore(false);
         }
     };
 
@@ -160,6 +212,74 @@ const UserProfileView = () => {
                                 ) : (
                                     <div className="text-muted italic">No business info provided.</div>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* Admin Tools Panel */}
+                        <div className="glass-panel p-lg" style={{ gridColumn: 'span 2' }}>
+                            <h3 className="section-title mb-4">⚙️ Admin Controls & Overrides</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                                {/* Score Override Form */}
+                                <form onSubmit={handleOverrideScore} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-primary)' }}>Override Trust Score & Credit Limit</h4>
+                                    <p className="text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
+                                        Setting a custom score will automatically recalculate the retailer's credit limit and tier (Linear multiplier of 600, capped at 180k).
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <input 
+                                            type="number" 
+                                            placeholder={`New Score (Current: ${user.amanaScore || 0})`}
+                                            value={scoreInput}
+                                            onChange={e => setScoreInput(e.target.value)}
+                                            min="0"
+                                            max="300"
+                                            className="form-input"
+                                            style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', background: '#222', border: '1px solid #444', color: 'white' }}
+                                        />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Reason for audit trail (required)..."
+                                        value={overrideReason}
+                                        onChange={e => setOverrideReason(e.target.value)}
+                                        className="form-input"
+                                        style={{ padding: '0.5rem', borderRadius: '6px', background: '#222', border: '1px solid #444', color: 'white' }}
+                                    />
+                                    <button 
+                                        type="submit" 
+                                        className="btn btn-primary" 
+                                        disabled={updatingScore}
+                                        style={{ marginTop: '0.25rem' }}
+                                    >
+                                        {updatingScore ? 'Updating...' : 'Apply Score Override'}
+                                    </button>
+                                </form>
+
+                                {/* Toggle Options & Quick Status Adjustments */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderLeft: '1px solid var(--color-border)', paddingLeft: '1.5rem' }}>
+                                    <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-primary)' }}>System Role Management</h4>
+                                    <p className="text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
+                                        Manage role permissions and status flags for this retailer. Action changes are logged in the system audit logs.
+                                    </p>
+                                    
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600 }}>Agent Status</div>
+                                            <div className="text-muted" style={{ fontSize: '0.8rem' }}>
+                                                {user.isAgent ? 'User is an Agent (can disburse AAPs)' : 'User is a standard Retailer'}
+                                            </div>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={handleToggleAgent} 
+                                            className={`btn ${user.isAgent ? 'btn-danger' : 'btn-primary'}`}
+                                            disabled={updatingAgent}
+                                            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                                        >
+                                            {user.isAgent ? 'Revoke Agent' : 'Make Agent'}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

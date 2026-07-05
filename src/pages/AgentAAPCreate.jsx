@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { Camera, Package, Store, Calendar, ArrowLeft, Phone, MapPin, Upload, X, User, DollarSign } from 'lucide-react';
@@ -10,6 +10,7 @@ const AgentAAPCreate = () => {
     const navigate = useNavigate();
     const { addToast } = useToast();
     const { user: currentUser } = useAuth();
+    const submitting = useRef(false);
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1); // 1: Product, 2: Seller, 3: Term & Submit
     const [photos, setPhotos] = useState([]);
@@ -129,6 +130,8 @@ const AgentAAPCreate = () => {
             return;
         }
 
+        if (submitting.current) return;
+        submitting.current = true;
         setLoading(true);
         try {
             const res = await api.post('/aap', {
@@ -149,6 +152,7 @@ const AgentAAPCreate = () => {
             addToast(error.response?.data?.message || 'Failed to create', 'error');
         } finally {
             setLoading(false);
+            submitting.current = false;
         }
     };
 
