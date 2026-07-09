@@ -90,67 +90,69 @@ const UserManagement = () => {
             </div>
 
             <div className="glass-panel table-container">
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Identity</th>
-                            <th>Role</th>
-                            <th>Verification</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="5" className="text-center p-xl">Loading universe...</td></tr>
-                        ) : items.length === 0 ? (
-                            <tr><td colSpan="5" className="text-center p-xl text-muted">No users found match your query.</td></tr>
-                        ) : (
-                            items.map((item) => (
-                                <tr key={item._id}>
-                                    <td>
-                                        <div className="flex items-center gap-4">
-                                            <div className="avatar-circle">
-                                                {(item.name || item.businessName || '?').charAt(0)}
+                <div className="table-wrapper">
+                    <table className="data-table">
+                        <thead>
+                            <tr>
+                                <th>Identity</th>
+                                <th>Role</th>
+                                <th>Verification</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="5" className="text-center p-xl">Loading universe...</td></tr>
+                            ) : items.length === 0 ? (
+                                <tr><td colSpan="5" className="text-center p-xl text-muted">No users found match your query.</td></tr>
+                            ) : (
+                                items.map((item) => (
+                                    <tr key={item._id}>
+                                        <td>
+                                            <div className="flex items-center gap-4">
+                                                <div className="avatar-circle">
+                                                    {(item.name || item.businessName || '?').charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p style={{ fontWeight: 600 }}>{item.name || item.businessName}</p>
+                                                    <p className="text-muted" style={{ fontSize: '0.8rem' }}>{item.email}</p>
+                                                    <p className="text-muted" style={{ fontSize: '0.8rem' }}>{item.phone || item.phones?.[0]}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p style={{ fontWeight: 600 }}>{item.name || item.businessName}</p>
-                                                <p className="text-muted" style={{ fontSize: '0.8rem' }}>{item.email}</p>
-                                                <p className="text-muted" style={{ fontSize: '0.8rem' }}>{item.phone || item.phones?.[0]}</p>
+                                        </td>
+                                        <td>
+                                            <div className={`badge ${item.type === 'vendor' ? 'badge-neutral' : 'badge-neutral'}`}>
+                                                {item.type === 'vendor' ? <Store size={12} /> : <UserIcon size={12} />}
+                                                {item.type === 'vendor' ? 'Vendor' : 'Retailer'}
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className={`badge ${item.type === 'vendor' ? 'badge-neutral' : 'badge-neutral'}`}>
-                                            {item.type === 'vendor' ? <Store size={12} /> : <UserIcon size={12} />}
-                                            {item.type === 'vendor' ? 'Vendor' : 'Retailer'}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <StatusBadge status={item.verificationStatus} />
-                                    </td>
-                                    <td>
-                                        <span className={`badge ${item.isActive !== false ? 'badge-success' : 'badge-danger'}`}>
-                                            {item.isActive !== false ? <CheckCircle size={12} /> : <Ban size={12} />}
-                                            {item.isActive !== false ? 'Active' : 'Banned'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                            <button 
-                                                className="btn btn-sm btn-ghost"
-                                                onClick={() => navigate(`/admin/user/${item._id}`)}
-                                                title="God View (Deep Dive)"
-                                            >
-                                                <Eye size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                                        </td>
+                                        <td>
+                                            <StatusBadge status={item.verificationStatus} />
+                                        </td>
+                                        <td>
+                                            <span className={`badge ${item.isActive !== false ? 'badge-success' : 'badge-danger'}`}>
+                                                {item.isActive !== false ? <CheckCircle size={12} /> : <Ban size={12} />}
+                                                {item.isActive !== false ? 'Active' : 'Banned'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                                <button 
+                                                    className="btn btn-sm btn-ghost"
+                                                    onClick={() => navigate(`/admin/user/${item._id}`)}
+                                                    title="Detailed Profile View"
+                                                >
+                                                    <Eye size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

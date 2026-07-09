@@ -1,41 +1,58 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, Users, Calculator, Briefcase, Settings, LogOut, Search, Activity, AlertTriangle, ShoppingBag } from 'lucide-react';
+import { LayoutDashboard, Users, Calculator, Briefcase, Settings, LogOut, Search, Activity, AlertTriangle, ShoppingBag, Menu, X } from 'lucide-react';
 import './AdminConsole.css';
 
 const AdminLayout = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+    };
+
     return (
         <div className="admin-layout">
+            {/* Sidebar Overlay for Mobile */}
+            {isSidebarOpen && (
+                <div className="admin-sidebar-overlay" onClick={closeSidebar}></div>
+            )}
+
             {/* Sidebar */}
-            <aside className="admin-sidebar">
+            <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <span className="brand-text">
-                        Amana God Mode
+                        Amana Admin Console
                     </span>
+                    <button className="sidebar-close-btn" onClick={closeSidebar} aria-label="Close menu">
+                        <X size={20} />
+                    </button>
                 </div>
 
                 <nav className="sidebar-nav">
                     <div className="nav-section-label">Overview</div>
-                    <NavItem to="/admin/dashboard" icon={<LayoutDashboard size={20} />} label="Dashboard" />
-                    <NavItem to="/admin/analytics" icon={<Calculator size={20} />} label="Financials" />
+                    <NavItem to="/admin/dashboard" icon={<LayoutDashboard size={20} />} label="Dashboard" onClick={closeSidebar} />
+                    <NavItem to="/admin/analytics" icon={<Calculator size={20} />} label="Financials" onClick={closeSidebar} />
                     
                     <div className="nav-section-label">Management</div>
-                    <NavItem to="/admin/users" icon={<Users size={20} />} label="User Universe" />
-                    <NavItem to="/admin/aap" icon={<ShoppingBag size={20} />} label="Agent Purchases" />
-                    <NavItem to="/admin/debt" icon={<AlertTriangle size={20} />} label="Debt Manager" />
+                    <NavItem to="/admin/users" icon={<Users size={20} />} label="User Universe" onClick={closeSidebar} />
+                    <NavItem to="/admin/aap" icon={<ShoppingBag size={20} />} label="Agent Purchases" onClick={closeSidebar} />
+                    <NavItem to="/admin/debt" icon={<AlertTriangle size={20} />} label="Debt Manager" onClick={closeSidebar} />
                     
                     <div className="nav-section-label">Operations</div>
-                    <NavItem to="/admin/audit" icon={<Activity size={20} />} label="Audit Logs" />
-                    <NavItem to="/admin/ops" icon={<Settings size={20} />} label="System Ops" />
+                    <NavItem to="/admin/audit" icon={<Activity size={20} />} label="Audit Logs" onClick={closeSidebar} />
+                    <NavItem to="/admin/ops" icon={<Settings size={20} />} label="System Ops" onClick={closeSidebar} />
                 </nav>
 
                 <div className="sidebar-footer">
@@ -61,7 +78,10 @@ const AdminLayout = () => {
             {/* Main Content */}
             <main className="admin-main">
                 <header className="admin-header">
-                    <h1 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Console</h1>
+                    <button className="sidebar-toggle-btn" onClick={toggleSidebar} aria-label="Open menu">
+                        <Menu size={24} />
+                    </button>
+                    <h1 className="admin-header-title">Console</h1>
                     <div className="search-container">
                         <Search className="search-icon" size={18} />
                         <input 
@@ -84,10 +104,11 @@ const AdminLayout = () => {
     );
 };
 
-const NavItem = ({ to, icon, label }) => (
+const NavItem = ({ to, icon, label, onClick }) => (
     <NavLink 
         to={to} 
         className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        onClick={onClick}
     >
         {icon}
         {label}

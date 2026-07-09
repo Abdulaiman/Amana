@@ -153,12 +153,7 @@ const DebtManager = () => {
                                 background: item.isCritical ? 'rgba(239, 68, 68, 0.03)' : undefined
                             }}
                         >
-                            <div style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'minmax(0, 1fr) auto',
-                                gap: '1rem',
-                                alignItems: 'center'
-                            }}>
+                            <div className="debt-card-grid">
                                 {/* Left: Info */}
                                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', minWidth: 0 }}>
                                     {/* Type Badge */}

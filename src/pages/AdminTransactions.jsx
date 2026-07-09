@@ -137,64 +137,66 @@ const AdminTransactions = () => {
 
             {/* Table */}
             <div className="transactions-table-container">
-                <table className="transactions-table">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Beneficiary</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="6" className="empty-state">Loading transactions...</td></tr>
-                        ) : currentItems.length > 0 ? (
-                            currentItems.map((tx) => (
-                                <tr key={tx._id}>
-                                    <td>
-                                         <div className={`tx-type-badge ${tx.type === 'payout' ? 'payout' : (tx.type === 'order_payment' ? 'order' : 'earning')}`}>
-                                            <div className="tx-icon-wrapper">
-                                                {tx.type === 'payout' ? <TrendingDown size={18} /> : (tx.type === 'order_payment' ? <TrendingUp size={18} /> : <TrendingUp size={18} />)}
+                <div className="table-wrapper">
+                    <table className="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Beneficiary</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="6" className="empty-state">Loading transactions...</td></tr>
+                            ) : currentItems.length > 0 ? (
+                                currentItems.map((tx) => (
+                                    <tr key={tx._id}>
+                                        <td>
+                                             <div className={`tx-type-badge ${tx.type === 'payout' ? 'payout' : (tx.type === 'order_payment' ? 'order' : 'earning')}`}>
+                                                <div className="tx-icon-wrapper">
+                                                    {tx.type === 'payout' ? <TrendingDown size={18} /> : (tx.type === 'order_payment' ? <TrendingUp size={18} /> : <TrendingUp size={18} />)}
+                                                </div>
+                                                <span>{tx.type === 'payout' ? 'Payout' : 'Order'}</span>
                                             </div>
-                                            <span>{tx.type === 'payout' ? 'Payout' : 'Order'}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className="tx-description-main">{tx.description}</span>
-                                        <span className="tx-description-sub">Ref: {tx.reference}</span>
-                                    </td>
-                                    <td>
-                                        <span style={{ color: '#d1d5db' }}>{tx.user?.businessName || 'N/A'}</span>
-                                    </td>
-                                    <td>
-                                        <div className="tx-date-cell">
-                                            {new Date(tx.date).toLocaleDateString()}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={`tx-amount ${tx.type === 'payout' ? 'negative' : 'positive'}`}>
-                                            {tx.type === 'payout' ? '-' : '+'} ₦{tx.amount.toLocaleString()}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`status-pill ${tx.status}`}>
-                                            {tx.status}
-                                        </span>
+                                        </td>
+                                        <td>
+                                            <span className="tx-description-main">{tx.description}</span>
+                                            <span className="tx-description-sub">Ref: {tx.reference}</span>
+                                        </td>
+                                        <td>
+                                            <span style={{ color: '#d1d5db' }}>{tx.user?.businessName || 'N/A'}</span>
+                                        </td>
+                                        <td>
+                                            <div className="tx-date-cell">
+                                                {new Date(tx.date).toLocaleDateString()}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={`tx-amount ${tx.type === 'payout' ? 'negative' : 'positive'}`}>
+                                                {tx.type === 'payout' ? '-' : '+'} ₦{tx.amount.toLocaleString()}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`status-pill ${tx.status}`}>
+                                                {tx.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="empty-state">
+                                        <p>No transactions found.</p>
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="empty-state">
-                                    <p>No transactions found.</p>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
              {/* Pagination */}

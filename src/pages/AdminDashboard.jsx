@@ -171,10 +171,10 @@ const AdminDashboard = () => {
     return (
         <div className="admin-dashboard-container animate-fade-in">
             <div className="admin-max-width">
-                 <header className="admin-header">
+                 <header className="dashboard-page-header">
                     <div>
-                         <h1 className="admin-title">Mission Control</h1>
-                         <p className="admin-subtitle">Platform Overview</p>
+                         <h1 className="admin-title">Dashboard Overview</h1>
+                         <p className="admin-subtitle">Platform Status & Activity</p>
                     </div>
                      <div className="header-status">
                         <div className="operational-badge">
@@ -294,67 +294,69 @@ const AdminDashboard = () => {
                                         <p>All cleared! No pending payouts.</p>
                                     </div>
                                 ) : (
-                                    <table className="payouts-table">
-                                        <thead>
-                                            <tr className="payouts-head-row">
-                                                <th className="th-cell pl">Vendor Information</th>
-                                                <th className="th-cell">Amount</th>
-                                                <th className="th-cell">Bank Details</th>
-                                                <th className="th-cell">Status</th>
-                                                <th className="th-cell pr text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="payouts-body">
-                                            {filteredWithdrawals.map(req => (
-                                                <tr key={req._id} className="payouts-row group">
-                                                    <td className="td-cell pl" data-label="Vendor">
-                                                        <div>
-                                                            <p className="vendor-name-text">{req.vendor?.businessName || 'Unknown'}</p>
-                                                            <p className="vendor-id-text">ID: {req.vendor?._id?.substring(0,8)}</p>
-                                                        </div>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Amount">
-                                                        <span className="amount-text">₦{req.amount.toLocaleString()}</span>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Bank Details">
-                                                        <div className="bank-details-box">
-                                                            <p className="bank-name">{req.bankDetailsSnapshot?.bankName}</p>
-                                                            <p className="account-number">{req.bankDetailsSnapshot?.accountNumber}</p>
-                                                            <p className="account-name">{req.bankDetailsSnapshot?.accountName}</p>
-                                                        </div>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Status">
-                                                        <span className={`status-pill ${req.status}`}>
-                                                            {req.status === 'approved' ? <Check size={12} /> : <AlertCircle size={12} />}
-                                                            {req.status.toUpperCase()}
-                                                        </span>
-                                                    </td>
-                                                    <td className="td-cell pr text-right" data-label="Action">
-                                                        {req.status === 'pending' && (
-                                                            <button 
-                                                                onClick={() => {
-                                                                    setConfirmModal({
-                                                                        isOpen: true,
-                                                                        title: 'Confirm Payout',
-                                                                        message: `Are you sure you have paid ₦${req.amount.toLocaleString()} to ${req.vendor.businessName}?`,
-                                                                        onConfirm: () => {
-                                                                            api.put(`/admin/withdrawals/${req._id}/confirm`).then(() => {
-                                                                                loadData();
-                                                                                addToast('Payout confirmed', 'success');
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                }}
-                                                                className="confirm-transfer-btn"
-                                                            >
-                                                                Confirm Paid
-                                                            </button>
-                                                        )}
-                                                    </td>
+                                    <div className="table-wrapper">
+                                        <table className="payouts-table">
+                                            <thead>
+                                                <tr className="payouts-head-row">
+                                                    <th className="th-cell pl">Vendor Information</th>
+                                                    <th className="th-cell">Amount</th>
+                                                    <th className="th-cell">Bank Details</th>
+                                                    <th className="th-cell">Status</th>
+                                                    <th className="th-cell pr text-right">Actions</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="payouts-body">
+                                                {filteredWithdrawals.map(req => (
+                                                    <tr key={req._id} className="payouts-row group">
+                                                        <td className="td-cell pl" data-label="Vendor">
+                                                            <div>
+                                                                <p className="vendor-name-text">{req.vendor?.businessName || 'Unknown'}</p>
+                                                                <p className="vendor-id-text">ID: {req.vendor?._id?.substring(0,8)}</p>
+                                                            </div>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Amount">
+                                                            <span className="amount-text">₦{req.amount.toLocaleString()}</span>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Bank Details">
+                                                            <div className="bank-details-box">
+                                                                <p className="bank-name">{req.bankDetailsSnapshot?.bankName}</p>
+                                                                <p className="account-number">{req.bankDetailsSnapshot?.accountNumber}</p>
+                                                                <p className="account-name">{req.bankDetailsSnapshot?.accountName}</p>
+                                                            </div>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Status">
+                                                            <span className={`status-pill ${req.status}`}>
+                                                                {req.status === 'approved' ? <Check size={12} /> : <AlertCircle size={12} />}
+                                                                {req.status.toUpperCase()}
+                                                            </span>
+                                                        </td>
+                                                        <td className="td-cell pr text-right" data-label="Action">
+                                                            {req.status === 'pending' && (
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        setConfirmModal({
+                                                                            isOpen: true,
+                                                                            title: 'Confirm Payout',
+                                                                            message: `Are you sure you have paid ₦${req.amount.toLocaleString()} to ${req.vendor.businessName}?`,
+                                                                            onConfirm: () => {
+                                                                                api.put(`/admin/withdrawals/${req._id}/confirm`).then(() => {
+                                                                                    loadData();
+                                                                                    addToast('Payout confirmed', 'success');
+                                                                                });
+                                                                            }
+                                                                        });
+                                                                    }}
+                                                                    className="confirm-transfer-btn"
+                                                                >
+                                                                    Confirm Paid
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -367,55 +369,57 @@ const AdminDashboard = () => {
                                         <p>No vendors found.</p>
                                     </div>
                                 ) : (
-                                    <table className="payouts-table">
-                                        <thead>
-                                            <tr className="payouts-head-row">
-                                                <th className="th-cell pl">Business</th>
-                                                <th className="th-cell">Contact</th>
-                                                <th className="th-cell">Wallet</th>
-                                                <th className="th-cell">Status</th>
-                                                <th className="th-cell pr text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="payouts-body">
-                                            {filteredVendors.map(vendor => (
-                                                <tr key={vendor._id} className="payouts-row group">
-                                                    <td className="td-cell pl" data-label="Business">
-                                                        <div>
-                                                            <div className="flex-align-center gap-2">
-                                                                <p className="vendor-name-text">{vendor.businessName}</p>
-                                                                {vendor.linkedProfileId && <span className="linked-badge" title="Linked to Retailer Account">Linked</span>}
-                                                            </div>
-                                                            <p className="vendor-id-text">{vendor.address}</p>
-                                                        </div>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Contact">
-                                                        <p className="vendor-id-text">{vendor.email}</p>
-                                                        <p className="vendor-id-text">{vendor.phones?.[0]}</p>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Wallet">
-                                                        <span className="amount-text">₦{(vendor.walletBalance || 0).toLocaleString()}</span>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Status">
-                                                        <span className={`status-pill ${vendor.verificationStatus}`}>
-                                                            {vendor.verificationStatus === 'verified' ? <ShieldCheck size={12} /> : 
-                                                             vendor.verificationStatus === 'rejected' ? <ShieldX size={12} /> : 
-                                                             <Clock size={12} />}
-                                                            {vendor.verificationStatus?.toUpperCase() || 'PENDING'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="td-cell pr text-right" data-label="Action">
-                                                        <button 
-                                                            onClick={() => openReviewModal('vendor', vendor._id)}
-                                                            className="review-btn"
-                                                        >
-                                                            Review Documents
-                                                        </button>
-                                                    </td>
+                                    <div className="table-wrapper">
+                                        <table className="payouts-table">
+                                            <thead>
+                                                <tr className="payouts-head-row">
+                                                    <th className="th-cell pl">Business</th>
+                                                    <th className="th-cell">Contact</th>
+                                                    <th className="th-cell">Wallet</th>
+                                                    <th className="th-cell">Status</th>
+                                                    <th className="th-cell pr text-right">Actions</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="payouts-body">
+                                                {filteredVendors.map(vendor => (
+                                                    <tr key={vendor._id} className="payouts-row group">
+                                                        <td className="td-cell pl" data-label="Business">
+                                                            <div>
+                                                                <div className="flex-align-center gap-2">
+                                                                    <p className="vendor-name-text">{vendor.businessName}</p>
+                                                                    {vendor.linkedProfileId && <span className="linked-badge" title="Linked to Retailer Account">Linked</span>}
+                                                                </div>
+                                                                <p className="vendor-id-text">{vendor.address}</p>
+                                                            </div>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Contact">
+                                                            <p className="vendor-id-text">{vendor.email}</p>
+                                                            <p className="vendor-id-text">{vendor.phones?.[0]}</p>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Wallet">
+                                                            <span className="amount-text">₦{(vendor.walletBalance || 0).toLocaleString()}</span>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Status">
+                                                            <span className={`status-pill ${vendor.verificationStatus}`}>
+                                                                {vendor.verificationStatus === 'verified' ? <ShieldCheck size={12} /> : 
+                                                                 vendor.verificationStatus === 'rejected' ? <ShieldX size={12} /> : 
+                                                                 <Clock size={12} />}
+                                                                {vendor.verificationStatus?.toUpperCase() || 'PENDING'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="td-cell pr text-right" data-label="Action">
+                                                            <button 
+                                                                onClick={() => openReviewModal('vendor', vendor._id)}
+                                                                className="review-btn"
+                                                            >
+                                                                Review Documents
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -428,54 +432,56 @@ const AdminDashboard = () => {
                                         <p>No retailers found.</p>
                                     </div>
                                 ) : (
-                                    <table className="payouts-table">
-                                        <thead>
-                                            <tr className="payouts-head-row">
-                                                <th className="th-cell pl">Name</th>
-                                                <th className="th-cell">Contact</th>
-                                                <th className="th-cell">Score/Tier</th>
-                                                <th className="th-cell">Status</th>
-                                                <th className="th-cell pr text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="payouts-body">
-                                            {filteredRetailers.map(user => (
-                                                <tr key={user._id} className="payouts-row group">
-                                                    <td className="td-cell pl" data-label="Name">
-                                                        <div>
-                                                            <div className="flex-align-center gap-2">
-                                                                <p className="vendor-name-text">{user.name}</p>
-                                                                {user.linkedProfileId && <span className="linked-badge" title="Linked to Vendor Account">Linked</span>}
-                                                            </div>
-                                                            <p className="vendor-id-text">{user.businessName || 'N/A'}</p>
-                                                        </div>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Contact">
-                                                        <p className="vendor-id-text">{user.email}</p>
-                                                        <p className="vendor-id-text">{user.phone}</p>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Score/Tier">
-                                                        <p className="amount-text">{user.amanaScore || 0}</p>
-                                                        <p className="vendor-id-text">{user.tier || 'Bronze'}</p>
-                                                    </td>
-                                                    <td className="td-cell" data-label="Status">
-                                                        <span className={`status-pill ${user.verificationStatus === 'approved' ? 'approved' : user.verificationStatus === 'rejected' ? 'rejected' : 'pending'}`}>
-                                                            {user.verificationStatus === 'approved' ? <UserCheck size={12} /> : user.verificationStatus === 'rejected' ? <ShieldX size={12} /> : <Clock size={12} />}
-                                                            {(user.verificationStatus || 'PENDING').toUpperCase()}
-                                                        </span>
-                                                    </td>
-                                                    <td className="td-cell pr text-right" data-label="Action">
-                                                        <button 
-                                                            onClick={() => openReviewModal('retailer', user._id)}
-                                                            className="review-btn"
-                                                        >
-                                                            Review KYC
-                                                        </button>
-                                                    </td>
+                                    <div className="table-wrapper">
+                                        <table className="payouts-table">
+                                            <thead>
+                                                <tr className="payouts-head-row">
+                                                    <th className="th-cell pl">Name</th>
+                                                    <th className="th-cell">Contact</th>
+                                                    <th className="th-cell">Score/Tier</th>
+                                                    <th className="th-cell">Status</th>
+                                                    <th className="th-cell pr text-right">Actions</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="payouts-body">
+                                                {filteredRetailers.map(user => (
+                                                    <tr key={user._id} className="payouts-row group">
+                                                        <td className="td-cell pl" data-label="Name">
+                                                            <div>
+                                                                <div className="flex-align-center gap-2">
+                                                                    <p className="vendor-name-text">{user.name}</p>
+                                                                    {user.linkedProfileId && <span className="linked-badge" title="Linked to Vendor Account">Linked</span>}
+                                                                </div>
+                                                                <p className="vendor-id-text">{user.businessName || 'N/A'}</p>
+                                                            </div>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Contact">
+                                                            <p className="vendor-id-text">{user.email}</p>
+                                                            <p className="vendor-id-text">{user.phone}</p>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Score/Tier">
+                                                            <p className="amount-text">{user.amanaScore || 0}</p>
+                                                            <p className="vendor-id-text">{user.tier || 'Bronze'}</p>
+                                                        </td>
+                                                        <td className="td-cell" data-label="Status">
+                                                            <span className={`status-pill ${user.verificationStatus === 'approved' ? 'approved' : user.verificationStatus === 'rejected' ? 'rejected' : 'pending'}`}>
+                                                                {user.verificationStatus === 'approved' ? <UserCheck size={12} /> : user.verificationStatus === 'rejected' ? <ShieldX size={12} /> : <Clock size={12} />}
+                                                                {(user.verificationStatus || 'PENDING').toUpperCase()}
+                                                            </span>
+                                                        </td>
+                                                        <td className="td-cell pr text-right" data-label="Action">
+                                                            <button 
+                                                                onClick={() => openReviewModal('retailer', user._id)}
+                                                                className="review-btn"
+                                                            >
+                                                                Review KYC
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -537,48 +543,50 @@ const AdminDashboard = () => {
                                             <p>No active agents assigned yet.</p>
                                         </div>
                                     ) : (
-                                        <table className="payouts-table mt-4">
-                                            <thead>
-                                                <tr className="payouts-head-row">
-                                                    <th className="th-cell pl">Agent</th>
-                                                    <th className="th-cell">Contact</th>
-                                                    <th className="th-cell">Score</th>
-                                                    <th className="th-cell pr text-right">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="payouts-body">
-                                                {agents.map(agent => (
-                                                    <tr key={agent._id} className="payouts-row group">
-                                                        <td className="td-cell pl" data-label="Agent">
-                                                            <div className="agent-info-cell">
-                                                                <div className="mini-avatar">
-                                                                    {agent.kyc?.profilePicUrl ? <img src={agent.kyc.profilePicUrl} alt={agent.name} /> : <Users size={14} />}
-                                                                </div>
-                                                                <div>
-                                                                    <p className="vendor-name-text">{agent.name}</p>
-                                                                    <p className="vendor-id-text">ID: {agent._id.substring(0,8)}</p>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="td-cell" data-label="Contact">
-                                                            <p className="vendor-id-text">{agent.phone}</p>
-                                                            <p className="vendor-id-text">{agent.email}</p>
-                                                        </td>
-                                                        <td className="td-cell" data-label="Score">
-                                                            <span className="amount-text">{agent.amanaScore || 0}</span>
-                                                        </td>
-                                                        <td className="td-cell pr text-right" data-label="Actions">
-                                                            <button 
-                                                                onClick={() => handleToggleAgent(agent._id)}
-                                                                className="remove-agent-btn"
-                                                            >
-                                                                Revoke Agent Status
-                                                            </button>
-                                                        </td>
+                                        <div className="table-wrapper">
+                                            <table className="payouts-table mt-4">
+                                                <thead>
+                                                    <tr className="payouts-head-row">
+                                                        <th className="th-cell pl">Agent</th>
+                                                        <th className="th-cell">Contact</th>
+                                                        <th className="th-cell">Score</th>
+                                                        <th className="th-cell pr text-right">Actions</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody className="payouts-body">
+                                                    {agents.map(agent => (
+                                                        <tr key={agent._id} className="payouts-row group">
+                                                            <td className="td-cell pl" data-label="Agent">
+                                                                <div className="agent-info-cell">
+                                                                    <div className="mini-avatar">
+                                                                        {agent.kyc?.profilePicUrl ? <img src={agent.kyc.profilePicUrl} alt={agent.name} /> : <Users size={14} />}
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="vendor-name-text">{agent.name}</p>
+                                                                        <p className="vendor-id-text">ID: {agent._id.substring(0,8)}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="td-cell" data-label="Contact">
+                                                                <p className="vendor-id-text">{agent.phone}</p>
+                                                                <p className="vendor-id-text">{agent.email}</p>
+                                                            </td>
+                                                            <td className="td-cell" data-label="Score">
+                                                                <span className="amount-text">{agent.amanaScore || 0}</span>
+                                                            </td>
+                                                            <td className="td-cell pr text-right" data-label="Actions">
+                                                                <button 
+                                                                    onClick={() => handleToggleAgent(agent._id)}
+                                                                    className="remove-agent-btn"
+                                                                >
+                                                                    Revoke Agent Status
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     )}
                                 </div>
                             </div>

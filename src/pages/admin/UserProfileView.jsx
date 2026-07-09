@@ -100,7 +100,7 @@ const UserProfileView = () => {
         }
     };
 
-    if (loading) return <div className="text-center p-xl text-muted">Loading God View...</div>;
+    if (loading) return <div className="text-center p-xl text-muted">Loading User Profile...</div>;
     if (!profile) return null;
 
     const { user, orders, notes, stats } = profile;
@@ -218,7 +218,7 @@ const UserProfileView = () => {
                         {/* Admin Tools Panel */}
                         <div className="glass-panel p-lg" style={{ gridColumn: 'span 2' }}>
                             <h3 className="section-title mb-4">⚙️ Admin Controls & Overrides</h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div className="ops-grid">
                                 {/* Score Override Form */}
                                 <form onSubmit={handleOverrideScore} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                     <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-primary)' }}>Override Trust Score & Credit Limit</h4>
@@ -256,7 +256,7 @@ const UserProfileView = () => {
                                 </form>
 
                                 {/* Toggle Options & Quick Status Adjustments */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderLeft: '1px solid var(--color-border)', paddingLeft: '1.5rem' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                     <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-primary)' }}>System Role Management</h4>
                                     <p className="text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
                                         Manage role permissions and status flags for this retailer. Action changes are logged in the system audit logs.
@@ -288,29 +288,31 @@ const UserProfileView = () => {
                 {/* ORDERS */}
                 {activeTab === 'orders' && (
                     <div className="glass-panel table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Ref</th>
-                                    <th>Date</th>
-                                    <th>Vendor</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {orders.map(order => (
-                                    <tr key={order._id}>
-                                        <td style={{ fontFamily: 'monospace' }}>{order._id.substring(0,8)}...</td>
-                                        <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                        <td>{order.vendor ? order.vendor._id?.substring(0,8) : 'N/A'}</td>
-                                        <td>₦{order.totalRepaymentAmount.toLocaleString()}</td>
-                                        <td><span className="badge badge-neutral">{order.status}</span></td>
+                        <div className="table-wrapper">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ref</th>
+                                        <th>Date</th>
+                                        <th>Vendor</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
                                     </tr>
-                                ))}
-                                {orders.length === 0 && <tr><td colSpan="5" className="text-center p-xl text-muted">No orders found.</td></tr>}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {orders.map(order => (
+                                        <tr key={order._id}>
+                                            <td style={{ fontFamily: 'monospace' }}>{order._id.substring(0,8)}...</td>
+                                            <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                            <td>{order.vendor ? order.vendor._id?.substring(0,8) : 'N/A'}</td>
+                                            <td>₦{order.totalRepaymentAmount.toLocaleString()}</td>
+                                            <td><span className="badge badge-neutral">{order.status}</span></td>
+                                        </tr>
+                                    ))}
+                                    {orders.length === 0 && <tr><td colSpan="5" className="text-center p-xl text-muted">No orders found.</td></tr>}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 

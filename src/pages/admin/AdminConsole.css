@@ -427,7 +427,7 @@
     }
 }
 
-/* --- GOD MODE PROFILE STYLES --- */
+/* --- ADMIN PROFILE STYLES --- */
 .profile-header {
     margin-bottom: var(--spacing-xl);
     border-left-width: 4px;
@@ -570,3 +570,161 @@
     font-size: 0.75rem;
     color: var(--color-text-muted);
 }
+
+/* Sidebar Toggle and Close Buttons (Desktop-First Hidden) */
+.sidebar-toggle-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-md, 8px);
+    margin-right: var(--spacing-md);
+}
+
+.sidebar-toggle-btn:hover {
+    background: var(--glass-bg);
+}
+
+.sidebar-close-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-md, 8px);
+    margin-left: auto;
+}
+
+.sidebar-close-btn:hover {
+    color: var(--color-text);
+    background: var(--glass-bg);
+}
+
+.admin-sidebar-overlay {
+    display: none;
+}
+
+/* Responsive Table Wrapper Helper */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid var(--color-border);
+    background: var(--glass-bg);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    .admin-layout {
+        position: relative;
+    }
+
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        bottom: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .admin-sidebar.open {
+        left: 0;
+    }
+
+    .sidebar-close-btn {
+        display: flex;
+    }
+
+    .sidebar-toggle-btn {
+        display: flex;
+    }
+
+    .admin-sidebar-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+    }
+
+    .admin-header {
+        padding: 0 var(--spacing-md);
+        height: 70px;
+    }
+
+    .admin-header-title {
+        display: none; /* Hide standard "Console" header text to give search more space */
+    }
+
+    .search-container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .admin-content {
+        padding: var(--spacing-md);
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .page-header .btn-group,
+    .page-header .btn {
+        width: 100%;
+    }
+
+    /* Form and profiles layouts */
+    .profile-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-lg);
+    }
+
+    .profile-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .profile-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tab-nav {
+        gap: 1rem;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: var(--spacing-xs);
+    }
+
+    .tab-btn {
+        font-size: 0.9rem;
+    }
+}
+
