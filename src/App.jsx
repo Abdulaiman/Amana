@@ -18,6 +18,7 @@ import Impact from './pages/Impact';
 import Team from './pages/Team';
 import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
+import TermsAndConditions from './pages/TermsAndConditions';
 
 // Auth & Dashboards
 import Login from './pages/Login';
@@ -83,6 +84,7 @@ function App() {
                 <Route path="/team" element={<Team />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/banned" element={<Banned />} />

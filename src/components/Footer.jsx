@@ -29,6 +29,10 @@ const Footer = () => {
             <Link to="/tech-and-security">Security</Link>
             <Link to="/admin-playground">Admin</Link>
           </div>
+          <div className="footer-col">
+            <h4>Legal</h4>
+            <Link to="/terms">Terms & Conditions</Link>
+          </div>
         </div>
       </div>
       <div className="footer-bottom">
