@@ -4,7 +4,7 @@ import api from '../services/api';
 import { 
     Package, MapPin, Store, Calendar, ArrowLeft, 
     CheckCircle, Clock, AlertCircle, ShieldCheck, DollarSign, User,
-    Phone, Mail, Camera, CreditCard, UploadCloud
+    Phone, Mail, Camera, CreditCard, UploadCloud, XCircle
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -23,7 +23,12 @@ const AgentAAPDetail = () => {
     const [actionLoading, setActionLoading] = useState(false);
     const [repayModalOpen, setRepayModalOpen] = useState(false);
     const fileInputRef = React.useRef(null);
+    const refundInputRef = React.useRef(null);
     const [pendingAction, setPendingAction] = useState(null); // 'confirm' or 'deliver'
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [cancelReason, setCancelReason] = useState('');
+    const [refundProofFile, setRefundProofFile] = useState(null);
+    const [refundProofPreview, setRefundProofPreview] = useState(null);
 
     const fetchAAP = useCallback(async () => {
         try {
@@ -64,6 +69,22 @@ const AgentAAPDetail = () => {
         }
     }, [location.search, addToast, fetchAAP, navigate, location.pathname]);
 
+    const handleSendMurabahaOffer = async () => {
+        const confirmMsg = `Send Murabaha offer to ${aap?.retailer?.name || 'retailer'}?\n\n━━━━━━━━━━━━━━━━\nAmana Purchased: ₦${(aap?.purchasePrice || 0).toLocaleString()}\nMarkup (${aap?.markupPercentage || 0}%): +₦${(aap?.markupAmount || 0).toLocaleString()}\nSelling Price: ₦${(aap?.totalRetailerCost || 0).toLocaleString()}\nRepayment: ${aap?.repaymentTerm || 0} days\n━━━━━━━━━━━━━━━━\n\nThe retailer must accept on their app, or use Proxy Accept.`;
+        if (!window.confirm(confirmMsg)) return;
+        
+        setActionLoading(true);
+        try {
+            const res = await api.put(`/aap/${id}/send-murabaha-offer`);
+            addToast(res.data.message || 'Murabaha offer sent!', 'success');
+            fetchAAP();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Failed to send Murabaha offer', 'error');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const handleMarkDelivered = async () => {
         if (!window.confirm('Mark goods as delivered and generate pickup OTP for retailer to enter?')) return;
         
@@ -75,6 +96,64 @@ const AgentAAPDetail = () => {
             fetchAAP();
         } catch (error) {
             addToast(error.response?.data?.message || 'Failed to update status', 'error');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleCancel = async () => {
+        if (!window.confirm('Are you sure you want to cancel this purchase? This action cannot be undone.')) return;
+        setActionLoading(true);
+        try {
+            await api.put(`/aap/${id}/cancel`, { reason: 'Cancelled by agent' });
+            addToast('Purchase cancelled', 'info');
+            fetchAAP();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Failed to cancel', 'error');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleRequestCancellation = () => {
+        setCancelReason('');
+        setRefundProofFile(null);
+        setRefundProofPreview(null);
+        setShowCancelModal(true);
+    };
+
+    const handleRefundFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            addToast('File too large (Max 5MB)', 'warning');
+            return;
+        }
+        setRefundProofFile(file);
+        setRefundProofPreview(URL.createObjectURL(file));
+    };
+
+    const submitCancellationRequest = async () => {
+        if (!cancelReason.trim() || cancelReason.trim().length < 5) {
+            addToast('Please provide a reason (at least 5 characters)', 'error');
+            return;
+        }
+        if (!refundProofFile) {
+            addToast('Please upload the receipt/proof of refund', 'error');
+            return;
+        }
+        setActionLoading(true);
+        try {
+            const proofUrl = await handleUploadProof(refundProofFile);
+            await api.put(`/aap/${id}/request-cancellation`, {
+                reason: cancelReason.trim(),
+                refundProofUrl: proofUrl
+            });
+            addToast('Cancellation request submitted. Admin will confirm shortly.', 'success');
+            setShowCancelModal(false);
+            fetchAAP();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Failed to request cancellation', 'error');
         } finally {
             setActionLoading(false);
         }
@@ -106,11 +185,21 @@ const AgentAAPDetail = () => {
         setActionLoading(true);
         try {
             const proofUrl = await handleUploadProof(file);
-            const endpoint = pendingAction === 'confirm' ? `/aap/${id}/proxy-confirm` : `/aap/${id}/proxy-deliver`;
+            const endpoints = {
+                'confirm': `/aap/${id}/proxy-confirm`,
+                'accept-murabaha': `/aap/${id}/proxy-accept-murabaha`,
+                'deliver': `/aap/${id}/proxy-deliver`
+            };
+            const endpoint = endpoints[pendingAction] || `/aap/${id}/proxy-deliver`;
+            const messages = {
+                'confirm': 'Interest confirmed via agent!',
+                'accept-murabaha': 'Murabaha accepted via agent!',
+                'deliver': 'Proxy Delivered & Received!'
+            };
             
             await api.put(endpoint, { photoProof: proofUrl });
             
-            addToast(pendingAction === 'confirm' ? 'Proxy Confirmed!' : 'Proxy Delivered & Received!', 'success');
+            addToast(messages[pendingAction] || 'Action completed!', 'success');
             fetchAAP();
         } catch (error) {
             console.error(error);
@@ -144,14 +233,18 @@ const AgentAAPDetail = () => {
     const getStatusConfig = (status) => {
         const configs = {
             draft: { color: '#94a3b8', label: 'Draft', icon: <Clock size={14} /> },
-            awaiting_retailer_confirm: { color: '#f59e0b', label: 'Awaiting Retailer', icon: <Clock size={14} /> },
+            awaiting_retailer_confirm: { color: '#f59e0b', label: 'Awaiting Retailer Interest', icon: <Clock size={14} /> },
             pending_admin_approval: { color: '#8b5cf6', label: 'Pending Admin Approval', icon: <ShieldCheck size={14} /> },
             fund_disbursed: { color: '#10b981', label: 'Funds Disbursed', icon: <DollarSign size={14} /> },
+            pending_murabaha_acceptance: { color: '#f59e0b', label: 'Murabaha Offer Sent', icon: <Clock size={14} /> },
+            murabaha_accepted: { color: '#10b981', label: 'Murabaha Accepted', icon: <CheckCircle size={14} /> },
             delivered: { color: '#3b82f6', label: 'Delivered', icon: <Package size={14} /> },
             received: { color: '#10b981', label: 'Received', icon: <CheckCircle size={14} /> },
             completed: { color: '#10b981', label: 'Completed', icon: <CheckCircle size={14} /> },
             declined: { color: '#ef4444', label: 'Declined', icon: <AlertCircle size={14} /> },
-            expired: { color: '#ef4444', label: 'Expired', icon: <Clock size={14} /> }
+            expired: { color: '#ef4444', label: 'Expired', icon: <Clock size={14} /> },
+            cancelled: { color: '#6b7280', label: 'Cancelled', icon: <XCircle size={14} /> },
+            cancellation_requested: { color: '#f59e0b', label: 'Cancellation Pending', icon: <Clock size={14} /> }
         };
         return configs[status] || configs.draft;
     };
@@ -200,10 +293,6 @@ const AgentAAPDetail = () => {
                             <p className="description">{aap.productDescription || 'No description provided.'}</p>
                             
                             <div className="info-row-grid">
-                                <div className="info-cell">
-                                    <span className="label">Quantity</span>
-                                    <span className="value">{aap.quantity} Units</span>
-                                </div>
                                 <div className="info-cell">
                                     <span className="label">Term</span>
                                     <span className="value">{aap.repaymentTerm} Days</span>
@@ -267,8 +356,49 @@ const AgentAAPDetail = () => {
                             )}
 
                             {aap.status === 'fund_disbursed' && (
-                                <div className="action-box">
-                                    <p>Funds disbursed. Verify goods and pay. Choose delivery method:</p>
+                                <div className="action-box success-box">
+                                    <p style={{ fontWeight: 600, marginBottom: 8 }}>
+                                        <DollarSign size={16} style={{ marginRight: 6 }} />
+                                        Funds Disbursed — Purchase the goods from the seller
+                                    </p>
+                                    <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
+                                        After purchasing, send the Murabaha offer to the retailer.
+                                    </p>
+                                    {aap.expiresAt && (
+                                        <p style={{ fontSize: '0.8rem', color: '#f59e0b', marginBottom: 12 }}>
+                                            <Clock size={14} style={{ marginRight: 4 }} />
+                                            Time remaining: {Math.max(0, Math.floor((new Date(aap.expiresAt) - new Date()) / 3600000))}h {Math.max(0, Math.floor(((new Date(aap.expiresAt) - new Date()) % 3600000) / 60000))}m
+                                        </p>
+                                    )}
+                                    <div className="action-row">
+                                        <button 
+                                            className="btn-primary-action" 
+                                            onClick={handleSendMurabahaOffer}
+                                            disabled={actionLoading}
+                                        >
+                                            Send Murabaha Offer
+                                        </button>
+                                        <button 
+                                            className="btn-outline-action" 
+                                            onClick={() => triggerProxyAction('accept-murabaha')}
+                                            disabled={actionLoading}
+                                        >
+                                            <Camera size={16} />
+                                            {actionLoading && pendingAction === 'accept-murabaha' ? 'Opening Camera...' : 'Proxy Accept Murabaha'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {aap.status === 'murabaha_accepted' && (
+                                <div className="action-box success-box">
+                                    <p style={{ fontWeight: 600, marginBottom: 8 }}>
+                                        <CheckCircle size={16} style={{ marginRight: 6 }} />
+                                        Murabaha Accepted — Deliver the Goods
+                                    </p>
+                                    <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
+                                        Retailer agreed to purchase at ₦{aap.totalRetailerCost?.toLocaleString()} (₦{aap.purchasePrice?.toLocaleString()} + {aap.markupPercentage}% markup). Choose delivery method:
+                                    </p>
                                     <div className="action-row">
                                         <button 
                                             className="btn-primary-action" 
@@ -283,7 +413,7 @@ const AgentAAPDetail = () => {
                                             disabled={actionLoading}
                                         >
                                             <Camera size={16} />
-                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Proxy Deliver (Take Photo)'}
+                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Proxy Deliver (Photo)'}
                                         </button>
                                     </div>
                                 </div>
@@ -323,22 +453,95 @@ const AgentAAPDetail = () => {
                                 </div>
                             )}
 
-                            {['pending_admin_approval', 'draft'].includes(aap.status) && (
+                            {/* Cancel before payment */}
+                            {['draft', 'awaiting_retailer_confirm', 'pending_admin_approval'].includes(aap.status) && (
+                                <div className="action-box" style={{ borderColor: '#ef4444', background: 'rgba(239,68,68,0.05)' }}>
+                                    <p>Change of plans? Cancel this purchase before payment is made.</p>
+                                    <button 
+                                        className="btn-outline-action" 
+                                        onClick={handleCancel}
+                                        disabled={actionLoading}
+                                        style={{ borderColor: '#ef4444', color: '#ef4444' }}
+                                    >
+                                        <XCircle size={16} />
+                                        Cancel Purchase
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Request cancellation after payment */}
+                            {['fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(aap.status) && (
+                                <div className="action-box" style={{ borderColor: '#f59e0b', background: 'rgba(245,158,11,0.05)' }}>
+                                    <p>Funds have been disbursed. To cancel, return the cash to admin first.</p>
+                                    <button 
+                                        className="btn-outline-action" 
+                                        onClick={handleRequestCancellation}
+                                        disabled={actionLoading}
+                                        style={{ borderColor: '#f59e0b', color: '#f59e0b' }}
+                                    >
+                                        <AlertCircle size={16} />
+                                        Request Cancellation
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Cancellation pending message */}
+                            {aap.status === 'cancellation_requested' && (
+                                <div className="waiting-box" style={{ background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)' }}>
+                                    <Clock size={24} style={{ color: '#f59e0b' }} />
+                                    <div>
+                                        <p style={{ fontWeight: 700, color: '#f59e0b', margin: 0 }}>Cancellation Pending</p>
+                                        <p style={{ fontSize: '0.85rem', opacity: 0.7, margin: '4px 0 0 0' }}>
+                                            Awaiting admin confirmation.
+                                        </p>
+                                        <div style={{ marginTop: 12, padding: 10, background: 'rgba(0,0,0,0.05)', borderRadius: 8, fontSize: '0.85rem' }}>
+                                            <strong>Funds returned to:</strong><br />
+                                            🏦 Moniepoint Bank<br />
+                                            👤 Amana Murabaha Global Enterprise<br />
+                                            🔢 6042197639
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {/* Waiting message for statuses with no actions */}
+                            {['draft', 'pending_admin_approval'].includes(aap.status) && (
                                 <div className="waiting-box">
                                     <Clock size={24} />
                                     <p>Awaiting next step in Murabaha lifecycle. No actions required right now.</p>
                                 </div>
                             )}
-                            
-                            {/* Proxy Proof removed from here */}
                         </div>
                     )}
-                {/* Proof of Delivery / Consent (Universal View) */}
+                {/* Refund Proof (Cancellation) */}
+                {aap.refundProofUrl && (
+                    <div className="detail-card proof-card">
+                        <div className="card-header">
+                            <XCircle size={18} className="text-secondary" />
+                            <h3>Refund Receipt</h3>
+                        </div>
+                        <div className="proxy-proof-display" style={{ marginTop: 0, background: 'transparent', padding: 0 }}>
+                            <img 
+                                src={aap.refundProofUrl} 
+                                alt="Refund Receipt" 
+                                onClick={() => window.open(aap.refundProofUrl, '_blank')} 
+                                style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}
+                            />
+                            {aap.cancelReason && (
+                                <p className="description" style={{ marginTop: '12px', fontSize: '0.9rem' }}>
+                                    Reason: <strong>{aap.cancelReason}</strong>
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Proof of Delivery / Consent / Murabaha Acceptance (Universal View) */}
                 {aap.proxyProofUrl && (
                     <div className="detail-card proof-card">
                          <div className="card-header">
                             <ShieldCheck size={18} className="text-secondary" />
-                            <h3>{['received', 'completed'].includes(aap.status) ? 'Proof of Delivery' : 'Proxy Verification Proof'}</h3>
+                            <h3>{aap.proxyMurabahaAcceptance ? 'Proof of Murabaha Acceptance' : (['received', 'completed'].includes(aap.status) ? 'Proof of Delivery' : 'Proxy Verification Proof')}</h3>
                         </div>
                         <div className="proxy-proof-display" style={{ marginTop: 0, background: 'transparent', padding: 0 }}>
                             <img 
@@ -434,6 +637,68 @@ const AgentAAPDetail = () => {
                         fetchAAP();
                     }}
                 />
+            )}
+
+            {/* Cancellation Request Modal */}
+            {showCancelModal && (
+                <div className="modal-overlay" onClick={() => !actionLoading && setShowCancelModal(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <h3 style={{ marginTop: 0 }}>Request Cancellation</h3>
+
+                        <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                            <strong style={{ color: '#f59e0b', fontSize: '0.85rem' }}>Send refund to:</strong>
+                            <p style={{ margin: '4px 0', fontSize: '0.95rem' }}>🏦 Moniepoint Bank</p>
+                            <p style={{ margin: '4px 0', fontSize: '0.95rem' }}>👤 Amana Murabaha Global Enterprise</p>
+                            <p style={{ margin: '4px 0', fontSize: '0.95rem', fontWeight: 800 }}>🔢 6042197639</p>
+                        </div>
+
+                        <label style={{ fontWeight: 600, fontSize: '0.9rem', display: 'block', marginBottom: 6 }}>
+                            Upload Receipt / Proof of Refund *
+                        </label>
+                        <input
+                            type="file"
+                            ref={refundInputRef}
+                            accept="image/*"
+                            capture="environment"
+                            onChange={handleRefundFileChange}
+                            style={{ marginBottom: 12 }}
+                        />
+                        {refundProofPreview && (
+                            <div style={{ marginBottom: 12 }}>
+                                <img src={refundProofPreview} alt="Receipt preview" style={{ width: '100%', maxHeight: 180, borderRadius: 8, objectFit: 'cover' }} />
+                            </div>
+                        )}
+
+                        <label style={{ fontWeight: 600, fontSize: '0.9rem', display: 'block', marginBottom: 6 }}>
+                            Reason for Cancellation *
+                        </label>
+                        <textarea
+                            value={cancelReason}
+                            onChange={e => setCancelReason(e.target.value)}
+                            placeholder="e.g. Trader changed their mind..."
+                            rows={3}
+                            style={{ width: '100%', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', padding: 12, fontSize: '0.95rem', resize: 'vertical', marginBottom: 16, boxSizing: 'border-box' }}
+                        />
+
+                        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                            <button
+                                className="btn-secondary"
+                                onClick={() => setShowCancelModal(false)}
+                                disabled={actionLoading}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="btn-primary"
+                                onClick={submitCancellationRequest}
+                                disabled={actionLoading || !refundProofFile || !cancelReason.trim() || cancelReason.trim().length < 5}
+                                style={{ background: '#ef4444', color: '#fff', opacity: (!refundProofFile || !cancelReason.trim() || cancelReason.trim().length < 5) ? 0.5 : 1 }}
+                            >
+                                {actionLoading ? 'Submitting...' : 'Submit Request'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

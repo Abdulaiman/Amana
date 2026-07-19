@@ -427,3 +427,130 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Cancellation Request Modal (inline in AAPDetail) */
+.aap-detail-container .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.aap-detail-container .modal-content {
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    max-width: 480px;
+    width: 100%;
+    padding: 1.5rem;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.aap-detail-container .modal-content h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.aap-detail-container .modal-content textarea {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding: 12px;
+    font-size: 0.95rem;
+    resize: vertical;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+.aap-detail-container .modal-content textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* Responsive Cancellation Modal */
+@media (max-width: 768px) {
+    .aap-detail-container .modal-content {
+        max-width: 92vw;
+        padding: 1.25rem;
+        border-radius: 16px;
+    }
+
+    .aap-detail-container .modal-content h3 {
+        font-size: 1.1rem;
+    }
+
+    .aap-detail-container .modal-content textarea {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .aap-detail-container .modal-content input[type="file"] {
+        font-size: 0.85rem;
+    }
+
+    .aap-detail-container .modal-content img {
+        max-height: 140px;
+    }
+
+    .aap-detail-container .modal-content .btn {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 10px 14px;
+    }
+
+    .aap-detail-container .modal-content div[style*="display: flex"][style*="gap: 10px"] {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .aap-detail-container .modal-content {
+        max-width: 96vw;
+        padding: 1rem;
+        border-radius: 14px;
+        max-height: 85vh;
+    }
+
+    .aap-detail-container .modal-content h3 {
+        font-size: 1rem;
+    }
+
+    .aap-detail-container .modal-content textarea {
+        font-size: 0.85rem;
+        padding: 8px;
+        min-height: 60px;
+    }
+
+    .aap-detail-container .modal-content img {
+        max-height: 100px;
+    }
+
+    .aap-detail-container .modal-content .btn {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+    }
+
+    .aap-detail-container .modal-content div[style*="background: rgba(245, 158, 11, 0.1)"] {
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+
+    .aap-detail-container .modal-content div[style*="background: rgba(245, 158, 11, 0.1)"] p {
+        font-size: 0.8rem;
+        margin: 2px 0;
+    }
+
+    .aap-detail-container .modal-content label {
+        font-size: 0.85rem;
+    }
+}

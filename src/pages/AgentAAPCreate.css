@@ -260,10 +260,10 @@ textarea.form-control {
     padding-left: 2.75rem;
 }
 
-/* Term Options */
+/* Term Options (3 items) */
 .term-options {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .term-btn {
@@ -299,6 +299,48 @@ textarea.form-control {
 
 .term-label {
     font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+/* Duration Options (8 items) */
+.duration-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.duration-btn {
+    padding: 0.75rem 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.duration-btn:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.duration-btn.active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--color-primary);
+}
+
+.duration-days {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-text);
+}
+
+.duration-btn.active .duration-days {
+    color: var(--color-primary);
+}
+
+.duration-label {
+    font-size: 0.7rem;
     color: var(--color-text-muted);
 }
 

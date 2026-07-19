@@ -156,10 +156,21 @@ const RetailerDashboard = () => {
     const handleAAPConfirm = async (aapId) => {
         try {
             await api.put(`/aap/${aapId}/confirm`);
-            addToast('Purchase confirmed! Waiting for Amana admin approval.', 'success');
+            addToast('Interest recorded! Amana will review your request.', 'success');
             fetchData();
         } catch (error) {
             addToast(error.response?.data?.message || 'Confirmation failed', 'error');
+        }
+    };
+
+    const handleAcceptMurabaha = async (aapId) => {
+        if (!window.confirm('Accept the Murabaha sale? Amana purchased these goods and is offering them to you at the stated price (purchase price + markup). This confirms your agreement to buy.')) return;
+        try {
+            await api.put(`/aap/${aapId}/accept-murabaha`);
+            addToast('Murabaha sale accepted! Awaiting delivery.', 'success');
+            fetchData();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Acceptance failed', 'error');
         }
     };
 
@@ -176,11 +187,11 @@ const RetailerDashboard = () => {
     };
 
     const handleAAPReceive = async (aapId) => {
-        const pickupCode = prompt('Enter the OTP provided by the agent to confirm receipt:');
+        const pickupCode = prompt('Enter the 6-digit OTP from your agent to confirm you received the goods:');
         if (!pickupCode) return;
         try {
             await api.put(`/aap/${aapId}/receive`, { pickupCode });
-            addToast('Receipt confirmed! Credit locked.', 'success');
+            addToast('Goods received! Amount added to your repayment balance.', 'success');
             fetchData();
         } catch (error) {
             addToast(error.response?.data?.message || 'Receipt confirmation failed', 'error');
@@ -341,17 +352,20 @@ const RetailerDashboard = () => {
             </div>
             
             {/* Agent Assisted Purchases (AAP) Section */}
-            {aaps.filter(a => ['awaiting_retailer_confirm', 'delivered', 'pending_admin_approval', 'fund_disbursed'].includes(a.status)).length > 0 && (
+            {aaps.filter(a => ['awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(a.status)).length > 0 && (
                 <div className="aap-retailer-section animate-slide-up">
                     <h2 className="section-title">Agent-Assisted Purchases</h2>
                     <div className="aap-retailer-grid">
-                        {aaps.filter(a => ['awaiting_retailer_confirm', 'delivered', 'pending_admin_approval', 'fund_disbursed'].includes(a.status)).map(aap => (
+                        {aaps.filter(a => ['awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(a.status)).map(aap => (
                             <div key={aap._id} className="aap-retailer-card glass-panel">
                                 <div className="aap-header">
                                     <div className="aap-title-group">
                                         <h3 className="aap-product-name">{aap.productName}</h3>
                                         <span className={`status-pill-small ${aap.status.replace(/_/g, '-')}`}>
-                                            {aap.status === 'awaiting_retailer_confirm' ? 'Action Required' : aap.status.replace(/_/g, ' ')}
+                                            {aap.status === 'awaiting_retailer_confirm' ? 'Express Interest' : 
+                                             aap.status === 'pending_murabaha_acceptance' ? 'Sale Offer' :
+                                             aap.status === 'murabaha_accepted' ? 'Awaiting Delivery' :
+                                             aap.status.replace(/_/g, ' ')}
                                         </span>
                                     </div>
                                 </div>
@@ -379,9 +393,15 @@ const RetailerDashboard = () => {
                                         </div>
                                     </div>
                                     {aap.status === 'awaiting_retailer_confirm' ? (
-                                        <p className="aap-instruction">Your agent found this product. Confirm that you are interested in this product. </p>
+                                        <p className="aap-instruction">Your agent found this product. Express your interest — this tells Amana you want to buy through us. Final terms will be presented after we acquire the goods.</p>
+                                    ) : aap.status === 'pending_murabaha_acceptance' ? (
+                                        <p className="aap-instruction" style={{ color: 'var(--color-primary)' }}>Amana purchased this product. Review and accept the Murabaha sale terms above.</p>
+                                    ) : aap.status === 'murabaha_accepted' ? (
+                                        <p className="aap-instruction" style={{ color: '#10b981' }}>Sale accepted! Awaiting delivery from your agent.</p>
+                                    ) : aap.status === 'delivered' ? (
+                                        <p className="aap-instruction success">Goods delivered! Enter OTP to confirm receipt.</p>
                                     ) : (
-                                        <p className={`aap-instruction ${aap.status === 'delivered' ? 'success' : 'muted'}`}>
+                                        <p className="aap-instruction muted">
                                             Status: {aap.status.replace(/_/g, ' ')}
                                         </p>
                                     )}
@@ -390,9 +410,12 @@ const RetailerDashboard = () => {
                                 <div className="aap-actions">
                                     {aap.status === 'awaiting_retailer_confirm' && (
                                         <>
-                                            <button className="btn-approve" onClick={() => handleAAPConfirm(aap._id)}>Confirm Interest</button>
-                                            <button className="btn-decline" onClick={() => handleAAPDecline(aap._id)}>Decline</button>
+                                            <button className="btn-approve" onClick={() => handleAAPConfirm(aap._id)}>Express Interest</button>
+                                            <button className="btn-decline" onClick={() => handleAAPDecline(aap._id)}>Not Interested</button>
                                         </>
+                                    )}
+                                    {aap.status === 'pending_murabaha_acceptance' && (
+                                        <button className="btn-approve" onClick={() => handleAcceptMurabaha(aap._id)}>Accept Sale — Buy from Amana</button>
                                     )}
                                     {aap.status === 'delivered' && (
                                         <button className="btn-approve" onClick={() => handleAAPReceive(aap._id)}>Confirm Receipt (Enter OTP)</button>

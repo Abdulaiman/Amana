@@ -14,7 +14,8 @@ const AdminAAPDashboard = () => {
     const [selectedAAP, setSelectedAAP] = useState(null);
     const [disbursementForm, setDisbursementForm] = useState({
         method: 'bank_transfer',
-        reference: ''
+        reference: '',
+        duration: null
     });
     const [actionLoading, setActionLoading] = useState(false);
 
@@ -41,9 +42,11 @@ const AdminAAPDashboard = () => {
         }
         setActionLoading(true);
         try {
+            const duration = disbursementForm.duration ? Number(disbursementForm.duration) : undefined;
             await api.put(`/aap/${aapId}/approve`, {
                 disbursementMethod: disbursementForm.method,
-                disbursementReference: disbursementForm.reference
+                disbursementReference: disbursementForm.reference,
+                duration
             });
             setSelectedAAP(null);
             fetchAAPs();
@@ -70,6 +73,8 @@ const AdminAAPDashboard = () => {
     const getStatusBadgeClass = (status) => {
         switch(status) {
             case 'pending_admin_approval': return 'badge-warning';
+            case 'pending_murabaha_acceptance': return 'badge-warning';
+            case 'murabaha_accepted': return 'badge-primary';
             case 'fund_disbursed':
             case 'received':
             case 'completed': return 'badge-success';
@@ -85,6 +90,8 @@ const AdminAAPDashboard = () => {
             awaiting_retailer_confirm: 'Awaiting Retailer',
             pending_admin_approval: 'Pending Approval',
             fund_disbursed: 'Fund Disbursed',
+            pending_murabaha_acceptance: 'Murabaha Offer Sent',
+            murabaha_accepted: 'Murabaha Accepted',
             delivered: 'Delivered',
             received: 'Received',
             completed: 'Completed',
@@ -132,6 +139,19 @@ const AdminAAPDashboard = () => {
                 </div>
 
                 <div 
+                    className={`metric-card glass-panel aap-stat-card ${filter === 'murabaha_accepted' ? 'active' : ''}`}
+                    onClick={() => setFilter('murabaha_accepted')}
+                >
+                    <div className="metric-header">
+                        <div className="icon-box icon-primary">
+                            <CheckCircle size={20} />
+                        </div>
+                    </div>
+                    <div className="metric-value">{stats.murabahaAccepted || 0}</div>
+                    <div className="metric-sub">Accepted</div>
+                </div>
+
+                <div 
                     className={`metric-card glass-panel aap-stat-card ${filter === 'expired' ? 'active' : ''}`}
                     onClick={() => setFilter('expired')}
                 >
@@ -160,7 +180,7 @@ const AdminAAPDashboard = () => {
 
             {/* Filter Tabs */}
             <div className="tab-nav aap-tabs">
-                {['pending_admin_approval', 'fund_disbursed', 'delivered', 'received', 'expired', 'declined'].map(s => (
+                {['pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered', 'received', 'expired', 'declined'].map(s => (
                     <button 
                         key={s}
                         className={`tab-btn ${filter === s ? 'active' : ''}`}
@@ -189,7 +209,6 @@ const AdminAAPDashboard = () => {
                             <div className="aap-card-header">
                                 <div>
                                     <h3 className="aap-card-title">{aap.productName}</h3>
-                                    <p className="aap-card-subtitle">Qty: {aap.quantity}</p>
                                 </div>
                                 <span className={`badge ${getStatusBadgeClass(aap.status)}`}>
                                     {getStatusLabel(aap.status)}
@@ -227,10 +246,16 @@ const AdminAAPDashboard = () => {
                                     <Calendar size={14} />
                                     <span>Term: <strong>{aap.repaymentTerm} days</strong> ({aap.markupPercentage}% markup)</span>
                                 </div>
-                                {aap.status === 'fund_disbursed' && aap.expiresAt && (
+                                {aap.requestedDuration && (
+                                    <div className="aap-info-row">
+                                        <Clock size={14} />
+                                        <span>Agent Requested: <strong>{aap.requestedDuration}h</strong> {aap.adminAdjustedDuration ? `(Admin set: ${aap.adminAdjustedDuration}h)` : ''}</span>
+                                    </div>
+                                )}
+                                {['fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted'].includes(aap.status) && aap.expiresAt && (
                                     <div className="aap-info-row aap-danger">
                                         <Clock size={14} />
-                                        <span>Expires: {new Date(aap.expiresAt).toLocaleTimeString()}</span>
+                                        <span>Expires: {new Date(aap.expiresAt).toLocaleString()}</span>
                                     </div>
                                 )}
                             </div>
@@ -282,10 +307,10 @@ const AdminAAPDashboard = () => {
                                 <div className="proxy-verification-box">
                                     <div className="proxy-header">
                                         <AlertTriangle size={18} className="text-warning" />
-                                        <h4>Proxy Verification Required</h4>
+                                        <h4>{selectedAAP.proxyMurabahaAcceptance ? 'Proxy Murabaha Acceptance' : 'Proxy Verification Required'}</h4>
                                     </div>
                                     <p className="proxy-desc">
-                                        Agent <strong>{selectedAAP.agent?.name}</strong> confirmed this on behalf of the retailer. 
+                                        Agent <strong>{selectedAAP.agent?.name}</strong> {selectedAAP.proxyMurabahaAcceptance ? 'confirmed Murabaha acceptance' : selectedAAP.proxyReceipt ? 'confirmed delivery' : 'confirmed interest'} on behalf of the retailer. 
                                         Please verify the identity match below:
                                     </p>
                                     
@@ -368,6 +393,48 @@ const AdminAAPDashboard = () => {
                                 </div>
                             )}
 
+                            {/* Murabaha Offer Info (post-disbursement) */}
+                            {(selectedAAP.status === 'pending_murabaha_acceptance' || selectedAAP.status === 'murabaha_accepted') && (
+                                <div className="aap-section" style={{ border: '1px solid var(--primary)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                                    <h4 style={{ color: 'var(--primary)' }}>
+                                        <CheckCircle size={16} style={{ marginRight: 6 }} />
+                                        Murabaha Sale {selectedAAP.status === 'murabaha_accepted' ? 'Accepted' : 'Offer Sent'}
+                                    </h4>
+                                    <div className="aap-detail-grid" style={{ marginTop: 12 }}>
+                                        <div className="aap-detail-item">
+                                            <label>Amana Purchase Price</label>
+                                            <span>₦{selectedAAP.purchasePrice?.toLocaleString()}</span>
+                                        </div>
+                                        <div className="aap-detail-item">
+                                            <label>Markup ({selectedAAP.repaymentTerm}d)</label>
+                                            <span>{selectedAAP.markupPercentage}% = +₦{selectedAAP.markupAmount?.toLocaleString()}</span>
+                                        </div>
+                                        <div className="aap-detail-item aap-highlight">
+                                            <label>Retailer Pays</label>
+                                            <span>₦{selectedAAP.totalRetailerCost?.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-muted" style={{ marginTop: 8 }}>
+                                        Due in {selectedAAP.repaymentTerm} days after delivery
+                                    </p>
+                                    {selectedAAP.murabahaOfferSentAt && (
+                                        <p className="text-muted" style={{ fontSize: 12 }}>
+                                            Offer sent: {new Date(selectedAAP.murabahaOfferSentAt).toLocaleString()}
+                                        </p>
+                                    )}
+                                    {selectedAAP.murabahaAcceptedAt && (
+                                        <p className="text-muted" style={{ fontSize: 12 }}>
+                                            Accepted: {new Date(selectedAAP.murabahaAcceptedAt).toLocaleString()}
+                                        </p>
+                                    )}
+                                    {selectedAAP.proxyMurabahaAcceptance && (
+                                        <p className="text-warning" style={{ fontSize: 12, marginTop: 4 }}>
+                                            Accepted via agent proxy
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Approval Form */}
                             {selectedAAP.status === 'pending_admin_approval' && (
                                 <div className="aap-approval-section">
@@ -385,6 +452,28 @@ const AdminAAPDashboard = () => {
                                             <option value="cash">Cash</option>
                                             <option value="mobile_money">Mobile Money</option>
                                         </select>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">Duration (hours)</label>
+                                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                            {[1, 2, 4, 8, 12, 24, 48, 72].map(h => (
+                                                <button
+                                                    key={h}
+                                                    type="button"
+                                                    className={`btn ${disbursementForm.duration === h ? 'btn-primary' : 'btn-outline'}`}
+                                                    style={{ padding: '4px 12px', fontSize: 12 }}
+                                                    onClick={() => setDisbursementForm({...disbursementForm, duration: h})}
+                                                >
+                                                    {h >= 24 ? `${h / 24}d` : `${h}h`}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {selectedAAP?.requestedDuration && (
+                                            <small className="text-muted" style={{ display: 'block', marginTop: 4 }}>
+                                                Agent requested {selectedAAP.requestedDuration}h. Default: {selectedAAP.requestedDuration}h (click a button above to override).
+                                            </small>
+                                        )}
                                     </div>
 
                                     <div className="form-group">

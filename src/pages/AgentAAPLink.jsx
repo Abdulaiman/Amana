@@ -17,7 +17,8 @@ const AgentAAPLink = () => {
     const [loading, setLoading] = useState(true);
     const [searching, setSearching] = useState(false);
     const [linking, setLinking] = useState(false);
-    const [selectedTerm, setSelectedTerm] = useState(14);
+    const [selectedTerm, setSelectedTerm] = useState(null);
+    const [selectedDuration, setSelectedDuration] = useState(null);
     const [step, setStep] = useState(1); // 1: Search, 2: Review
 
     const fetchData = async () => {
@@ -25,7 +26,6 @@ const AgentAAPLink = () => {
         try {
             const res = await api.get(`/aap/${id}`);
             setAAP(res.data);
-            if (res.data.repaymentTerm) setSelectedTerm(res.data.repaymentTerm);
         } catch (error) {
             addToast('Failed to load purchase details', 'error');
         } finally {
@@ -39,7 +39,7 @@ const AgentAAPLink = () => {
 
     const handlePhoneSearch = async (val) => {
         setPhone(val);
-        if (val.length >= 10) {
+        if (val.length === 11) {
             setSearching(true);
             try {
                 const res = await api.get(`/aap/find-retailer?phone=${val}`);
@@ -62,7 +62,7 @@ const AgentAAPLink = () => {
     };
 
     const calculateMarkupPreview = () => {
-        if (!retailer || !aap) return { percentage: 0, amount: 0, total: 0 };
+        if (!retailer || !aap || !selectedTerm) return { percentage: 0, amount: 0, total: 0 };
         
         // Mirror server-side determineMarkup logic
         const score = retailer.amanaScore;
@@ -89,7 +89,8 @@ const AgentAAPLink = () => {
         try {
             await api.put(`/aap/${id}/link-retailer`, {
                 retailerId: retailer._id,
-                repaymentTerm: selectedTerm
+                repaymentTerm: selectedTerm,
+                requestedDuration: selectedDuration
             });
             addToast('Retailer linked! Awaiting their confirmation.', 'success');
             navigate('/agent/tasks');
@@ -164,7 +165,7 @@ const AgentAAPLink = () => {
                                     Proceed to Review <ArrowLeft size={16} className="rotate-180" />
                                 </button>
                             </div>
-                        ) : phone.length >= 10 && !searching && (
+                        ) : phone.length === 11 && !searching && (
                             <div className="not-found-state animate-fade-in">
                                 <AlertCircle size={32} />
                                 <p>No approved retailer found with this number.</p>
@@ -202,27 +203,50 @@ const AgentAAPLink = () => {
                                 </div>
                             </div>
 
-                            <div className="markup-highlight">
-                                <div className="breakdown-row">
-                                    <span className="label">Murabaha Markup ({breakdown.percentage}%)</span>
-                                    <span className="value text-primary">+ ₦{breakdown.amount.toLocaleString()}</span>
+                            <div className="term-selector-group" style={{ marginTop: 16 }}>
+                                <label>Purchase Duration (hours to complete)</label>
+                                <div className="term-pills">
+                                    {[1, 2, 4, 8, 12, 24, 48, 72].map(h => (
+                                        <button 
+                                            key={h}
+                                            className={`term-pill ${selectedDuration === h ? 'active' : ''}`}
+                                            onClick={() => setSelectedDuration(h)}
+                                        >
+                                            {h >= 24 ? `${h / 24}d` : `${h}h`}
+                                        </button>
+                                    ))}
                                 </div>
-                                <p className="markup-note">Based on {retailer.name}'s score and {selectedTerm}-day term.</p>
                             </div>
 
-                            <div className="breakdown-divider"></div>
+                            {!selectedTerm ? (
+                                <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+                                    Select a repayment term above to see the cost breakdown
+                                </p>
+                            ) : (
+                                <>
+                                    <div className="markup-highlight">
+                                        <div className="breakdown-row">
+                                            <span className="label">Murabaha Markup ({breakdown.percentage}%)</span>
+                                            <span className="value text-primary">+ ₦{breakdown.amount.toLocaleString()}</span>
+                                        </div>
+                                        <p className="markup-note">Based on {retailer.name}'s score and {selectedTerm}-day term.</p>
+                                    </div>
 
-                            <div className="breakdown-row total">
-                                <span className="label">Retailer Total</span>
-                                <span className="value text-primary">₦{breakdown.total.toLocaleString()}</span>
-                            </div>
+                                    <div className="breakdown-divider"></div>
+
+                                    <div className="breakdown-row total">
+                                        <span className="label">Retailer Total</span>
+                                        <span className="value text-primary">₦{breakdown.total.toLocaleString()}</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         <div className="action-buttons">
                             <button 
                                 className="btn-confirm-link"
                                 onClick={handleLink}
-                                disabled={linking}
+                                disabled={linking || !selectedTerm || !selectedDuration}
                             >
                                 {linking ? 'Processing...' : 'Confirm & Request Purchase'}
                             </button>

@@ -17,13 +17,13 @@ const AgentAAPCreate = () => {
     const [form, setForm] = useState({
         productName: '',
         productDescription: '',
-        quantity: 1,
         purchasePrice: '',
         sellerName: '',
         sellerPhone: '',
         sellerLocation: '',
-        repaymentTerm: 14,
-        retailerId: null
+        repaymentTerm: null,
+        retailerId: null,
+        requestedDuration: null
     });
 
     const [phone, setPhone] = useState('');
@@ -31,7 +31,8 @@ const AgentAAPCreate = () => {
     const [searching, setSearching] = useState(false);
     const [lookupError, setLookupError] = useState(false);
 
-    const determineMarkup = (score, termDays = 14) => {
+    const determineMarkup = (score, termDays) => {
+        if (!termDays) return 0;
         let baseMarkup = 15.0;
         if (score >= 80) baseMarkup = 5.0;
         else if (score >= 60) baseMarkup = 8.0;
@@ -47,7 +48,7 @@ const AgentAAPCreate = () => {
     const handlePhoneChange = async (val) => {
         setPhone(val);
         setLookupError(false);
-        if (val.length >= 10) {
+        if (val.length === 11) {
             setSearching(true);
             try {
                 const res = await api.get(`/aap/find-retailer?phone=${val}`);
@@ -130,6 +131,16 @@ const AgentAAPCreate = () => {
             return;
         }
 
+        if (!form.repaymentTerm) {
+            addToast('Please select a repayment term', 'error');
+            return;
+        }
+
+        if (!form.requestedDuration) {
+            addToast('Please select how many hours you need to complete the purchase', 'error');
+            return;
+        }
+
         if (submitting.current) return;
         submitting.current = true;
         setLoading(true);
@@ -137,13 +148,13 @@ const AgentAAPCreate = () => {
             const res = await api.post('/aap', {
                 ...form,
                 productPhotos: uploadedPhotos,
-                quantity: parseInt(form.quantity),
                 purchasePrice: parseFloat(form.purchasePrice),
                 sellerName: form.sellerName.trim(),
                 sellerPhone: form.sellerPhone.trim(),
                 sellerLocation: form.sellerLocation.trim(),
                 repaymentTerm: form.repaymentTerm,
-                retailerId: form.retailerId
+                retailerId: form.retailerId,
+                requestedDuration: form.requestedDuration
             });
 
             addToast('Purchase created and linked successfully!', 'success');
@@ -260,27 +271,15 @@ const AgentAAPCreate = () => {
                             />
                         </div>
 
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Quantity</label>
-                                <input
-                                    type="number"
-                                    className="form-control"
-                                    value={form.quantity}
-                                    onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                                    min={1}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Price (₦) *</label>
-                                <input
-                                    type="number"
-                                    className="form-control"
-                                    value={form.purchasePrice}
-                                    onChange={(e) => setForm({ ...form, purchasePrice: e.target.value })}
-                                    placeholder="e.g. 25000"
-                                />
-                            </div>
+                        <div className="form-group">
+                            <label className="form-label">Price (₦) *</label>
+                            <input
+                                type="number"
+                                className="form-control"
+                                value={form.purchasePrice}
+                                onChange={(e) => setForm({ ...form, purchasePrice: e.target.value })}
+                                placeholder="e.g. 25000"
+                            />
                         </div>
                     </div>
 
@@ -446,6 +445,27 @@ const AgentAAPCreate = () => {
                         </div>
                     </div>
 
+                    <div className="form-section">
+                        <div className="section-header">
+                            <Package size={18} />
+                            <h3>Purchase Duration</h3>
+                        </div>
+                        <p className="section-hint">How long do you need after receiving funds to buy the goods?</p>
+
+                        <div className="duration-options">
+                            {[1, 2, 4, 8, 12, 24, 48, 72].map((hours) => (
+                                <button
+                                    key={hours}
+                                    className={`duration-btn ${form.requestedDuration === hours ? 'active' : ''}`}
+                                    onClick={() => setForm({ ...form, requestedDuration: hours })}
+                                >
+                                    <span className="duration-days">{hours >= 24 ? hours / 24 : hours}</span>
+                                    <span className="duration-label">{hours >= 24 ? 'Days' : 'Hours'}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Logic Integration: Cost Breakdown */}
                     <div className="form-section cost-breakdown-section animate-slide-up">
                         <div className="section-header">
@@ -453,28 +473,36 @@ const AgentAAPCreate = () => {
                             <h3>Cost Breakdown</h3>
                         </div>
                         
-                        <div className="breakdown-card">
-                            <div className="breakdown-line">
-                                <span>Product Price</span>
-                                <span>₦{parseFloat(form.purchasePrice).toLocaleString()}</span>
-                            </div>
-                            <div className="breakdown-line">
-                                <span>Murabaha Markup ({determineMarkup(retailer.amanaScore, form.repaymentTerm)}%)</span>
-                                <span className="text-primary">+ ₦{(parseFloat(form.purchasePrice) * determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100).toLocaleString()}</span>
-                            </div>
-                            <div className="breakdown-line total">
-                                <span>Total Retailer Cost</span>
-                                <span>₦{(parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)).toLocaleString()}</span>
-                            </div>
-                        </div>
+                        {!form.repaymentTerm ? (
+                            <p className="section-hint" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+                                Select a repayment term above to see the cost breakdown
+                            </p>
+                        ) : (
+                            <>
+                                <div className="breakdown-card">
+                                    <div className="breakdown-line">
+                                        <span>Product Price</span>
+                                        <span>₦{parseFloat(form.purchasePrice).toLocaleString()}</span>
+                                    </div>
+                                    <div className="breakdown-line">
+                                        <span>Murabaha Markup ({determineMarkup(retailer.amanaScore, form.repaymentTerm)}%)</span>
+                                        <span className="text-primary">+ ₦{(parseFloat(form.purchasePrice) * determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100).toLocaleString()}</span>
+                                    </div>
+                                    <div className="breakdown-line total">
+                                        <span>Total Retailer Cost</span>
+                                        <span>₦{(parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)).toLocaleString()}</span>
+                                    </div>
+                                </div>
 
-                        <div className="credit-check-status">
-                            { (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)) <= (retailer.creditLimit - retailer.usedCredit) ? (
-                                <p className="credit-ok">✓ Retailer has sufficient credit</p>
-                            ) : (
-                                <p className="credit-error">⚠ Insufficient credit (Available: ₦{(retailer.creditLimit - retailer.usedCredit).toLocaleString()})</p>
-                            )}
-                        </div>
+                                <div className="credit-check-status">
+                                    { (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)) <= (retailer.creditLimit - retailer.usedCredit) ? (
+                                        <p className="credit-ok">✓ Retailer has sufficient credit</p>
+                                    ) : (
+                                        <p className="credit-error">⚠ Insufficient credit (Available: ₦{(retailer.creditLimit - retailer.usedCredit).toLocaleString()})</p>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="btn-row">
@@ -484,7 +512,7 @@ const AgentAAPCreate = () => {
                         <button 
                             className="btn-primary" 
                             onClick={handleSubmit}
-                            disabled={loading || (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)) > (retailer.creditLimit - retailer.usedCredit)}
+                            disabled={loading || !form.repaymentTerm || !form.requestedDuration || (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)) > (retailer.creditLimit - retailer.usedCredit)}
                         >
                             {loading ? 'Creating...' : 'Finalize & Request Purchase'}
                         </button>

@@ -52,6 +52,7 @@ import DebtManager from './pages/admin/DebtManager';
 import AdminOperations from './pages/admin/AdminOperations';
 import UserProfileView from './pages/admin/UserProfileView';
 import AdminAAPDashboard from './pages/admin/AdminAAPDashboard';
+import AdminCancellations from './pages/admin/AdminCancellations';
 
 function App() {
   return (
@@ -136,6 +137,7 @@ function App() {
                 <Route path="analytics" element={<AdminAnalytics />} />
                 <Route path="debt" element={<DebtManager />} />
                 <Route path="aap" element={<AdminAAPDashboard />} />
+                <Route path="cancellations" element={<AdminCancellations />} />
                 <Route path="ops" element={<AdminOperations />} />
                 <Route path="audit" element={<AdminOperations />} />
                 {/* Legacy redirects or specific sub-pages can go here */}

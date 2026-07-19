@@ -47,10 +47,10 @@ const AgentDashboard = () => {
     const activeTasks = tasks.filter(t => !t.isPaid && !['cancelled', 'completed', 'goods_received', 'vendor_settled'].includes(t.status));
     const historyTasks = [
         ...tasks.filter(t => t.isPaid || ['vendor_settled', 'goods_received', 'completed'].includes(t.status)),
-        ...aapQueue.filter(a => ['received', 'completed', 'declined', 'expired'].includes(a.status))
+        ...aapQueue.filter(a => ['received', 'completed', 'declined', 'expired', 'cancelled', 'cancellation_requested'].includes(a.status))
     ].sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
 
-    const activeAap = aapQueue.filter(a => !['received', 'completed', 'declined', 'expired'].includes(a.status));
+    const activeAap = aapQueue.filter(a => !['received', 'completed', 'declined', 'expired', 'cancelled', 'cancellation_requested'].includes(a.status));
 
     const handleSettleVendor = async (orderId) => {
         try {
@@ -59,6 +59,16 @@ const AgentDashboard = () => {
             fetchTasks();
         } catch (error) {
             addToast(error.response?.data?.message || 'Settlement failed', 'error');
+        }
+    };
+
+    const handleSendMurabahaOffer = async (aapId) => {
+        try {
+            const res = await api.put(`/aap/${aapId}/send-murabaha-offer`);
+            addToast(res.data.message || 'Murabaha offer sent!', 'success');
+            fetchAAPQueue();
+        } catch (error) {
+            addToast(error.response?.data?.message || 'Failed to send Murabaha offer', 'error');
         }
     };
 
@@ -186,7 +196,6 @@ const AgentDashboard = () => {
                                                 {isAAP ? (
                                                     <div className="mini-item-row">
                                                         <span className="item-name-text">{item.productName}</span>
-                                                        <span className="item-qty-pill">{item.quantity}x</span>
                                                     </div>
                                                 ) : (
                                                     item.orderItems.map((oi, idx) => (
@@ -243,6 +252,17 @@ const AgentDashboard = () => {
                                     <div className="task-card-footer">
                                         {isAAP ? (
                                             item.status === 'fund_disbursed' ? (
+                                                <button 
+                                                    className="settle-action-btn"
+                                                    onClick={() => handleSendMurabahaOffer(item._id)}
+                                                >
+                                                    <CheckCircle size={22} /> Send Murabaha Offer
+                                                </button>
+                                            ) : item.status === 'pending_murabaha_acceptance' ? (
+                                                <div className="instruction-pill" style={{ borderColor: '#f59e0b', color: '#f59e0b' }}>
+                                                    Murabaha Offer Sent - Awaiting Acceptance
+                                                </div>
+                                            ) : item.status === 'murabaha_accepted' ? (
                                                 <button 
                                                     className="settle-action-btn"
                                                     onClick={() => handleMarkDelivered(item._id)}
