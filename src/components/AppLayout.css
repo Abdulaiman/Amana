@@ -148,6 +148,7 @@
   flex-direction: column;
   overflow-y: auto;
   min-height: 100vh;
+  overscroll-behavior-y: contain;
 }
 
 .page-container {

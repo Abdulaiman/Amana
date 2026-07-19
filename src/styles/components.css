@@ -310,6 +310,7 @@
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   animation: scaleIn var(--transition-base) ease;
 }
 
