@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Target, TrendingUp } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ShieldCheck, Award } from 'lucide-react';
 import './landing.css';
 import AppPromo from '../components/AppPromo';
 
@@ -30,151 +30,191 @@ const Landing = () => {
     }
   };
 
+  const handleScrollTo = (e, id) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="landing-new">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-bg-image">
-          <img src="/hero-trader.png" alt="Informal Trade" />
-        </div>
+      {/* SECTION 2: Hero */}
+      <section className="hero-section islamic-pattern">
         <div className="hero-content">
           <h1 className="hero-headline">
-            Turning Informal Trade into Financial Identity
+            Grow Your Trade the Halal Way
           </h1>
           <p className="hero-subheadline">
-            We make hustle visible, verifiable, and bankable.
-          </p>
-          <p className="hero-supporting">
-            Millions of traders work every day, but to the financial system, they don't exist. Amana changes that.
+            Amana buys the stock you need and sells it back to you at a clear, agreed profit. No interest. No hidden charges. No compromise on your faith.
           </p>
           <div className="cta-group">
-            <Link to="/register" className="btn btn-primary btn-lg">
-              Get Started <ArrowRight size={20} />
+            <Link to="/register" className="btn-cta-lg">
+              Apply for Financing <ArrowRight size={20} />
             </Link>
-            <a href="#problem" className="btn btn-secondary btn-lg">
-              Learn More
-            </a>
+          </div>
+          <div className="hero-visual">
+            <img src="/hero-trader.png" alt="Nigerian trader managing inventory in market" />
           </div>
         </div>
       </section>
 
-      {/* The Problem */}
+      {/* SECTION 3: The Problem, Stated Plainly */}
       <section id="problem" className="fade-in-section" ref={addToRefs}>
         <div className="section-container">
-          <span className="section-title">The Problem</span>
-          <h2 className="section-headline">
-            Informal workers power entire economies, yet they are invisible to the systems designed to support them.
-          </h2>
-          <div className="feature-grid">
-            <div className="feature-card">
-              <Shield size={28} className="text-primary" />
-              <h3>No financial records</h3>
-              <p>Years of hard work leave no digital trace, making it impossible to prove income.</p>
-            </div>
-            <div className="feature-card">
-              <Target size={28} className="text-primary" />
-              <h3>No credit history</h3>
-              <p>Without data, traditional banks see informal traders as "high risk," regardless of their actual reliability.</p>
-            </div>
-            <div className="feature-card">
-              <TrendingUp size={28} className="text-primary" />
-              <h3>No access to capital</h3>
-              <p>Opportunities for growth are blocked by a lack of collateral and verifiable business history.</p>
-            </div>
-          </div>
-          <p className="closing-line">Effort exists. Recognition doesn't.</p>
+          <span className="section-label">The Challenge</span>
+          <h2 className="section-headline">Most trade financing isn't built for you</h2>
+          <p className="plain-body">
+            If you've looked for financing to grow your business, you've probably run into the same wall: interest. Bank loans, microfinance, most digital lenders, they all charge riba, which many traders cannot and will not accept. So you wait, undercapitalized, watching opportunities pass you by. Amana was built to close that gap.
+          </p>
         </div>
       </section>
 
-      {/* The Solution */}
-      <section id="solution" className="fade-in-section" ref={addToRefs}>
+      {/* SECTION 4: What Is Murabaha */}
+      <section id="education" className="fade-in-section" ref={addToRefs}>
         <div className="section-container">
-          <span className="section-title">What Amana Does</span>
-          <h2 className="section-headline">
-            Amana builds digital financial identities for informal workers by turning everyday trade into verified records.
-          </h2>
-          <div className="feature-grid">
-            <div className="feature-card">
-              <div className="step-number">01</div>
-              <h3>Capture</h3>
-              <p>We record real trade activity directly from markets and communities.</p>
-            </div>
-            <div className="feature-card">
-              <div className="step-number">02</div>
-              <h3>Verify</h3>
-              <p>Every transaction becomes a trusted, permanent proof of work.</p>
-            </div>
-            <div className="feature-card">
-              <div className="step-number">03</div>
-              <h3>Unlock</h3>
-              <p>That record becomes access — to credit, financial services, and opportunity.</p>
-            </div>
+          <span className="section-label">Sharia-Compliant Trade</span>
+          <h2 className="section-headline">How Murabaha Works, In Plain Terms</h2>
+          <p className="plain-body">
+            Murabaha is a Sharia-compliant sale, not a loan. Instead of lending you cash, Amana buys the exact goods you need directly from your supplier. We then sell those goods to you at a clear price that already includes our profit, agreed with you in advance. You know exactly what you'll pay before you commit. No interest is ever charged, at any point, for any reason.
+          </p>
+          <div className="callout-box">
+            <p>No interest. No cash you could be tempted to misuse. Full transparency, always.</p>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* SECTION 5: How It Works (4-step visual flow) */}
       <section id="how-it-works" className="fade-in-section" ref={addToRefs}>
         <div className="section-container">
-          <span className="section-title">How It Works</span>
-          <h2 className="section-headline">
-            We integrate into existing trade flows — no complexity, no behavior change.
-          </h2>
-          <div className="feature-grid">
-            <div className="feature-card">
-              <h3>1. Access Goods</h3>
-              <p>Traders access goods or inventory through Amana's network.</p>
+          <span className="section-label">Simple Process</span>
+          <h2 className="section-headline">From Request to Restock, In Four Simple Steps</h2>
+          
+          <div className="steps-container">
+            <div className="step-card">
+              <div className="step-badge">1</div>
+              <h3>Tell Us What You Need</h3>
+              <p>Log the stock you want to buy directly in the Amana app, or ask a local agent to help you.</p>
             </div>
-            <div className="feature-card">
-              <h3>2. Record Activity</h3>
-              <p>Transactions are recorded automatically as they happen.</p>
+            
+            <div className="step-card">
+              <div className="step-badge">2</div>
+              <h3>We Buy It For You</h3>
+              <p>Our agent purchases the goods directly from your supplier and confirms the purchase details.</p>
             </div>
-            <div className="feature-card">
-              <h3>3. Build Identity</h3>
-              <p>A comprehensive financial identity is built over time with every trade.</p>
+            
+            <div className="step-card">
+              <div className="step-badge">3</div>
+              <h3>Agree Your Terms</h3>
+              <p>A clear Murabaha agreement is generated, showing your price and repayment schedule before you sign.</p>
+            </div>
+            
+            <div className="step-card">
+              <div className="step-badge">4</div>
+              <h3>Get Your Goods & Sell</h3>
+              <p>Your stock is delivered directly. Repay over an agreed period as you sell your inventory.</p>
             </div>
           </div>
-          <p className="closing-line">No paperwork. No guesswork. Just proof.</p>
         </div>
       </section>
 
-      {/* Why It Matters */}
+      {/* SECTION 6: Trust and Compliance */}
+      <section id="about" className="fade-in-section" ref={addToRefs}>
+        <div className="section-container">
+          <span className="section-label">Trust & Governance</span>
+          <h2 className="section-headline">Built on Real Sharia Governance, Not a Marketing Label</h2>
+          <p className="plain-body">
+            Amana's Murabaha structure is undergoing formal review by Sheikh Dr. Bashir Aliyu Umar, Imam of Al-Furqan Mosque, Kano, to ensure it meets rigorous Islamic finance standards, not just in name, but in how every transaction actually works.
+          </p>
+          
+          <div className="compliance-points">
+            <div className="compliance-card">
+              <ShieldCheck className="compliance-icon" size={32} />
+              <h4>No interest, ever</h4>
+              <p>Fully compliant with Sharia standards forbidding riba on credit.</p>
+            </div>
+            <div className="compliance-card">
+              <Award className="compliance-icon" size={32} />
+              <h4>Transparent pricing</h4>
+              <p>All pricing, markup, and schedules are agreed before you commit.</p>
+            </div>
+            <div className="compliance-card">
+              <CheckCircle2 className="compliance-icon" size={32} />
+              <h4>Real physical trade</h4>
+              <p>We purchase physical goods on your behalf rather than handing over cash.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7: Who Amana Is For */}
       <section className="fade-in-section" ref={addToRefs}>
         <div className="section-container">
-          <span className="section-title">Why This Matters</span>
-          <h2 className="section-headline">When work is invisible, progress stops.</h2>
-          <ul className="impact-bullets">
-            <li className="impact-item">Businesses can't grow</li>
-            <li className="impact-item">Families remain financially vulnerable</li>
-            <li className="impact-item">Entire economies lose potential</li>
-          </ul>
-          <p className="closing-line">We're not just recording transactions — we're unlocking futures.</p>
+          <span className="section-label">Our Community</span>
+          <h2 className="section-headline">Built for Nigeria's Traders</h2>
+          <p className="plain-body">
+            Amana serves market and informal traders who need working capital to restock but won't compromise on interest-free financing. We're currently active across 3 states, growing with every market we reach.
+          </p>
         </div>
       </section>
 
+      {/* SECTION 8: FAQ */}
+      <section id="faq" className="fade-in-section" ref={addToRefs}>
+        <div className="section-container">
+          <span className="section-label">Answers</span>
+          <h2 className="section-headline">Common Questions</h2>
+          
+          <div className="faq-grid">
+            <div className="faq-item">
+              <h3 className="faq-question">Is this really interest-free?</h3>
+              <p className="faq-answer">
+                Yes. Amana never charges interest. We buy the goods you need and sell them to you at a fixed, agreed price that includes our profit margin, set before you commit to anything.
+              </p>
+            </div>
+            
+            <div className="faq-item">
+              <h3 className="faq-question">What happens if I can't pay on time?</h3>
+              <p className="faq-answer">
+                Talk to us as early as possible. We work with traders directly to find a fair path forward before anything else happens.
+              </p>
+            </div>
+            
+            <div className="faq-item">
+              <h3 className="faq-question">How much stock can I get financed?</h3>
+              <p className="faq-answer">
+                This depends on the goods you need and your trading history with us. Apply and our team will walk you through it.
+              </p>
+            </div>
+            
+            <div className="faq-item">
+              <h3 className="faq-question">Which areas do you currently serve?</h3>
+              <p className="faq-answer">
+                Amana is currently active across 3 states. Apply and we'll let you know if we're live in your market yet.
+              </p>
+            </div>
+            
+            <div className="faq-item">
+              <h3 className="faq-question">Do I need a smartphone to use Amana?</h3>
+              <p className="faq-answer">
+                No. While we have a mobile app and a web version, we also have dedicated market agents who can assist you directly in the market. They can help you create an account, request inventory financing, and manage your repayments without needing a smartphone.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 9: App Download (Kept from old version) */}
       <AppPromo />
 
-      {/* Our Vision */}
-      <section className="fade-in-section" ref={addToRefs}>
-        <div className="section-container text-center">
-          <span className="section-title">Our Vision</span>
-          <h2 className="section-headline">
-            A world where every worker — no matter where they start — has a financial identity that opens doors.
-          </h2>
-        </div>
-      </section>
-
-      {/* Final CTA */}
+      {/* SECTION 10: Final CTA */}
       <section className="final-cta fade-in-section" ref={addToRefs}>
         <div className="section-container">
-          <h2 className="hero-headline">Make Your Work Count</h2>
-          <p className="hero-subheadline">Start building a financial identity today.</p>
-          <div className="cta-group mt-4">
-            <Link to="/register" className="btn btn-primary btn-lg">
-              Get Started
-            </Link>
-            <Link to="/contact" className="btn btn-secondary btn-lg">
-              Contact Us
+          <h2 className="section-headline">Ready to Grow Your Trade the Halal Way?</h2>
+          <p className="plain-body">Apply in minutes. No interest, no hidden charges, no compromise.</p>
+          <div className="cta-group">
+            <Link to="/register" className="btn-cta-lg">
+              Apply for Financing <ArrowRight size={20} />
             </Link>
           </div>
         </div>

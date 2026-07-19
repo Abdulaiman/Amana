@@ -27,6 +27,33 @@
   text-decoration: none;
 }
 
+.navbar-logo.serif-logo {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  color: var(--color-brand);
+  letter-spacing: 0.1em;
+  font-weight: 800;
+}
+
+.btn-cta {
+  background-color: var(--color-warning);
+  color: #FFFFFF !important;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-cta:hover {
+  background-color: #c97e06;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
 .navbar-logo img {
   width: 28px;
   height: 28px;

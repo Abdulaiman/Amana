@@ -4,6 +4,12 @@
   margin-top: auto;
 }
 
+.footer.islamic-pattern {
+  position: relative;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z' fill='none' stroke='%231B7F64' stroke-width='0.5' opacity='0.05'/%3E%3Cpath d='M0 0 L80 80 M80 0 L0 80' fill='none' stroke='%231B7F64' stroke-width='0.5' opacity='0.03'/%3E%3Ccircle cx='40' cy='40' r='10' fill='none' stroke='%231B7F64' stroke-width='0.5' opacity='0.05'/%3E%3Cpolygon points='40,25 45,35 55,40 45,45 40,55 35,45 25,40 35,35' fill='none' stroke='%231B7F64' stroke-width='0.5' opacity='0.05'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
 .footer-container {
   max-width: 1280px;
   margin: 0 auto;
@@ -13,17 +19,32 @@
   gap: var(--space-8);
 }
 
-.footer-brand h3 {
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-2);
+.serif-logo-footer {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  color: var(--color-brand);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-3);
 }
 
-.footer-brand p {
+.footer-tagline {
   font-size: var(--text-sm);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   max-width: 280px;
   line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.footer-cac {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-text);
+  background-color: var(--color-brand-subtle);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-brand);
 }
 
 .footer-col h4 {
