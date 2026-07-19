@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './CompleteProfile.css';
-import { Upload, Building, User, CreditCard, MapPin, CheckCircle, ShieldCheck, ArrowRight, Loader } from 'lucide-react';
+import { Upload, Building, User, CreditCard, MapPin, CheckCircle, ShieldCheck, ArrowRight, Loader, UserCheck } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
 const CompleteProfile = () => {
@@ -112,7 +112,7 @@ const CompleteProfile = () => {
 
     if (pageLoading) return (
         <div className="loading-container">
-            <Loader className="animate-spin" style={{ color: 'var(--color-primary)' }} />
+            <Loader className="animate-spin" style={{ color: 'var(--color-brand)' }} />
         </div>
     );
 
@@ -176,16 +176,20 @@ const CompleteProfile = () => {
         <div className="complete-profile-page">
             <div className="complete-profile-container">
                 
-                {/* Header */}
-                <div className="form-header">
-                    <h1 className="header-title">Complete Your Profile</h1>
-                    <p className="header-subtitle">Unlock your Amana Credit Limit by verifying your business.</p>
-                    
-                    {/* Steps Indicator */}
-                    <div className="step-indicator-wrapper">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className={`step-dot ${step >= i ? 'active' : ''}`} />
-                        ))}
+                <div className="page-hero">
+                    <div className="page-hero-icon">
+                        <UserCheck size={24} />
+                    </div>
+                    <div className="page-hero-body">
+                        <h1 className="page-hero-title">Complete Your Profile</h1>
+                        <p className="page-hero-subtitle">Unlock your Amana Credit Limit by verifying your business.</p>
+                    </div>
+                    <div className="page-hero-actions">
+                        <div className="step-indicator-wrapper">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className={`step-dot ${step >= i ? 'active' : ''}`} />
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -248,7 +252,7 @@ const CompleteProfile = () => {
                             <div className="upload-card">
                                 <div className="upload-row">
                                     <div className="upload-info">
-                                        <User className="text-[var(--color-primary)]" style={{ color: 'var(--color-primary)' }} />
+                                        <User style={{ color: 'var(--color-brand)' }} />
                                         <div>
                                             <p className="upload-text-main">Profile Picture</p>
                                             <p className="upload-text-sub">Clear face photo</p>
@@ -274,7 +278,7 @@ const CompleteProfile = () => {
                             <div className="upload-card">
                                 <div className="upload-row">
                                     <div className="upload-info">
-                                        <CreditCard style={{ color: 'var(--color-primary)' }} />
+                                        <CreditCard style={{ color: 'var(--color-brand)' }} />
                                         <div>
                                             <p className="upload-text-main">Valid ID Card</p>
                                             <p className="upload-text-sub">NIN, Voter's Card, or Passport</p>
@@ -300,7 +304,7 @@ const CompleteProfile = () => {
                             <div className="upload-card">
                                 <div className="upload-row">
                                     <div className="upload-info">
-                                        <MapPin style={{ color: 'var(--color-primary)' }} />
+                                        <MapPin style={{ color: 'var(--color-brand)' }} />
                                         <div>
                                             <p className="upload-text-main">Proof of Business Location</p>
                                             <p className="upload-text-sub">Photo of shop front or utility bill</p>

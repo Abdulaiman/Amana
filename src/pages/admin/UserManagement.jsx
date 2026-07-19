@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { Search, Filter, MoreVertical, Shield, Store, User as UserIcon, Ban, CheckCircle, Eye } from 'lucide-react';
+import { Search, Filter, MoreVertical, Shield, Store, User as UserIcon, Ban, CheckCircle, Eye, Users } from 'lucide-react';
 
 const UserManagement = () => {
     const navigate = useNavigate();
@@ -70,12 +70,15 @@ const UserManagement = () => {
 
     return (
         <div className="fade-in">
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">User Universe</h1>
-                    <p className="page-subtitle">Manage all accounts across the platform</p>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <Users size={24} />
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">User Universe</h1>
+                    <p className="page-hero-subtitle">Manage all accounts across the platform</p>
+                </div>
+                <div className="page-hero-actions">
                     {['all', 'retailers', 'vendors'].map(tab => (
                         <button 
                             key={tab}
@@ -89,7 +92,7 @@ const UserManagement = () => {
                 </div>
             </div>
 
-            <div className="glass-panel table-container">
+            <div className="card table-container">
                 <div className="table-wrapper">
                     <table className="data-table">
                         <thead>

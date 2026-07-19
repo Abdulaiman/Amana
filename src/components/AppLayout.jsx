@@ -27,34 +27,28 @@ const AppLayout = ({ children }) => {
                 setLoading(false);
             }
         };
-        if (user && !isAdmin) {
-            fetchProfile();
-        } else {
-            setLoading(false);
-        }
+        if (user && !isAdmin) { fetchProfile(); }
+        else { setLoading(false); }
     }, [user, isVendor, isAdmin]);
 
-    const isVerified = isAdmin || 
-        (isVendor && profile?.verificationStatus === 'verified') || 
+    const isVerified = isAdmin ||
+        (isVendor && profile?.verificationStatus === 'verified') ||
         (!isVendor && profile?.verificationStatus === 'approved');
 
     const isRestrictedPath = (path) => {
         if (isAdmin) return false;
         if (isVendor) {
-            // Vendors can see their dashboard home and profile, but not products or transactions until verified
             const restricted = ['/products', '/vendor/transactions'];
             return restricted.some(r => path.startsWith(r));
         }
-        // Retailers are restricted from marketplace
         return path.startsWith('/marketplace');
     };
 
-    // Bottom Nav Items (Mobile)
     const navItems = [
         { path: isVendor ? '/vendor' : (isAdmin ? '/admin' : '/dashboard'), icon: <Home size={22} />, label: 'Home' },
         ...(isVendor ? [
             { path: '/products', icon: <Package size={22} />, label: 'Products' },
-            { path: '/vendor/transactions', icon: <DollarSign size={22} />, label: 'History', hidden: !isVerified } 
+            { path: '/vendor/transactions', icon: <DollarSign size={22} />, label: 'History', hidden: !isVerified }
         ] : []),
         ...(!isVendor && !isAdmin ? [
             { path: '/marketplace', icon: <ShoppingBag size={22} />, label: 'Shop', hidden: !isVerified }
@@ -65,7 +59,7 @@ const AppLayout = ({ children }) => {
         ...(profile?.isAgent ? [
             { path: '/agent/tasks', icon: <ShieldCheck size={22} />, label: 'Agent Tasks' }
         ] : []),
-        { path: isVendor ? '/vendor/profile' : '/profile', icon: <User size={22} />, label: 'Me' }, 
+        { path: isVendor ? '/vendor/profile' : '/profile', icon: <User size={22} />, label: 'Me' },
     ].filter(item => !item.hidden);
 
     if (loading) return <div className="loading-overlay"><div className="loading-spinner"></div></div>;
@@ -74,41 +68,30 @@ const AppLayout = ({ children }) => {
 
     return (
         <div className="layout-root">
-            
-            {/* Background Ambience */}
-            <div className="ambient-background">
-                 <div className="glow-orb blue-glow"></div>
-                 <div className="glow-orb teal-glow"></div>
-            </div>
-
-            {/* Desktop Sidebar */}
             <aside className="app-sidebar">
                 <div className="sidebar-header">
-                    <div className="logo-container">
-                        <img src="/logo.png" alt="Amana" className="logo-img" style={{ width: '28px', height: '28px' }} />
-                    </div>
+                    <img src="/logo.png" alt="Amana" className="logo-img" />
                     <span className="brand-name">Amana</span>
                 </div>
 
                 <nav className="sidebar-nav">
                     {navItems.map((item) => (
-                         <NavLink 
+                        <NavLink
                             key={item.label} to={item.path}
                             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                         >
+                        >
                             <span className="nav-icon">{item.icon}</span>
                             <span className="nav-label">{item.label}</span>
-                            <div className="nav-glow"></div>
-                         </NavLink>
+                        </NavLink>
                     ))}
                 </nav>
 
                 <div className="sidebar-footer">
-                     <div className="footer-actions">
+                    <div className="footer-actions">
                         <ThemeToggle />
-                        
+
                         {!isAdmin && (
-                            <button 
+                            <button
                                 onClick={async () => {
                                     if (user?.hasOtherRole) {
                                         try {
@@ -121,14 +104,14 @@ const AppLayout = ({ children }) => {
                                     } else {
                                         window.location.href = isVendor ? '/register?role=retailer' : '/register?role=vendor';
                                     }
-                                }} 
+                                }}
                                 className="role-switch-btn"
                                 title={user?.hasOtherRole ? `Switch to ${isVendor ? 'Retailer' : 'Vendor'} Mode` : `Become a ${isVendor ? 'Retailer' : 'Vendor'}`}
                             >
                                 <Zap size={20} className={user?.hasOtherRole ? 'active-zap' : ''} />
                                 <span className="btn-text">
-                                    {user?.hasOtherRole 
-                                        ? `Switch to ${isVendor ? 'Buying' : 'Selling'}` 
+                                    {user?.hasOtherRole
+                                        ? `Switch to ${isVendor ? 'Buying' : 'Selling'}`
                                         : `Become a ${isVendor ? 'Retailer' : 'Vendor'}`
                                     }
                                 </span>
@@ -139,23 +122,19 @@ const AppLayout = ({ children }) => {
                             <LogOut size={20} />
                             <span className="btn-text">Logout</span>
                         </button>
-                     </div>
+                    </div>
                 </div>
             </aside>
 
-            {/* Main Content */}
             <main className="main-content">
-                {/* Mobile Header */}
                 <header className="mobile-header">
                     <div className="mobile-brand">
-                         <div className="logo-container small">
-                            <img src="/logo.png" alt="Amana" className="logo-img" style={{ width: '24px', height: '24px' }} />
-                        </div>
+                        <img src="/logo.png" alt="Amana" className="logo-img" style={{ width: '24px', height: '24px' }} />
                         <span className="brand-name">Amana</span>
                     </div>
                     <div className="mobile-header-actions">
                         {!isAdmin && (
-                            <button 
+                            <button
                                 onClick={async () => {
                                     if (user?.hasOtherRole) {
                                         try {
@@ -168,8 +147,9 @@ const AppLayout = ({ children }) => {
                                     } else {
                                         window.location.href = isVendor ? '/register?role=retailer' : '/register?role=vendor';
                                     }
-                                }} 
-                                className="mobile-role-btn"
+                                }}
+                                className="role-switch-btn mobile-role-btn"
+                                style={{ width: 'auto', padding: 'var(--space-2)' }}
                             >
                                 <Zap size={20} className={user?.hasOtherRole ? 'active-zap' : ''} />
                             </button>
@@ -177,8 +157,8 @@ const AppLayout = ({ children }) => {
                         <ThemeToggle />
                     </div>
                 </header>
-                
-                <div className="page-container animate-fade-in">
+
+                <div className="page-container">
                     {showGate ? (
                         <KYCStatusGate profile={profile} role={user.role} />
                     ) : (
@@ -187,21 +167,17 @@ const AppLayout = ({ children }) => {
                 </div>
             </main>
 
-            {/* Mobile Bottom Nav */}
             <nav className="mobile-nav">
                 {navItems.map((item) => (
-                    <NavLink 
+                    <NavLink
                         key={item.label} to={item.path}
                         className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}
                     >
-                        <div className="mobile-icon">
-                            {item.icon}
-                        </div>
-                        {/* Active Indicator Dot */}
+                        {item.icon}
                         <div className={`active-dot ${location.pathname === item.path ? 'visible' : ''}`}></div>
                     </NavLink>
                 ))}
-                 <button onClick={logout} className="mobile-nav-item logout">
+                <button onClick={logout} className="mobile-nav-item logout">
                     <LogOut size={22} />
                 </button>
             </nav>

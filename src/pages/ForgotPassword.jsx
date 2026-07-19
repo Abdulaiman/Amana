@@ -29,7 +29,7 @@ const ForgotPassword = () => {
     return (
         <div className="login-page">
             <div className="auth-card">
-                <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-muted)', textDecoration: 'none', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-secondary)', textDecoration: 'none', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
                     <ArrowLeft size={16} /> Back to Login
                 </Link>
                 
@@ -53,7 +53,7 @@ const ForgotPassword = () => {
                         <div className="form-group">
                             <label className="form-label">Email Address</label>
                             <div style={{ position: 'relative' }}>
-                                <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)' }} />
                                 <input 
                                     type="email" 
                                     className="form-input" 

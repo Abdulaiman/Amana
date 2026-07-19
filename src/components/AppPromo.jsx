@@ -26,36 +26,36 @@ const AppPromo = () => {
               <div className="mock-list">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="mock-list-item">
-                     <div className="mock-item-icon"></div>
-                     <div className="mock-item-text"></div>
+                    <div className="mock-item-icon"></div>
+                    <div className="mock-item-text"></div>
                   </div>
                 ))}
               </div>
             </div>
           </PhoneFrame>
         </div>
-        
+
         <div className="app-promo-content">
           <div className="badge-pill">Mobile App</div>
-          <h2>Take Your Stall <br/><span className="text-gradient">Everywhere</span></h2>
+          <h2>Take Your Stall <span className="text-brand">Everywhere</span></h2>
           <p>
-            Download the Amana mobile app to manage your inventory financing, 
+            Download the Amana mobile app to manage your inventory financing,
             request restocks, and track your repayments on the go.
           </p>
-          
+
           <div className="app-features-list">
             <div className="app-feature-item">
-               <ShieldCheck size={20} className="feature-icon" />
-               <span>Instant Credit Approvals</span>
+              <ShieldCheck size={20} className="feature-icon" />
+              <span>Instant Credit Approvals</span>
             </div>
             <div className="app-feature-item">
-               <Zap size={20} className="feature-icon" />
-               <span>One-Tap Restock Requests</span>
+              <Zap size={20} className="feature-icon" />
+              <span>One-Tap Restock Requests</span>
             </div>
           </div>
 
           <div className="app-download-actions">
-            <a href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" className="btn btn-primary btn-lg glow-primary d-flex align-items-center gap-2">
+            <a href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" className="btn btn-primary">
               <Download size={20} />
               <span>Download for Android</span>
             </a>

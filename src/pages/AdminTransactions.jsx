@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import './AdminDashboard.css'; // Reusing admin dashboard styles
 import './Transactions.css';
-import { Search, Filter, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, ChevronLeft, ChevronRight, DollarSign, PieChart, BarChart2 } from 'lucide-react';
+import { Search, Filter, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, ChevronLeft, ChevronRight, DollarSign, PieChart, BarChart2, Receipt } from 'lucide-react';
 
 const AdminTransactions = () => {
     const [transactions, setTransactions] = useState([]);
@@ -84,10 +84,13 @@ const AdminTransactions = () => {
 
     return (
         <div className="transactions-container">
-            <div className="transactions-header">
-                <div>
-                    <h1 className="dashboard-title">Financial Overview</h1>
-                    <p className="dashboard-subtitle">Global transaction history and payout management.</p>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <Receipt size={24} />
+                </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Financial Overview</h1>
+                    <p className="page-hero-subtitle">Global transaction history and payout management.</p>
                 </div>
             </div>
 

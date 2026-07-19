@@ -1,17 +1,15 @@
 .app-promo {
-  padding: 100px 0;
-  position: relative;
-  overflow: hidden;
-  background: var(--bg-deep);
+  padding: var(--space-16) 0;
+  background-color: var(--color-bg-secondary);
 }
 
 .app-promo-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--space-6);
   display: flex;
   align-items: center;
-  gap: 80px;
+  gap: var(--space-16);
 }
 
 .app-promo-visual {
@@ -25,43 +23,51 @@
 }
 
 .app-promo-content h2 {
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 24px;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+  margin-bottom: var(--space-5);
+  color: var(--color-text-primary);
+}
+
+.app-promo-content h2 .text-brand {
+  color: var(--color-brand-text);
 }
 
 .app-promo-content p {
-  font-size: 1.2rem;
-  color: var(--text-muted);
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
   max-width: 500px;
-  margin-bottom: 32px;
+  margin-bottom: var(--space-6);
+  line-height: 1.6;
 }
 
 .app-features-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 40px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
 }
 
 .app-feature-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  gap: var(--space-3);
+  background-color: var(--color-bg-tertiary);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
 }
 
 .app-feature-item span {
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
 }
 
 .feature-icon {
-  color: var(--primary);
+  color: var(--color-brand-text);
+  flex-shrink: 0;
 }
 
 .app-download-actions {
@@ -71,101 +77,120 @@
 }
 
 .download-hint {
-  font-size: 0.85rem !important;
-  margin-top: 12px;
-  opacity: 0.6;
+  font-size: var(--text-xs) !important;
+  margin-top: var(--space-3);
+  color: var(--color-text-tertiary) !important;
+}
+
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background-color: var(--color-brand-subtle);
+  border: 1px solid var(--color-brand-subtle);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-text);
+  margin-bottom: var(--space-4);
 }
 
 /* Mock App Styles */
 .mock-app-screen {
-  background: #0f172a;
+  background-color: var(--color-bg);
   height: 100%;
   width: 100%;
-  padding: 20px;
-  color: white;
+  padding: var(--space-5);
+  color: var(--color-text-primary);
 }
 
 .mock-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
 }
 
 .mock-user-icon {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.1);
+  background-color: var(--color-bg-tertiary);
 }
 
 .mock-logo-text {
-  font-weight: 800;
-  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-md);
 }
 
 .mock-balance-card {
-  background: linear-gradient(135deg, #10b981, #059669);
-  padding: 24px;
-  border-radius: 20px;
-  margin-bottom: 24px;
+  background-color: var(--color-brand);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-5);
 }
 
 .mock-balance-card small {
   opacity: 0.8;
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-inverse);
 }
 
 .mock-balance-card h2 {
-  font-size: 1.8rem;
-  margin: 8px 0;
-  color: white !important;
+  font-size: var(--text-xl);
+  margin: var(--space-2) 0;
+  color: var(--color-text-inverse) !important;
 }
 
 .mock-progress {
   height: 6px;
-  background: rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
-  position: relative;
   overflow: hidden;
 }
 
 .mock-progress::after {
   content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: block;
   height: 100%;
   width: 70%;
-  background: white;
+  background-color: var(--color-text-inverse);
+  border-radius: 3px;
+}
+
+.mock-stats {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
 }
 
 .mock-stat {
-  height: 60px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 12px;
-  margin-bottom: 12px;
+  flex: 1;
+  height: 50px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
 }
 
 .mock-list-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .mock-item-icon {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-tertiary);
 }
 
 .mock-item-text {
   height: 12px;
   width: 60%;
-  background: rgba(255,255,255,0.05);
+  background-color: var(--color-bg-tertiary);
   border-radius: 6px;
 }
 
@@ -173,22 +198,35 @@
   .app-promo-container {
     flex-direction: column;
     text-align: center;
-    gap: 40px;
+    gap: var(--space-8);
   }
-  
+
   .app-promo-visual {
     justify-content: center;
     order: 2;
   }
-  
+
   .app-promo-content {
-    border: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-  
+
+  .app-promo-content p {
+    max-width: 100%;
+  }
+
+  .app-features-list {
+    width: 100%;
+  }
+
   .app-download-actions {
     align-items: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-features-list {
+    grid-template-columns: 1fr;
   }
 }

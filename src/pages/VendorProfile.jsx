@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { 
     Building, CreditCard, MapPin, ShieldCheck, Mail, Phone, Loader, 
-    Wallet, Edit2, X, Save, ChevronLeft, CheckCircle, AlertCircle, Clock
+    Wallet, Edit2, X, Save, ChevronLeft, CheckCircle, AlertCircle, Clock, Briefcase
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import './UserProfile.css'; // Reuse retailer profile styles
@@ -86,7 +86,7 @@ const VendorProfile = () => {
 
     if (loading) return (
         <div className="loading-container">
-            <Loader className="animate-spin" style={{ color: 'var(--color-primary)' }} />
+            <Loader className="animate-spin" style={{ color: 'var(--color-brand)' }} />
         </div>
     );
 
@@ -99,28 +99,21 @@ const VendorProfile = () => {
                 <ChevronLeft size={18} /> Back to Dashboard
             </button>
 
-            {/* Header / ID Card Style */}
-            <div className="profile-header-card vendor-header-card">
-                <div className="profile-avatar-section">
-                    <div className="profile-avatar vendor-avatar">
-                        {profile.profilePicUrl ? (
-                            <img src={profile.profilePicUrl} alt="Profile" className="avatar-img" />
-                        ) : (
-                            <Building size={40} className="icon-white" />
-                        )}
-                    </div>
-                    <div>
-                        <h1 className="profile-name">{profile.businessName}</h1>
-                        <p className="profile-tier">
-                            {getVerificationIcon(profile.verificationStatus)}
-                            <span style={{ marginLeft: '0.5rem' }}>
-                                {profile.verificationStatus === 'verified' ? 'Verified Vendor' : 
-                                 profile.verificationStatus === 'rejected' ? 'Verification Rejected' : 'Pending Verification'}
-                            </span>
-                        </p>
-                    </div>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <Briefcase size={24} />
                 </div>
-                <div className="profile-stats">
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">{profile.businessName}</h1>
+                    <p className="page-hero-subtitle">
+                        {getVerificationIcon(profile.verificationStatus)}
+                        <span style={{ marginLeft: '0.5rem' }}>
+                            {profile.verificationStatus === 'verified' ? 'Verified Vendor' : 
+                             profile.verificationStatus === 'rejected' ? 'Verification Rejected' : 'Pending Verification'}
+                        </span>
+                    </p>
+                </div>
+                <div className="page-hero-actions">
                     <div className="stat-item">
                         <span className="stat-label">Wallet Balance</span>
                         <span className="stat-value">₦{(profile.walletBalance || 0).toLocaleString()}</span>
@@ -154,7 +147,7 @@ const VendorProfile = () => {
             <div className="profile-grid">
                 
                 {/* Business Info */}
-                <div className="profile-section glass-panel">
+                <div className="profile-section card">
                     <h2 className="section-header">
                         <Building size={18} /> Business Details
                     </h2>
@@ -227,7 +220,7 @@ const VendorProfile = () => {
                 </div>
 
                 {/* Bank Details */}
-                <div className="profile-section glass-panel">
+                <div className="profile-section card">
                     <h2 className="section-header">
                         <CreditCard size={18} /> Bank Details
                     </h2>
@@ -275,7 +268,7 @@ const VendorProfile = () => {
                 </div>
 
                 {/* Verification & KYC Status */}
-                <div className="profile-section glass-panel full-width">
+                <div className="profile-section card full-width">
                     <h2 className="section-header">
                         <ShieldCheck size={18} /> Verification Status
                     </h2>

@@ -4,7 +4,7 @@ import api from '../services/api';
 import './RetailerDashboard.css';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
-import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock, Phone, User } from 'lucide-react';
+import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock, Phone, User, LayoutDashboard } from 'lucide-react';
 import KYCStatusGate from '../components/KYCStatusGate';
 
 const RetailerDashboard = () => {
@@ -243,21 +243,24 @@ const RetailerDashboard = () => {
     return (
         <div className="dashboard-container animate-fade-in">
             {/* Header Area */}
-            <div className="dashboard-header">
-                <div>
-                     <h1 className="welcome-title">
-                        Hello, {profile.name}
-                     </h1>
-                     <p className="welcome-subtitle">Your financial command center.</p>
+            <header className="page-hero">
+                <div className="page-hero-icon">
+                    <LayoutDashboard size={24} />
                 </div>
-                <button className="marketplace-btn group" onClick={() => navigate('/marketplace')}>
-                     <div className="btn-content">
-                        <ShoppingBag size={20} />
-                        <span>Access Marketplace</span>
-                     </div>
-                     <div className="btn-glow"></div>
-                </button>
-            </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Hello, {profile.name}</h1>
+                    <p className="page-hero-subtitle">Your financial command center.</p>
+                </div>
+                <div className="page-hero-actions">
+                    <button className="marketplace-btn group" onClick={() => navigate('/marketplace')}>
+                        <div className="btn-content">
+                            <ShoppingBag size={20} />
+                            <span>Access Marketplace</span>
+                        </div>
+                        <div className="btn-glow"></div>
+                    </button>
+                </div>
+            </header>
 
             {/* HUD Status Cards */}
             <div className="hud-grid">
@@ -357,7 +360,7 @@ const RetailerDashboard = () => {
                     <h2 className="section-title">Agent-Assisted Purchases</h2>
                     <div className="aap-retailer-grid">
                         {aaps.filter(a => ['awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(a.status)).map(aap => (
-                            <div key={aap._id} className="aap-retailer-card glass-panel">
+                            <div key={aap._id} className="aap-retailer-card card">
                                 <div className="aap-header">
                                     <div className="aap-title-group">
                                         <h3 className="aap-product-name">{aap.productName}</h3>
@@ -395,9 +398,9 @@ const RetailerDashboard = () => {
                                     {aap.status === 'awaiting_retailer_confirm' ? (
                                         <p className="aap-instruction">Your agent found this product. Express your interest — this tells Amana you want to buy through us. Final terms will be presented after we acquire the goods.</p>
                                     ) : aap.status === 'pending_murabaha_acceptance' ? (
-                                        <p className="aap-instruction" style={{ color: 'var(--color-primary)' }}>Amana purchased this product. Review and accept the Murabaha sale terms above.</p>
+                                        <p className="aap-instruction" style={{ color: 'var(--color-brand)' }}>Amana purchased this product. Review and accept the Murabaha sale terms above.</p>
                                     ) : aap.status === 'murabaha_accepted' ? (
-                                        <p className="aap-instruction" style={{ color: '#10b981' }}>Sale accepted! Awaiting delivery from your agent.</p>
+                                        <p className="aap-instruction" style={{ color: 'var(--color-brand)' }}>Sale accepted! Awaiting delivery from your agent.</p>
                                     ) : aap.status === 'delivered' ? (
                                         <p className="aap-instruction success">Goods delivered! Enter OTP to confirm receipt.</p>
                                     ) : (
@@ -440,7 +443,7 @@ const RetailerDashboard = () => {
 
             {/* Used Credit / Due - Only show if there's credit actually used (from confirmed orders) */}
             {profile.usedCredit > 0 && (
-                <div className="due-card glass-panel">
+                <div className="due-card card">
                     <div className="due-header">
                         <div>
                             <p className="due-label">Total Outstanding Balance</p>
@@ -477,7 +480,7 @@ const RetailerDashboard = () => {
                                     <div className="payment-row">
                                         <span className="payment-amount">₦{earliestItem._amount.toLocaleString()}</span>
                                         <span className="payment-id">
-                                            {earliestItem._type === 'aap' && <span style={{ color: '#10b981', marginRight: '4px' }}>AAP</span>}
+                                            {earliestItem._type === 'aap' && <span style={{ color: 'var(--color-brand)', marginRight: '4px' }}>AAP</span>}
                                             #{earliestItem._id.slice(-6)}
                                         </span>
                                     </div>
@@ -510,7 +513,7 @@ const RetailerDashboard = () => {
                     </button>
                 </div>
                 
-                <div className="orders-table-container glass-panel">
+                <div className="orders-table-container card">
                     {(() => {
                         const recentTxs = transactions.slice(0, 5);
                         if (recentTxs.length === 0) {
@@ -531,7 +534,7 @@ const RetailerDashboard = () => {
                         return (
                             <div className="compact-transaction-list">
                                 {recentTxs.map(tx => (
-                                    <div key={tx._id} className="premium-tx-card glass-panel" onClick={() => navigate('/transactions')}>
+                                    <div key={tx._id} className="premium-tx-card card" onClick={() => navigate('/transactions')}>
                                         <div className="tx-date-col">
                                             <span className="tx-day">{new Date(tx.date).getDate()}</span>
                                             <span className="tx-month">{new Date(tx.date).toLocaleString('default', { month: 'short' }).toUpperCase()}</span>
@@ -762,7 +765,7 @@ const RetailerDashboard = () => {
                                if (combined.length === 0) {
                                    return (
                                        <div className="repayment-empty-state">
-                                           <div style={{ marginBottom: '1rem', color: '#10b981' }}>
+                                           <div style={{ marginBottom: '1rem', color: 'var(--color-brand)' }}>
                                                <ShieldCheck size={48} />
                                            </div>
                                            <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>All Caught Up!</h3>

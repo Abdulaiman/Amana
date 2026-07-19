@@ -44,23 +44,25 @@ const AdminOperations = () => {
 
     return (
         <div className="fade-in">
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <Activity size={24} />
+                </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">System Activity Feed</h1>
+                    <p className="page-hero-subtitle">Real-time audit trail of all administrative actions.</p>
+                </div>
+                <div className="page-hero-actions">
+                    <button onClick={fetchLogs} className="btn-icon text-muted hover:text-white" style={{ background: 'var(--color-bg-soft)', borderRadius: '50%', padding: '0.75rem' }}>
+                        <RefreshCw size={20} />
+                    </button>
+                </div>
+            </div>
             <div className="ops-grid">
                 {/* Main Content (Logs) */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                         <div>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                                <Activity size={24} style={{ marginRight: '10px', color: 'var(--color-primary)' }} />
-                                System Activity Feed
-                            </h2>
-                            <p className="text-muted">Real-time audit trail of all administrative actions.</p>
-                        </div>
-                        <button onClick={fetchLogs} className="btn-icon text-muted hover:text-white" style={{ background: 'var(--color-bg-soft)', borderRadius: '50%', padding: '0.75rem' }}>
-                            <RefreshCw size={20} />
-                        </button>
-                    </div>
                     
-                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+                    <div className="card" style={{ padding: '1.5rem' }}>
                         {logs.length === 0 ? (
                             <div className="text-center text-muted" style={{ padding: '2rem' }}>No activity recorded yet.</div>
                         ) : (
@@ -91,12 +93,12 @@ const AdminOperations = () => {
                                                 <span style={{ fontWeight: 600, color: 'var(--color-text)', fontSize: '0.95rem' }}>
                                                     {formatAction(log.action)}
                                                 </span>
-                                                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                                                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
                                                     {new Date(log.createdAt).toLocaleString()}
                                                 </span>
                                             </div>
-                                            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem', lineHeight: '1.4' }}>
-                                                Performed by <span style={{ color: 'var(--color-primary)' }}>{log.admin?.name || 'System'}</span>. 
+                                            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '0.5rem', lineHeight: '1.4' }}>
+                                                Performed by <span style={{ color: 'var(--color-brand)' }}>{log.admin?.name || 'System'}</span>. 
                                                 {log.note && <span style={{ marginLeft: '5px', fontStyle: 'italic' }}>"{log.note}"</span>}
                                             </p>
                                             {/* Details Accordion / Block */}
@@ -104,7 +106,7 @@ const AdminOperations = () => {
                                                 <div style={{ background: 'var(--color-bg-soft)', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontFamily: 'monospace' }}>
                                                     {Object.entries(log.details).map(([key, value]) => (
                                                         <div key={key} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                            <span style={{ color: 'var(--color-text-muted)' }}>{key}:</span>
+                                                            <span style={{ color: 'var(--color-text-secondary)' }}>{key}:</span>
                                                             <span>{value?.toString()}</span>
                                                         </div>
                                                     ))}
@@ -122,7 +124,7 @@ const AdminOperations = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     
                     {/* Manual Ledger - DANGER ZONE */}
-                    <div className="glass-panel p-lg danger-zone">
+                    <div className="card p-lg danger-zone">
                         <div className="form-section-title" style={{ color: '#ef4444' }}>
                             <Shield size={22} />
                             Manual Ledger Entry
@@ -209,7 +211,7 @@ const AdminOperations = () => {
                     </div>
 
                     {/* Broadcast System */}
-                    <div className="glass-panel p-lg" style={{ borderTop: '4px solid #3b82f6' }}>
+                    <div className="card p-lg" style={{ borderTop: '4px solid #3b82f6' }}>
                         <div className="form-section-title" style={{ color: '#3b82f6' }}>
                             <MessageSquare size={22} />
                             Broadcast Center

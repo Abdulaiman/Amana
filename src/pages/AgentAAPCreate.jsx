@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Camera, Package, Store, Calendar, ArrowLeft, Phone, MapPin, Upload, X, User, DollarSign } from 'lucide-react';
+import { Camera, Package, Store, Calendar, ArrowLeft, Phone, MapPin, Upload, X, User, DollarSign, PlusCircle } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import './AgentAAPCreate.css';
@@ -169,15 +169,18 @@ const AgentAAPCreate = () => {
 
     return (
         <div className="aap-create-container">
-            <header className="aap-create-header">
+            <div className="page-hero">
                 <button className="back-btn" onClick={() => navigate('/agent/tasks')}>
                     <ArrowLeft size={20} />
                 </button>
-                <div>
-                    <h1>New Agent Purchase</h1>
-                    <p>Capture product for off-platform purchase</p>
+                <div className="page-hero-icon">
+                    <PlusCircle size={24} />
                 </div>
-            </header>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">New Agent Purchase</h1>
+                    <p className="page-hero-subtitle">Capture product for off-platform purchase</p>
+                </div>
+            </div>
 
             {/* Progress Steps */}
             <div className="step-progress">
@@ -474,7 +477,7 @@ const AgentAAPCreate = () => {
                         </div>
                         
                         {!form.repaymentTerm ? (
-                            <p className="section-hint" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+                            <p className="section-hint" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
                                 Select a repayment term above to see the cost breakdown
                             </p>
                         ) : (

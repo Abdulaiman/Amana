@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import './VendorDashboard.css'; // Reusing dashboard styles
 import './Transactions.css';
-import { Search, Filter, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, ChevronLeft, ChevronRight, DollarSign } from 'lucide-react';
+import { Search, Filter, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle, ChevronLeft, ChevronRight, DollarSign, Receipt } from 'lucide-react';
 
 const VendorTransactions = () => {
     const [transactions, setTransactions] = useState([]);
@@ -78,10 +78,13 @@ const VendorTransactions = () => {
 
     return (
         <div className="transactions-container">
-            <div className="transactions-header">
-                <div>
-                    <h1 className="dashboard-title">Transaction History</h1>
-                    <p className="dashboard-subtitle">Track your earnings and payouts</p>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <Receipt size={24} />
+                </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Transaction History</h1>
+                    <p className="page-hero-subtitle">Track your earnings and payouts</p>
                 </div>
             </div>
 

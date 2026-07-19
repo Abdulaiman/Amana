@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { 
     ShoppingBag, CheckCircle, Clock, AlertTriangle, X, Eye, 
-    DollarSign, User, Calendar
+    DollarSign, User, Calendar, ClipboardList
 } from 'lucide-react';
 import './AdminAAPDashboard.css';
 
@@ -103,17 +103,20 @@ const AdminAAPDashboard = () => {
 
     return (
         <div className="admin-page">
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Agent Purchases</h1>
-                    <p className="page-subtitle">Off-platform purchases via agents</p>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <ClipboardList size={24} />
+                </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Agent Purchases</h1>
+                    <p className="page-hero-subtitle">Off-platform purchases via agents</p>
                 </div>
             </div>
 
             {/* Stats Cards */}
             <div className="metrics-grid">
                 <div 
-                    className={`metric-card glass-panel aap-stat-card ${filter === 'pending_admin_approval' ? 'active' : ''}`}
+                    className={`metric-card card aap-stat-card ${filter === 'pending_admin_approval' ? 'active' : ''}`}
                     onClick={() => setFilter('pending_admin_approval')}
                 >
                     <div className="metric-header">
@@ -126,7 +129,7 @@ const AdminAAPDashboard = () => {
                 </div>
                 
                 <div 
-                    className={`metric-card glass-panel aap-stat-card ${filter === 'fund_disbursed' ? 'active' : ''}`}
+                    className={`metric-card card aap-stat-card ${filter === 'fund_disbursed' ? 'active' : ''}`}
                     onClick={() => setFilter('fund_disbursed')}
                 >
                     <div className="metric-header">
@@ -139,7 +142,7 @@ const AdminAAPDashboard = () => {
                 </div>
 
                 <div 
-                    className={`metric-card glass-panel aap-stat-card ${filter === 'murabaha_accepted' ? 'active' : ''}`}
+                    className={`metric-card card aap-stat-card ${filter === 'murabaha_accepted' ? 'active' : ''}`}
                     onClick={() => setFilter('murabaha_accepted')}
                 >
                     <div className="metric-header">
@@ -152,7 +155,7 @@ const AdminAAPDashboard = () => {
                 </div>
 
                 <div 
-                    className={`metric-card glass-panel aap-stat-card ${filter === 'expired' ? 'active' : ''}`}
+                    className={`metric-card card aap-stat-card ${filter === 'expired' ? 'active' : ''}`}
                     onClick={() => setFilter('expired')}
                 >
                     <div className="metric-header">
@@ -165,7 +168,7 @@ const AdminAAPDashboard = () => {
                 </div>
 
                 <div 
-                    className={`metric-card glass-panel aap-stat-card ${filter === 'received' ? 'active' : ''}`}
+                    className={`metric-card card aap-stat-card ${filter === 'received' ? 'active' : ''}`}
                     onClick={() => setFilter('received')}
                 >
                     <div className="metric-header">
@@ -205,7 +208,7 @@ const AdminAAPDashboard = () => {
             ) : (
                 <div className="aap-grid">
                     {aaps.map(aap => (
-                        <div key={aap._id} className="glass-panel aap-card">
+                        <div key={aap._id} className="card aap-card">
                             <div className="aap-card-header">
                                 <div>
                                     <h3 className="aap-card-title">{aap.productName}</h3>
@@ -284,7 +287,7 @@ const AdminAAPDashboard = () => {
             {/* Detail Modal */}
             {selectedAAP && (
                 <div className="aap-modal-overlay" onClick={() => setSelectedAAP(null)}>
-                    <div className="aap-modal glass-panel" onClick={e => e.stopPropagation()}>
+                    <div className="aap-modal card" onClick={e => e.stopPropagation()}>
                         <div className="aap-modal-header">
                             <h2>AAP Details</h2>
                             <button className="btn-icon" onClick={() => setSelectedAAP(null)}>

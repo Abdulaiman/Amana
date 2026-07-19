@@ -5,7 +5,7 @@ import './VendorDashboard.css';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 
-import { Plus, DollarSign, Package, TrendingUp, Search, Edit2, Trash2, X, ChevronRight, Lock, Wallet, ArrowRight, Building, AlertTriangle, UploadCloud, Clock, User, Check } from 'lucide-react';
+import { Plus, DollarSign, Package, TrendingUp, Search, Edit2, Trash2, X, ChevronRight, Lock, Wallet, ArrowRight, Building, AlertTriangle, UploadCloud, Clock, User, Check, Briefcase } from 'lucide-react';
 import KYCStatusGate from '../components/KYCStatusGate';
 
 const VendorDashboard = () => {
@@ -291,34 +291,39 @@ const VendorDashboard = () => {
             )}
             {/* Header */}
             {isVerified && (
-                <header className="vendor-header">
-                    <div>
-                        <h1 className="business-name">{profile.businessName}</h1>
-                        <div className="vendor-badges">
+                <header className="page-hero">
+                    <div className="page-hero-icon">
+                        <Briefcase size={24} />
+                    </div>
+                    <div className="page-hero-body">
+                        <h1 className="page-hero-title">{profile.businessName}</h1>
+                        <p className="page-hero-subtitle">
                             <span className="verified-badge">Verified Vendor</span>
                             <span className="portal-access">Portal Access</span>
+                        </p>
+                    </div>
+                    <div className="page-hero-actions">
+                        <div className={`segmented-tabs-container ${activeTab === 'orders' ? 'orders-active' : ''}`}>
+                            <div className="tabs-slider"></div>
+                            <button 
+                                onClick={() => setActiveTab('inventory')}
+                                className={`segmented-tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
+                            >
+                                <Package size={16} /> Inventory
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('orders')}
+                                className={`segmented-tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+                            >
+                                <TrendingUp size={16} /> Orders
+                            </button>
                         </div>
+                        {activeTab === 'inventory' && (
+                            <button onClick={openAddModal} className="add-product-main-btn">
+                                <Plus size={20} /> Add Product
+                            </button>
+                        )}
                     </div>
-                    <div className={`segmented-tabs-container ${activeTab === 'orders' ? 'orders-active' : ''}`}>
-                        <div className="tabs-slider"></div>
-                        <button 
-                            onClick={() => setActiveTab('inventory')}
-                            className={`segmented-tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
-                        >
-                            <Package size={16} /> Inventory
-                        </button>
-                        <button 
-                            onClick={() => setActiveTab('orders')}
-                            className={`segmented-tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
-                        >
-                            <TrendingUp size={16} /> Orders
-                        </button>
-                    </div>
-                    {activeTab === 'inventory' && (
-                        <button onClick={openAddModal} className="add-product-main-btn">
-                            <Plus size={20} /> Add Product
-                        </button>
-                    )}
                 </header>
             )}
 
@@ -404,7 +409,7 @@ const VendorDashboard = () => {
             {isVerified && (
                 <>
                     {activeTab === 'inventory' ? (
-                        <div className="inventory-panel glass-panel">
+                        <div className="inventory-panel card">
                             {/* ... Existing Inventory Table Logic ... */}
                             <div className="inventory-header">
                                 <h3 className="inventory-title">Product Inventory</h3>
@@ -471,7 +476,7 @@ const VendorDashboard = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="inventory-panel glass-panel">
+                        <div className="inventory-panel card">
                             <div className="inventory-header">
                                 <h3 className="inventory-title">Order Management</h3>
                             </div>
@@ -521,14 +526,14 @@ const VendorDashboard = () => {
                                                             handleConfirmOrderClick(order._id);
                                                         }}
                                                         className={`pp-action-btn ${!isVerified ? 'disabled' : ''}`}
-                                                        style={{ background: 'var(--color-primary)', color: '#000', borderColor: 'var(--color-primary)' }}
+                                                        style={{ background: 'var(--color-brand)', color: '#000', borderColor: 'var(--color-brand)' }}
                                                     >
                                                         Confirm <Check size={14} />
                                                     </button>
                                                 )}
                                                 {order.status === 'ready_for_pickup' && (
                                                     <div style={{ textAlign: 'right' }}>
-                                                        <span className="pp-val" style={{ fontSize: '0.9rem', color: 'var(--color-primary)' }}>CODE: {order.pickupCode}</span>
+                                                        <span className="pp-val" style={{ fontSize: '0.9rem', color: 'var(--color-brand)' }}>CODE: {order.pickupCode}</span>
                                                         <p className="pp-label" style={{ fontSize: '0.6rem', color: '#14b8a6' }}>AWAITING PICKUP</p>
                                                     </div>
                                                 )}
@@ -556,8 +561,8 @@ const VendorDashboard = () => {
 
             {/* Add/Edit Product Modal */}
             {showAddProduct && (
-                 <div className="glass-modal-overlay">
-                    <div className="glass-modal-content animate-zoom-in">
+                 <div className="modal-overlay">
+                    <div className="modal-content animate-zoom-in">
                         <div className="modal-header" style={{ margin: 0, padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                             <h2 className="modal-title">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
                             <button type="button" onClick={() => setShowAddProduct(false)} className="close-modal-btn">
@@ -568,26 +573,26 @@ const VendorDashboard = () => {
                         <form onSubmit={handleSaveProduct} className="modal-body">
                             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                                 <label className="form-label">Product Name</label>
-                                <input className="glass-input" 
+                                <input className="form-input" 
                                     placeholder="e.g. iPhone 15 Pro Screen Guard" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} required />
                             </div>
 
                             <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
                                 <div className="form-group">
                                     <label className="form-label">Price (₦)</label>
-                                    <input className="glass-input" 
+                                    <input className="form-input" 
                                         type="number" placeholder="0.00" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} required />
                                 </div>
                                 <div className="form-group">
                                     <label className="form-label">Stock Quantity</label>
-                                    <input className="glass-input" 
+                                    <input className="form-input" 
                                         type="number" placeholder="10" value={newProduct.countInStock} onChange={e => setNewProduct({...newProduct, countInStock: e.target.value})} required />
                                 </div>
                             </div>
                             
                             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                                 <label className="form-label">Category</label>
-                                <select className="glass-input"
+                                <select className="form-input"
                                     value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})}>
                                     <option value="General">General</option>
                                     <option value="Electronics">Electronics</option>
@@ -653,7 +658,7 @@ const VendorDashboard = () => {
                             
                             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                                 <label className="form-label">Description</label>
-                                <textarea className="glass-input textarea-resize-none" 
+                                <textarea className="form-input textarea-resize-none" 
                                     style={{ minHeight: '100px' }}
                                     placeholder="Describe your product..." value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} required />
                             </div>
@@ -673,7 +678,7 @@ const VendorDashboard = () => {
             {showPayoutModal && (
                 <div className="modal-overlay">
                     <div className="modal-backdrop" onClick={() => setShowPayoutModal(false)}></div>
-                    <div className="modal-form glass-panel animate-zoom-in" style={{ 
+                    <div className="modal-form card animate-zoom-in" style={{ 
                         maxWidth: '420px', 
                         background: 'rgba(10, 10, 10, 0.95)', 
                         border: '1px solid rgba(255, 255, 255, 0.1)',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { AlertCircle, Clock, CheckCircle, MessageCircle, AlertTriangle, Banknote, X, Loader } from 'lucide-react';
+import { AlertCircle, Clock, CheckCircle, MessageCircle, AlertTriangle, Banknote, X, Loader, CreditCard } from 'lucide-react';
 
 const DebtManager = () => {
     const [debtors, setDebtors] = useState([]);
@@ -81,22 +81,21 @@ const DebtManager = () => {
 
     return (
         <div className="fade-in" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <div className="page-header" style={{ marginBottom: '1.5rem' }}>
-                <div>
-                    <h1 className="page-title" style={{ fontSize: '1.5rem' }}>Debt Manager</h1>
-                    <p className="page-subtitle" style={{ fontSize: '0.9rem' }}>Track and recover outstanding repayments</p>
+            <div className="page-hero" style={{ marginBottom: '1.5rem' }}>
+                <div className="page-hero-icon">
+                    <CreditCard size={24} />
                 </div>
-                <div style={{ 
-                    display: 'flex', 
-                    gap: '0.75rem', 
-                    fontSize: '0.85rem',
-                    color: '#888'
-                }}>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Debt Manager</h1>
+                    <p className="page-hero-subtitle">Track and recover outstanding repayments</p>
+                </div>
+                <div className="page-hero-actions">
                     <span style={{ 
                         background: 'rgba(16, 185, 129, 0.1)', 
                         padding: '0.4rem 0.75rem', 
                         borderRadius: '20px',
-                        color: '#10b981'
+                        color: 'var(--color-brand)',
+                        fontSize: '0.85rem'
                     }}>
                         {debtors.length} Active
                     </span>
@@ -105,7 +104,8 @@ const DebtManager = () => {
                             background: 'rgba(239, 68, 68, 0.1)', 
                             padding: '0.4rem 0.75rem', 
                             borderRadius: '20px',
-                            color: '#ef4444'
+                            color: '#ef4444',
+                            fontSize: '0.85rem'
                         }}>
                             {criticalDebts.length} Critical
                         </span>
@@ -135,8 +135,8 @@ const DebtManager = () => {
 
             {/* Debt Cards */}
             {debtors.length === 0 ? (
-                <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem' }}>
-                    <CheckCircle size={48} style={{ marginBottom: '1rem', color: '#10b981' }} />
+                <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                    <CheckCircle size={48} style={{ marginBottom: '1rem', color: 'var(--color-brand)' }} />
                     <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>All Clear!</p>
                     <p className="text-muted">No pending debts found.</p>
                 </div>
@@ -145,7 +145,7 @@ const DebtManager = () => {
                     {debtors.map((item) => (
                         <div 
                             key={item.orderId} 
-                            className="glass-panel"
+                            className="card"
                             style={{ 
                                 padding: '1rem 1.25rem',
                                 borderRadius: '12px',
@@ -170,7 +170,7 @@ const DebtManager = () => {
                                         <span style={{ 
                                             fontSize: '0.7rem', 
                                             fontWeight: 700, 
-                                            color: item.type === 'AAP' ? '#10b981' : '#3b82f6' 
+                                            color: item.type === 'AAP' ? 'var(--color-brand)' : '#3b82f6' 
                                         }}>
                                             {item.type}
                                         </span>
@@ -276,7 +276,7 @@ const DebtManager = () => {
                     }}
                 >
                     <div 
-                        className="glass-panel" 
+                        className="card" 
                         style={{
                             width: '100%',
                             maxWidth: '420px',
@@ -301,9 +301,9 @@ const DebtManager = () => {
                                     justifyContent: 'center',
                                     margin: '0 auto 1rem'
                                 }}>
-                                    <CheckCircle size={32} style={{ color: '#10b981' }} />
+                                    <CheckCircle size={32} style={{ color: 'var(--color-brand)' }} />
                                 </div>
-                                <h3 style={{ color: '#10b981', marginBottom: '0.5rem', fontSize: '1.25rem' }}>Payment Confirmed!</h3>
+                                <h3 style={{ color: 'var(--color-brand)', marginBottom: '0.5rem', fontSize: '1.25rem' }}>Payment Confirmed!</h3>
                                 <p className="text-muted" style={{ fontSize: '0.9rem' }}>{successMessage}</p>
                             </div>
                         ) : (
@@ -318,7 +318,7 @@ const DebtManager = () => {
                                     borderBottom: '1px solid rgba(255,255,255,0.08)'
                                 }}>
                                     <h2 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                                        <Banknote size={20} style={{ color: '#10b981' }} />
+                                        <Banknote size={20} style={{ color: 'var(--color-brand)' }} />
                                         Confirm Cash Payment
                                     </h2>
                                     <button 
@@ -374,7 +374,7 @@ const DebtManager = () => {
                                             borderTop: '1px solid rgba(255,255,255,0.05)'
                                         }}>
                                             <span style={{ color: '#888' }}>Amount</span>
-                                            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#10b981' }}>
+                                            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-brand)' }}>
                                                 {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(confirmModal.item?.amount)}
                                             </span>
                                         </div>

@@ -14,7 +14,8 @@ import {
     ShoppingBag,
     ArrowDownLeft,
     ArrowUpRight,
-    Zap
+    Zap,
+    Receipt
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -93,7 +94,7 @@ const RetailerTransactions = () => {
     const getTxIcon = (type) => {
         switch (type) {
             case 'repayment': 
-                return { icon: <ArrowUpRight size={24} />, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' };
+                return { icon: <ArrowUpRight size={24} />, color: 'var(--color-brand)', bg: 'rgba(16, 185, 129, 0.1)' };
             case 'loan_disbursement': 
                 return { icon: <ArrowDownLeft size={24} />, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' };
             case 'aap_credit_lock':
@@ -106,7 +107,7 @@ const RetailerTransactions = () => {
     const getStatusStyle = (status) => {
         switch (status) {
             case 'success':
-            case 'completed': return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' };
+            case 'completed': return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-brand)' };
             case 'pending': return { backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' };
             case 'failed': return { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' };
             default: return { backgroundColor: 'rgba(107, 114, 128, 0.1)', color: '#6b7280' };
@@ -115,10 +116,15 @@ const RetailerTransactions = () => {
 
     return (
         <div className="transactions-page-container animate-fade-in">
-            <header className="transactions-header">
-                <h1 className="page-title">Ledger</h1>
-                <p className="page-subtitle">Detailed record of your credit usage, repayments, and disbursements.</p>
-            </header>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <Receipt size={24} />
+                </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Ledger</h1>
+                    <p className="page-hero-subtitle">Detailed record of your credit usage, repayments, and disbursements.</p>
+                </div>
+            </div>
 
             <div className="summary-grid">
                 <div className="summary-card-premium">

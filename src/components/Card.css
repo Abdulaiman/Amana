@@ -1,21 +1,2 @@
-.card {
-  /* Glass styles handled by .glass-panel utility */
-  overflow: hidden;
-  transition: border-color 0.3s;
-}
-
-.card:hover {
-  border-color: rgba(45, 212, 191, 0.3);
-}
-
-.card-title {
-  padding: var(--space-md) var(--space-md) 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  letter-spacing: 0.01em;
-}
-
-.card-body {
-  padding: var(--space-md);
-}
+/* Card styles now in components.css (.card, .card-header, .card-body, .card-footer)
+   This file kept for backward compatibility */

@@ -260,7 +260,7 @@ const VendorProducts = () => {
 
                 {/* Table Panel */}
                 <div className="product-management-content">
-                    <div className="content-filters-bar glass-panel">
+                    <div className="content-filters-bar card">
                         <div className="filter-pills">
                             <button 
                                 onClick={() => setFilterStatus('all')} 
@@ -293,7 +293,7 @@ const VendorProducts = () => {
                     </div>
 
                     {filteredProducts.length === 0 ? (
-                        <div className="empty-state-card glass-panel">
+                        <div className="empty-state-card card">
                             <div className="empty-illustration">
                                 <Package size={64} strokeWidth={1} />
                             </div>
@@ -306,7 +306,7 @@ const VendorProducts = () => {
                     ) : (
                         <div className="products-grid">
                             {filteredProducts.map(product => (
-                                <div key={product._id} className="modern-product-card glass-panel group">
+                                <div key={product._id} className="modern-product-card card group">
                                     <div className="product-card-image">
                                         {product.images?.[0] ? (
                                             <img src={product.images[0]} alt={product.name} />
@@ -363,8 +363,8 @@ const VendorProducts = () => {
 
             {/* Premium Glass Modal */}
             {showModal && (
-                <div className="glass-modal-overlay">
-                    <div className="glass-modal-content animate-zoom-in">
+                <div className="modal-overlay">
+                    <div className="modal-content animate-zoom-in">
                         <div className="modal-header" style={{ margin: 0, padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                             <h2 className="modal-title">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
                             <button type="button" onClick={() => setShowModal(false)} className="close-modal-btn">
@@ -375,7 +375,7 @@ const VendorProducts = () => {
                         <form onSubmit={handleSaveProduct} className="modal-body">
                             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                                 <label className="form-label">Product Name</label>
-                                <input className="glass-input" 
+                                <input className="form-input" 
                                     placeholder="e.g. iPhone 15 Pro" 
                                     value={formData.name} 
                                     onChange={e => setFormData({...formData, name: e.target.value})} 
@@ -386,7 +386,7 @@ const VendorProducts = () => {
                             <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
                                 <div className="form-group">
                                     <label className="form-label">Price (₦)</label>
-                                    <input className="glass-input" 
+                                    <input className="form-input" 
                                         type="number" 
                                         placeholder="0.00" 
                                         value={formData.price} 
@@ -396,7 +396,7 @@ const VendorProducts = () => {
                                 </div>
                                 <div className="form-group">
                                     <label className="form-label">Stock Quantity</label>
-                                    <input className="glass-input" 
+                                    <input className="form-input" 
                                         type="number" 
                                         placeholder="10" 
                                         value={formData.countInStock} 
@@ -408,7 +408,7 @@ const VendorProducts = () => {
                             
                             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                                 <label className="form-label">Category</label>
-                                <select className="glass-input"
+                                <select className="form-input"
                                     value={formData.category} 
                                     onChange={e => setFormData({...formData, category: e.target.value})}
                                 >
@@ -469,7 +469,7 @@ const VendorProducts = () => {
                             
                             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                                 <label className="form-label">Description</label>
-                                <textarea className="glass-input textarea-resize-none" 
+                                <textarea className="form-input textarea-resize-none" 
                                     style={{ minHeight: '100px' }}
                                     placeholder="Describe your product..." 
                                     value={formData.description} 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { TrendingUp, TrendingDown, DollarSign, Wallet, ArrowUpRight, ArrowDownRight, Download, RefreshCw, Activity, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Wallet, ArrowUpRight, ArrowDownRight, Download, RefreshCw, Activity, AlertTriangle, BarChart3 } from 'lucide-react';
 
 const AdminAnalytics = () => {
     const [stats, setStats] = useState(null);
@@ -25,15 +25,20 @@ const AdminAnalytics = () => {
 
     return (
         <div className="fade-in">
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Financial Intelligence</h1>
-                    <p className="page-subtitle">Real-time breakdown of Amana's cash flow</p>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <BarChart3 size={24} />
                 </div>
-                <button className="btn btn-primary">
-                    <Download size={18} />
-                    Export Report
-                </button>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Financial Intelligence</h1>
+                    <p className="page-hero-subtitle">Real-time breakdown of Amana's cash flow</p>
+                </div>
+                <div className="page-hero-actions">
+                    <button className="btn btn-primary">
+                        <Download size={18} />
+                        Export Report
+                    </button>
+                </div>
             </div>
 
             {/* Core Metrics */}
@@ -92,7 +97,7 @@ const AdminAnalytics = () => {
                     label="Available Liquidity" 
                     amount={stats.availableCredit} 
                     sub="Unused Credit Lines"
-                    icon={<ArrowDownRight style={{ color: '#10b981' }} size={24} />}
+                    icon={<ArrowDownRight style={{ color: 'var(--color-brand)' }} size={24} />}
                     tooltip="How much more credit is currently available for retailers to use for new orders."
                 />
                  <MetricCard 
@@ -113,14 +118,14 @@ const AdminAnalytics = () => {
 
             {/* Analysis Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
-                 <div className="glass-panel p-lg">
+                 <div className="card p-lg">
                     <h3 style={{ marginBottom: '1rem' }}>Profit & Loss Overview</h3>
                     <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-soft)', borderRadius: '12px', border: '1px dashed var(--color-border)' }}>
                         <span className="text-muted">Revenue vs Principal Chart Component</span>
                     </div>
                  </div>
 
-                 <div className="glass-panel p-lg">
+                 <div className="card p-lg">
                     <h3 style={{ marginBottom: '1rem' }}>Liabilities Breakdown</h3>
                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div className="flex justify-between items-center p-md rounded" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
@@ -152,7 +157,7 @@ const MetricCard = ({ label, amount, sub, icon, isHighlight, tooltip }) => {
     const formattedAmount = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0);
     
     return (
-        <div className="glass-panel metric-card" style={isHighlight ? { borderColor: 'var(--color-primary)', boxShadow: '0 0 20px var(--color-primary-glow)' } : {}}>
+        <div className="card metric-card" style={isHighlight ? { borderColor: 'var(--color-brand)', boxShadow: '0 0 20px var(--color-brand)' } : {}}>
             <div className="metric-header">
                 <div className="icon-box">
                     {icon}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Check, ChevronRight, ChevronLeft, CreditCard, ShieldCheck, UploadCloud, FileText, Loader } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, CreditCard, ShieldCheck, UploadCloud, FileText, Loader, Brain } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import './PsychometricTest.css';
 
@@ -120,20 +120,23 @@ const PsychometricTest = () => {
             {/* STEP 0: INTRO */}
             {step === 0 && (
                 <div className="step-intro animate-fade-in-up">
-                    <div className="intro-icon-box">
-                        <ShieldCheck size={48} className="intro-icon" />
+                    <div className="page-hero">
+                        <div className="page-hero-icon">
+                            <Brain size={24} />
+                        </div>
+                        <div className="page-hero-body">
+                            <h1 className="page-hero-title">Trust Check</h1>
+                            <p className="page-hero-subtitle">
+                                Unlock up to <span className="highlight">₦60,000</span> in classic credit. No paperwork. Just a few questions.
+                            </p>
+                        </div>
+                        <div className="page-hero-actions">
+                            <button onClick={() => setStep(1)} className="start-btn group">
+                                <span className="btn-content">Start Assessment <ChevronRight size={20}/></span>
+                                <div className="btn-glow"></div>
+                            </button>
+                        </div>
                     </div>
-                    <h1 className="intro-title">
-                        Trust Check
-                    </h1>
-                    <p className="intro-text">
-                        Unlock up to <span className="highlight">₦60,000</span> in classic credit. <br/>
-                        No paperwork. Just a few questions.
-                    </p>
-                    <button onClick={() => setStep(1)} className="start-btn group">
-                        <span className="btn-content">Start Assessment <ChevronRight size={20}/></span>
-                        <div className="btn-glow"></div>
-                    </button>
                 </div>
             )}
 
@@ -164,7 +167,7 @@ const PsychometricTest = () => {
 
             {/* FINAL STEP: VERIFICATION */}
             {step === questions.length + 1 && (
-                <div className="step-final glass-card animate-fade-in-up">
+                <div className="step-final card animate-fade-in-up">
                     <h2 className="final-title">Final Step</h2>
                     <p className="final-subtitle">Secure your account & boost your limit.</p>
 

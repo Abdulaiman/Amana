@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
-import { ShoppingCart, Search, Filter, X, Check, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Search, Filter, X, Check, ChevronRight, ShoppingBag } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import './Marketplace.css';
 
@@ -136,8 +136,8 @@ const Marketplace = () => {
     };
 
     if (loading) return (
-        <div className="flex items-center justify-center min-h-screen bg-[var(--color-bg)]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
+        <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: 'var(--color-bg)' }}>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: 'var(--color-brand)' }}></div>
         </div>
     );
 
@@ -146,20 +146,25 @@ const Marketplace = () => {
             <div className="marketplace-content">
                 {/* Conditional Header - Hide Search when in Details Mode for cleaner look */}
                 {!selectedProduct && (
-                    <div className="mp-header animate-fade-in">
-                        <div>
-                            <h1 className="mp-title">Marketplace</h1>
-                            <p className="mp-subtitle">Browse premium products from verified vendors</p>
+                    <div className="page-hero animate-fade-in">
+                        <div className="page-hero-icon">
+                            <ShoppingBag size={24} />
                         </div>
-                        <div className="search-bar-wrapper">
-                            <Search className="search-icon" size={18} />
-                            <input 
-                                type="text" 
-                                placeholder="Search products..." 
-                                className="search-input"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className="page-hero-body">
+                            <h1 className="page-hero-title">Marketplace</h1>
+                            <p className="page-hero-subtitle">Browse premium products from verified vendors</p>
+                        </div>
+                        <div className="page-hero-actions">
+                            <div className="search-bar-wrapper">
+                                <Search className="search-icon" size={18} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Search products..." 
+                                    className="search-input"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
                 )}
@@ -169,7 +174,7 @@ const Marketplace = () => {
                     <div className="mp-layout animate-fade-in">
                         {/* Sidebar Filters */}
                         <aside className="filter-sidebar">
-                            <div className="glass-panel filter-panel">
+                            <div className="card filter-panel">
                                 <div className="filter-header">
                                     <Filter size={18} /> Filters
                                 </div>
@@ -261,7 +266,7 @@ const Marketplace = () => {
                         )}
 
                         {viewMode === 'details' ? (
-                            <div className="product-details-container glass-panel p-6">
+                            <div className="product-details-container card p-6">
                                 <div className="details-header-section">
                                     <div className="product-category-tag">{selectedProduct.category}</div>
                                     <h1 className="details-product-title">{selectedProduct.name}</h1>
@@ -307,7 +312,7 @@ const Marketplace = () => {
 
                                     {/* Right Column: Specs & Actions */}
                                     <div className="details-right">
-                                        <div className="info-panel glass-panel">
+                                        <div className="info-panel card">
                                             <div className="price-tag-large">
                                                 ₦{selectedProduct.price.toLocaleString()}
                                             </div>

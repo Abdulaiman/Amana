@@ -64,7 +64,7 @@ const VendorDashboard = ({ vendor, incomingRequest, onConfirmRequest, isMobile =
                 <div className="text-xs text-muted mb-md">20x Screen Guard, 10x Charger</div>
               </div>
               <div className="request-actions grid grid-cols-2 gap-sm">
-                <Button variant="primary" size="sm" onClick={onConfirmRequest} className="glow-primary">
+                <Button variant="primary" size="sm" onClick={onConfirmRequest} className="">
                   <Check size={16} className="mr-1" /> Confirm
                 </Button>
                 <Button variant="danger" size="sm">

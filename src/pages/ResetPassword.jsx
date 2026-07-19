@@ -51,7 +51,7 @@ const ResetPassword = () => {
                 {success ? (
                     <div style={{ textAlign: 'center', padding: '2rem 0' }}>
                         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-                            <CheckCircle size={48} color="#10b981" />
+                            <CheckCircle size={48} color="var(--color-success)" />
                         </div>
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.5rem' }}>Password Reset!</h3>
                         <p className="auth-subtitle">You will be redirected to login shortly...</p>
@@ -68,7 +68,7 @@ const ResetPassword = () => {
                         <div className="form-group">
                             <label className="form-label">New Password</label>
                             <div style={{ position: 'relative' }}>
-                                <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)' }} />
                                 <input 
                                     type="password" 
                                     className="form-input" 
@@ -84,7 +84,7 @@ const ResetPassword = () => {
                         <div className="form-group">
                             <label className="form-label">Confirm Password</label>
                             <div style={{ position: 'relative' }}>
-                                <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                                <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)' }} />
                                 <input 
                                     type="password" 
                                     className="form-input" 

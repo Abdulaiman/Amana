@@ -24,7 +24,7 @@ const UserProfile = () => {
 
     if (loading) return (
         <div className="loading-container">
-            <Loader className="animate-spin" style={{ color: 'var(--color-primary)' }} />
+            <Loader className="animate-spin" style={{ color: 'var(--color-brand)' }} />
         </div>
     );
 
@@ -32,18 +32,15 @@ const UserProfile = () => {
 
     return (
         <div className="user-profile-container user-profile-content">
-            {/* Header / ID Card Style */}
-            <div className="profile-header-card">
-                <div className="profile-avatar-section">
-                    <div className="profile-avatar">
-                        <User size={40} className="icon-white" />
-                    </div>
-                    <div>
-                        <h1 className="profile-name">{profile.name}</h1>
-                        <p className="profile-tier">{profile.tier} Member</p>
-                    </div>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <User size={24} />
                 </div>
-                <div className="profile-stats">
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">{profile.name}</h1>
+                    <p className="page-hero-subtitle">{profile.tier} Member</p>
+                </div>
+                <div className="page-hero-actions">
                     <div className="stat-item">
                         <span className="stat-label">Amana Score</span>
                         <span className="stat-value">{profile.amanaScore}</span>
@@ -59,7 +56,7 @@ const UserProfile = () => {
             <div className="profile-grid">
                 
                 {/* Contact Info */}
-                <div className="profile-section glass-panel">
+                <div className="profile-section card">
                     <h2 className="section-header">
                         <User size={18} /> Personal Details
                     </h2>
@@ -76,7 +73,7 @@ const UserProfile = () => {
                 </div>
 
                 {/* Business Info */}
-                <div className="profile-section glass-panel">
+                <div className="profile-section card">
                     <h2 className="section-header">
                         <Building size={18} /> Business Info
                     </h2>
@@ -104,7 +101,7 @@ const UserProfile = () => {
                 </div>
 
                 {/* KYC Status */}
-                <div className="profile-section glass-panel full-width">
+                <div className="profile-section card full-width">
                     <h2 className="section-header">
                         <ShieldCheck size={18} /> Verification Status
                     </h2>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Check, X, DollarSign, Users, Briefcase, Activity, AlertCircle, ChevronRight, Search, ShieldCheck, ShieldX, UserCheck, Clock, Wallet, AlertTriangle } from 'lucide-react';
+import { Check, X, DollarSign, Users, Briefcase, Activity, AlertCircle, ChevronRight, Search, ShieldCheck, ShieldX, UserCheck, Clock, Wallet, AlertTriangle, BarChart3 } from 'lucide-react';
 import './AdminDashboard.css';
 import './RetailerDashboard.css'; // Shared styles
 import { useToast } from '../context/ToastContext';
@@ -171,12 +171,15 @@ const AdminDashboard = () => {
     return (
         <div className="admin-dashboard-container animate-fade-in">
             <div className="admin-max-width">
-                 <header className="dashboard-page-header">
-                    <div>
-                         <h1 className="admin-title">Dashboard Overview</h1>
-                         <p className="admin-subtitle">Platform Status & Activity</p>
+                 <header className="page-hero">
+                    <div className="page-hero-icon">
+                        <BarChart3 size={24} />
                     </div>
-                     <div className="header-status">
+                    <div className="page-hero-body">
+                        <h1 className="page-hero-title">Dashboard Overview</h1>
+                        <p className="page-hero-subtitle">Platform Status & Activity</p>
+                    </div>
+                    <div className="page-hero-actions">
                         <div className="operational-badge">
                             <Activity size={14} /> Operational
                         </div>
@@ -263,7 +266,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className="admin-panel glass-panel">
+                <div className="admin-panel card">
                     <div className="admin-tabs-header">
                         <div className="admin-tabs-list">
                             <button className={`tab-btn ${activeTab === 'payouts' ? 'active' : ''}`} onClick={() => setActiveTab('payouts')}>
@@ -512,7 +515,7 @@ const AdminDashboard = () => {
                                             <h4 className="results-label">Search Results</h4>
                                             <div className="results-grid">
                                                 {agentSearchResults.map(res => (
-                                                    <div key={res._id} className="search-result-card glass-panel">
+                                                    <div key={res._id} className="search-result-card card">
                                                         <div className="res-info">
                                                             <div className="res-avatar">
                                                                 {res.kyc?.profilePicUrl ? <img src={res.kyc.profilePicUrl} alt={res.name} /> : <Users size={20} />}

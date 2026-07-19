@@ -124,7 +124,7 @@ const VendorCompleteProfile = () => {
 
     if (pageLoading) return (
         <div className="loading-container">
-            <Loader className="animate-spin" style={{ color: 'var(--color-primary)' }} />
+            <Loader className="animate-spin" style={{ color: 'var(--color-brand)' }} />
         </div>
     );
 
@@ -207,7 +207,7 @@ const VendorCompleteProfile = () => {
                             <div className="upload-card">
                                 <div className="upload-row">
                                     <div className="upload-info">
-                                        <User style={{ color: 'var(--color-primary)' }} />
+                                        <User style={{ color: 'var(--color-brand)' }} />
                                         <div>
                                             <p className="upload-text-main">Profile Picture</p>
                                             <p className="upload-text-sub">Clear photo of yourself</p>
@@ -232,7 +232,7 @@ const VendorCompleteProfile = () => {
                             <div className="upload-card">
                                 <div className="upload-row">
                                     <div className="upload-info">
-                                        <Briefcase style={{ color: 'var(--color-primary)' }} />
+                                        <Briefcase style={{ color: 'var(--color-brand)' }} />
                                         <div>
                                             <p className="upload-text-main">CAC Document</p>
                                             <p className="upload-text-sub">Business registration certificate</p>

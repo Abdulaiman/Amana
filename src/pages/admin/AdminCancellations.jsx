@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import {
-    ShoppingBag, CheckCircle, Clock, AlertTriangle, X, User, Calendar, MessageSquare, DollarSign, ArrowLeft
+    ShoppingBag, CheckCircle, Clock, AlertTriangle, X, User, Calendar, MessageSquare, DollarSign, ArrowLeft, XCircle
 } from 'lucide-react';
 import './AdminCancellations.css';
 
@@ -57,10 +57,13 @@ const AdminCancellations = () => {
 
     return (
         <div className="admin-page">
-            <div className="page-header">
-                <div>
-                    <h1>Cancellation Requests</h1>
-                    <p className="text-muted">
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <XCircle size={24} />
+                </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Cancellation Requests</h1>
+                    <p className="page-hero-subtitle">
                         {stats.total > 0
                             ? `${stats.total} pending cancellation${stats.total !== 1 ? 's' : ''}`
                             : 'No pending cancellation requests'}

@@ -84,7 +84,7 @@ const AgentDashboard = () => {
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: 'var(--color-brand)' }}></div>
         </div>
     );
 
@@ -92,12 +92,16 @@ const AgentDashboard = () => {
 
     return (
         <div className="agent-dashboard-container animate-fade-in">
-            <header className="agent-header">
-                <div className="header-text-group">
-                    <h1 className="agent-title">Agent Portal</h1>
-                    <p className="agent-subtitle">Murabaha Fulfillment & Verification</p>
+            <header className="page-hero">
+                <div className="page-hero-icon">
+                    <ShieldCheck size={24} />
                 </div>
-                <div className="agent-header-actions">
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Agent Portal</h1>
+                    <p className="page-hero-subtitle">Murabaha Fulfillment & Verification</p>
+                    <p style={{fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem'}}>Hello, {user?.name}</p>
+                </div>
+                <div className="page-hero-actions">
                     <button 
                         className="new-aap-btn"
                         onClick={() => navigate('/agent/aap/new')}
@@ -122,7 +126,7 @@ const AgentDashboard = () => {
             <section className="tasks-section">
                 <div className="tasks-header-row">
                     <div className="flex items-center gap-4">
-                        <div style={{ width: '6px', height: '32px', background: 'var(--color-primary)', borderRadius: '3px', boxShadow: '0 0 15px var(--color-primary)' }}></div>
+                        <div style={{ width: '6px', height: '32px', background: 'var(--color-brand)', borderRadius: '3px', boxShadow: '0 0 15px var(--color-brand)' }}></div>
                         <h2 style={{ fontSize: '1.85rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
                             {activeTab === 'active' ? 'Active Assignments' : (activeTab === 'history' ? 'Task History' : 'AAP Queue')}
                         </h2>
@@ -153,12 +157,12 @@ const AgentDashboard = () => {
                 {displayedTasks.length === 0 ? (
                     <div className="empty-tasks animate-fade-in" style={{ padding: '6rem 0' }}>
                         <div className="empty-icon-box" style={{ width: '120px', height: '120px', marginBottom: '2rem' }}>
-                            <Package size={50} color="var(--color-text-muted)" />
+                            <Package size={50} color="var(--color-text-secondary)" />
                         </div>
                         <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.5rem' }}>
                             {activeTab === 'active' ? 'No Assignments' : (activeTab === 'history' ? 'No History' : 'Queue Empty')}
                         </h2>
-                        <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
+                        <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem' }}>
                             {activeTab === 'active' ? 'Relax! There are no pickup assignments directed to you at this moment.' : 
                              activeTab === 'history' ? 'You haven\'t completed any tasks yet.' : 
                              'No Agent-Assisted Purchases in your queue.'}

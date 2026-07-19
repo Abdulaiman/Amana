@@ -9,14 +9,12 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="theme-toggle-btn"
-      aria-label="Toggle theme"
+      className="theme-toggle"
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
-      <div className="icon-wrapper">
-        <Sun size={20} className="icon-sun" />
-        <Moon size={20} className="icon-moon" />
-      </div>
+      <Sun size={18} className={`theme-icon theme-icon-sun ${theme === 'light' ? 'visible' : ''}`} />
+      <Moon size={18} className={`theme-icon theme-icon-moon ${theme === 'dark' ? 'visible' : ''}`} />
     </button>
   );
 };

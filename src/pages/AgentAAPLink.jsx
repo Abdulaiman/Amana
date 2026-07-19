@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../services/api';
-import { Search, User, ArrowLeft, Shield, AlertCircle, CheckCircle } from 'lucide-react';
+import { Search, User, ArrowLeft, Shield, AlertCircle, CheckCircle, Link } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import './AgentAAPLink.css';
@@ -107,15 +107,18 @@ const AgentAAPLink = () => {
 
     return (
         <div className="aap-link-container animate-fade-in">
-            <header className="aap-link-header">
+            <div className="page-hero">
                 <button className="back-btn" onClick={() => navigate('/agent/tasks')}>
                     <ArrowLeft size={20} />
                 </button>
-                <div>
-                    <h1>Step 2: Link Retailer</h1>
-                    <p>Assign a retailer to this purchase request</p>
+                <div className="page-hero-icon">
+                    <Link size={24} />
                 </div>
-            </header>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Step 2: Link Retailer</h1>
+                    <p className="page-hero-subtitle">Assign a retailer to this purchase request</p>
+                </div>
+            </div>
 
             <div className="aap-link-content">
                 {step === 1 ? (
@@ -123,7 +126,7 @@ const AgentAAPLink = () => {
                         <h2 className="step-title">Who is buying this?</h2>
                         <p className="step-desc">Enter the retailer's phone number to pull their profile and check credit eligibility.</p>
 
-                        <div className="search-box-premium glass-panel">
+                        <div className="search-box-premium card">
                             <Phone className="search-icon" size={20} />
                             <input
                                 type="text"
@@ -137,7 +140,7 @@ const AgentAAPLink = () => {
                         </div>
 
                         {retailer ? (
-                            <div className="retailer-preview-card glass-panel animate-slide-up">
+                            <div className="retailer-preview-card card animate-slide-up">
                                 <div className="retailer-main">
                                     <div className="retailer-avatar">
                                         {retailer.kyc?.profilePicUrl ? (
@@ -182,7 +185,7 @@ const AgentAAPLink = () => {
                             </button>
                         </div>
 
-                        <div className="breakdown-card-premium glass-panel">
+                        <div className="breakdown-card-premium card">
                             <div className="breakdown-row">
                                 <span className="label">Actual Product Price</span>
                                 <span className="value">₦{aap.purchasePrice?.toLocaleString()}</span>
@@ -219,7 +222,7 @@ const AgentAAPLink = () => {
                             </div>
 
                             {!selectedTerm ? (
-                                <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+                                <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
                                     Select a repayment term above to see the cost breakdown
                                 </p>
                             ) : (

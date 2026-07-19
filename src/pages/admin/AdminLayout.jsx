@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, Users, Calculator, Briefcase, Settings, LogOut, Search, Activity, AlertTriangle, ShoppingBag, XCircle, Menu, X } from 'lucide-react';
+import ThemeToggle from '../../components/ThemeToggle';
 import './AdminConsole.css';
 
 const AdminLayout = () => {
@@ -66,9 +67,11 @@ const AdminLayout = () => {
                             <p style={{ fontSize: '0.75rem' }} className="text-muted truncate">Super Admin</p>
                         </div>
                     </div>
+                    <ThemeToggle />
                     <button 
                         onClick={handleLogout}
-                        className="btn btn-outline logout-btn"
+                        className="btn btn-ghost"
+                        style={{ color: 'var(--color-danger)', width: '100%', justifyContent: 'center' }}
                     >
                         <LogOut size={18} />
                         Sign Out

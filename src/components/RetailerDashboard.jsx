@@ -41,7 +41,7 @@ const RetailerDashboard = ({ retailer, onStartRequest }) => {
       </div>
 
       <div className="action-area">
-        <Button variant="primary" className="btn-block glow-primary" onClick={onStartRequest}>
+        <Button variant="primary" className="btn-block" onClick={onStartRequest}>
           <ShoppingBag size={18} className="mr-2" />
           Request Inventory
         </Button>

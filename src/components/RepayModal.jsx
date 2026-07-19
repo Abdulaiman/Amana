@@ -125,14 +125,14 @@ const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSucc
                     .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 120px; font-weight: 900; color: rgba(16, 185, 129, 0.04); z-index: 0; user-select: none; }
                     
                     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; position: relative; z-index: 1; }
-                    .logo { font-size: 28px; font-weight: 900; color: #10b981; letter-spacing: -1px; text-transform: lowercase; }
-                    .logo::after { content: ''; display: inline-block; width: 6px; height: 6px; background: #10b981; border-radius: 50%; margin-left: 2px; vertical-align: super; }
+                    .logo { font-size: 28px; font-weight: 900; color: var(--color-brand); letter-spacing: -1px; text-transform: lowercase; }
+                    .logo::after { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--color-brand); border-radius: 50%; margin-left: 2px; vertical-align: super; }
                     .receipt-meta { text-align: right; }
                     .receipt-title { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #6b7280; font-weight: 700; margin-bottom: 4px; }
                     .receipt-id { font-size: 12px; color: #9ca3af; font-family: monospace; }
                     
                     .status-banner { text-align: center; margin-bottom: 40px; padding: 30px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, transparent 70%); border-radius: 16px; position: relative; z-index: 1; }
-                    .status-icon { width: 56px; height: 56px; background: #10b981; border-radius: 50%; color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px; }
+                    .status-icon { width: 56px; height: 56px; background: var(--color-brand); border-radius: 50%; color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px; }
                     .amount-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; font-weight: 600; margin-bottom: 8px; }
                     .amount-value { font-size: 48px; font-weight: 900; color: #111827; letter-spacing: -2px; margin-bottom: 12px; }
                     .status-badge { display: inline-block; padding: 6px 16px; background: #ecfdf5; color: #059669; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border: 1px solid #d1fae5; }
@@ -141,14 +141,14 @@ const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSucc
                     .col { display: flex; flex-direction: column; gap: 20px; }
                     .item { display: flex; flex-direction: column; gap: 4px; }
                     .item-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; font-weight: 600; }
-                    .item-value { font-size: 14px; font-weight: 600; color: #1f2937; border-left: 3px solid #10b981; padding-left: 10px; }
+                    .item-value { font-size: 14px; font-weight: 600; color: #1f2937; border-left: 3px solid var(--color-brand); padding-left: 10px; }
                     
                     .footer { text-align: center; color: #9ca3af; font-size: 10px; padding-top: 20px; border-top: 1px solid #f3f4f6; position: relative; z-index: 1; }
                     .footer-logo { font-weight: 700; color: #d1d5db; margin-bottom: 8px; letter-spacing: 1px; }
                     .security-note { max-width: 400px; margin: 0 auto; line-height: 1.5; }
                     
                     .no-print { margin-top: 30px; text-align: center; }
-                    .no-print button { background: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
+                    .no-print button { background: var(--color-brand); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
                     @media print { .no-print { display: none; } }
                 </style>
             </head>

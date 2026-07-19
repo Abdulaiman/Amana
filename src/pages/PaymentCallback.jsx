@@ -67,7 +67,7 @@ const PaymentCallback = () => {
         height: '64px',
         borderRadius: '50%',
         background: color === 'green' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-        color: color === 'green' ? '#10b981' : '#ef4444',
+        color: color === 'green' ? 'var(--color-brand)' : '#ef4444',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -76,12 +76,12 @@ const PaymentCallback = () => {
 
     return (
         <div style={containerStyle} className="animate-fade-in">
-            <div className="glass-panel" style={cardStyle}>
+            <div className="card" style={cardStyle}>
                 {status === 'verifying' && (
                     <>
                         <div className="loading-spinner" style={{ width: '48px', height: '48px', marginBottom: '1rem' }}></div>
                         <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-text)' }}>Verifying Payment</h2>
-                        <p style={{ color: 'var(--color-text-muted)' }}>Please wait while we confirm your transaction...</p>
+                        <p style={{ color: 'var(--color-text-secondary)' }}>Please wait while we confirm your transaction...</p>
                     </>
                 )}
 
@@ -98,7 +98,7 @@ const PaymentCallback = () => {
                                 <button 
                                     onClick={() => window.location.href = `amana://payment/callback?reference=${reference}`}
                                     className="btn-primary"
-                                    style={{ width: '100%', padding: '1rem', display: 'flex', justifyContent: 'center', backgroundColor: '#10b981' }}
+                                    style={{ width: '100%', padding: '1rem', display: 'flex', justifyContent: 'center', backgroundColor: 'var(--color-brand)' }}
                                 >
                                     Return to Amana App
                                 </button>

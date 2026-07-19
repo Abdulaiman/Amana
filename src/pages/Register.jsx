@@ -141,7 +141,7 @@ const Register = () => {
                         </>
                     )}
                     {user && (
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                             We'll use your existing <b>{user.email}</b> login for your {role} profile.
                         </p>
                     )}

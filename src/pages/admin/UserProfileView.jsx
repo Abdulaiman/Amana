@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { User, Phone, Mail, MapPin, Shield, CreditCard, FileText, Activity, AlertTriangle, Save, ArrowLeft } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Shield, CreditCard, FileText, Activity, AlertTriangle, Save, ArrowLeft, UserCircle } from 'lucide-react';
 // Import dedicated styles
 import './AdminConsole.css';
 
@@ -111,42 +111,32 @@ const UserProfileView = () => {
                 <ArrowLeft size={16} /> Back to List
             </button>
 
-            {/* Header Card */}
-            <div className="glass-panel profile-header" style={{ borderColor: user.isActive ? '#10b981' : '#ef4444' }}>
-                <div className="profile-container">
-                    <div className="profile-identity">
-                        <div className="profile-avatar">
-                            {user.name?.charAt(0)}
-                        </div>
-                        <div>
-                            <h1 className="profile-name">{user.name}</h1>
-                            <div className="profile-meta">
-                                <span className="meta-item"><Mail size={14} /> {user.email}</span>
-                                <span className="meta-item"><Phone size={14} /> {user.phone}</span>
-                                <span className="meta-item">
-                                    <Shield size={14} /> Amana Score: <b style={{ color: 'var(--color-text)' }}>{user.amanaScore || 0}</b>
-                                </span>
-                            </div>
-                            <div className="profile-badges">
-                                <span className={`badge ${user.isActive ? 'badge-success' : 'badge-danger'}`}>
-                                    {user.isActive ? 'Active Account' : 'BANNED'}
-                                </span>
-                                <span className="badge badge-neutral">{user.role?.toUpperCase()}</span>
-                                {user.isAgent && <span className="badge badge-warning">AGENT</span>}
-                            </div>
-                        </div>
+            <div className="page-hero">
+                <div className="page-hero-icon">
+                    <UserCircle size={24} />
+                </div>
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">{user.name}</h1>
+                    <p className="page-hero-subtitle">
+                        {user.email} &middot; {user.phone} &middot; Amana Score: <b>{user.amanaScore || 0}</b>
+                    </p>
+                    <div className="profile-badges" style={{ marginTop: '0.5rem' }}>
+                        <span className={`badge ${user.isActive ? 'badge-success' : 'badge-danger'}`}>
+                            {user.isActive ? 'Active Account' : 'BANNED'}
+                        </span>
+                        <span className="badge badge-neutral">{user.role?.toUpperCase()}</span>
+                        {user.isAgent && <span className="badge badge-warning">AGENT</span>}
                     </div>
-
-                    <div className="profile-actions">
-                         <button 
-                            onClick={toggleStatus}
-                            disabled={statusLoading}
-                            className={`btn ${user.isActive ? 'btn-danger' : 'btn-primary'}`}
-                        >
-                            <AlertTriangle size={16} />
-                            {user.isActive ? 'Ban User' : 'Activate User'}
-                        </button>
-                    </div>
+                </div>
+                <div className="page-hero-actions">
+                    <button 
+                        onClick={toggleStatus}
+                        disabled={statusLoading}
+                        className={`btn ${user.isActive ? 'btn-danger' : 'btn-primary'}`}
+                    >
+                        <AlertTriangle size={16} />
+                        {user.isActive ? 'Ban User' : 'Activate User'}
+                    </button>
                 </div>
             </div>
 
@@ -169,7 +159,7 @@ const UserProfileView = () => {
                 {/* OVERVIEW */}
                 {activeTab === 'overview' && (
                     <div className="info-grid">
-                        <div className="glass-panel p-lg">
+                        <div className="card p-lg">
                             <h3 className="section-title mb-4"><CreditCard size={18} style={{ display: 'inline', marginRight: '8px' }} /> Financial Snapshot</h3>
                             <div className="space-y-4">
                                 <div className="info-card-row">
@@ -191,7 +181,7 @@ const UserProfileView = () => {
                             </div>
                         </div>
 
-                        <div className="glass-panel p-lg">
+                        <div className="card p-lg">
                             <h3 className="section-title mb-4"><FileText size={18} style={{ display: 'inline', marginRight: '8px' }} /> Business Info</h3>
                              <div className="space-y-4">
                                 {user.businessInfo ? (
@@ -216,12 +206,12 @@ const UserProfileView = () => {
                         </div>
 
                         {/* Admin Tools Panel */}
-                        <div className="glass-panel p-lg" style={{ gridColumn: 'span 2' }}>
+                        <div className="card p-lg" style={{ gridColumn: 'span 2' }}>
                             <h3 className="section-title mb-4">⚙️ Admin Controls & Overrides</h3>
                             <div className="ops-grid">
                                 {/* Score Override Form */}
                                 <form onSubmit={handleOverrideScore} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                    <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-primary)' }}>Override Trust Score & Credit Limit</h4>
+                                    <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-brand)' }}>Override Trust Score & Credit Limit</h4>
                                     <p className="text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
                                         Setting a custom score will automatically recalculate the retailer's credit limit and tier (Linear multiplier of 600, capped at 180k).
                                     </p>
@@ -257,7 +247,7 @@ const UserProfileView = () => {
 
                                 {/* Toggle Options & Quick Status Adjustments */}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-primary)' }}>System Role Management</h4>
+                                    <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-brand)' }}>System Role Management</h4>
                                     <p className="text-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
                                         Manage role permissions and status flags for this retailer. Action changes are logged in the system audit logs.
                                     </p>
@@ -287,7 +277,7 @@ const UserProfileView = () => {
 
                 {/* ORDERS */}
                 {activeTab === 'orders' && (
-                    <div className="glass-panel table-container">
+                    <div className="card table-container">
                         <div className="table-wrapper">
                             <table className="data-table">
                                 <thead>
@@ -318,7 +308,7 @@ const UserProfileView = () => {
 
                 {/* LOGS / NOTES */}
                 {activeTab === 'logs' && (
-                    <div className="glass-panel p-lg">
+                    <div className="card p-lg">
                         <h3 className="section-title mb-4">Admin Notes & Logs</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {notes.map((note, idx) => (

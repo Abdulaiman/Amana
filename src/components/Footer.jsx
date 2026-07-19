@@ -10,33 +10,34 @@ const Footer = () => {
           <h3>Amana</h3>
           <p>Turning Informal Trade into Financial Identity</p>
         </div>
-        <div className="footer-links">
-          <div className="footer-col">
-            <h4>Product</h4>
-            <Link to="/#problem">Problem</Link>
-            <Link to="/#solution">Solution</Link>
-            <Link to="/#how-it-works">How It Works</Link>
-          </div>
-          <div className="footer-col">
-            <h4>Company</h4>
-            <Link to="/team">Team</Link>
-            <Link to="/impact">Impact</Link>
-            <Link to="/contact">Contact</Link>
-          </div>
-          <div className="footer-col">
-            <h4>Resources</h4>
-            <Link to="/faq">FAQ</Link>
-            <Link to="/tech-and-security">Security</Link>
-            <Link to="/admin-playground">Admin</Link>
-          </div>
-          <div className="footer-col">
-            <h4>Legal</h4>
-            <Link to="/terms">Terms & Conditions</Link>
-          </div>
+        <div className="footer-col">
+          <h4>Product</h4>
+          <Link to="/#problem">Problem</Link>
+          <Link to="/#solution">Solution</Link>
+          <Link to="/#how-it-works">How It Works</Link>
+        </div>
+        <div className="footer-col">
+          <h4>Company</h4>
+          <Link to="/team">Team</Link>
+          <Link to="/impact">Impact</Link>
+          <Link to="/contact">Contact</Link>
+        </div>
+        <div className="footer-col">
+          <h4>Resources</h4>
+          <Link to="/faq">FAQ</Link>
+          <Link to="/tech-and-security">Security</Link>
+        </div>
+        <div className="footer-col">
+          <h4>Legal</h4>
+          <Link to="/terms">Terms & Conditions</Link>
         </div>
       </div>
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} Amana. All rights reserved.</p>
+        <div className="footer-bottom-links">
+          <Link to="/terms">Terms</Link>
+          <Link to="/faq">Privacy</Link>
+        </div>
       </div>
     </footer>
   );

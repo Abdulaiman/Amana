@@ -4,7 +4,7 @@ import api from '../services/api';
 import { 
     Package, MapPin, Store, Calendar, ArrowLeft, 
     CheckCircle, Clock, AlertCircle, ShieldCheck, DollarSign, User,
-    Phone, Mail, Camera, CreditCard, UploadCloud, XCircle
+    Phone, Mail, Camera, CreditCard, UploadCloud, XCircle, FileText
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -253,21 +253,24 @@ const AgentAAPDetail = () => {
 
     return (
         <div className="aap-detail-container animate-fade-in">
-            <header className="aap-detail-header">
+            <div className="page-hero">
                 <button onClick={() => navigate(-1)} className="back-btn-ghost">
                     <ArrowLeft size={20} />
                 </button>
-                <div className="header-info">
-                    <h1>Purchase Details</h1>
-                    <p className="ref-tag">REF: #AMN-{aap._id.substring(aap._id.length - 8).toUpperCase()}</p>
+                <div className="page-hero-icon">
+                    <FileText size={24} />
                 </div>
-                <div className="header-status">
+                <div className="page-hero-body">
+                    <h1 className="page-hero-title">Purchase Details</h1>
+                    <p className="page-hero-subtitle">REF: #AMN-{aap._id.substring(aap._id.length - 8).toUpperCase()}</p>
+                </div>
+                <div className="page-hero-actions">
                     <div className="status-pill" style={{ color: statusConfig.color, background: `${statusConfig.color}15`, borderColor: `${statusConfig.color}30` }}>
                         {statusConfig.icon}
                         <span>{statusConfig.label}</span>
                     </div>
                 </div>
-            </header>
+            </div>
 
             <div className="aap-detail-grid">
                 <div className="main-info">

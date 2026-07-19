@@ -1,25 +1,12 @@
 .hero {
-  padding: var(--space-2xl) var(--space-md);
+  padding: var(--space-12) var(--space-6);
   text-align: center;
   position: relative;
-  overflow: hidden;
-}
-
-.hero-glow-bg {
-  position: absolute;
-  top: -50%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1000px;
-  height: 1000px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
-  z-index: -1;
-  pointer-events: none;
 }
 
 .hero-content {
-  max-width: 900px;
-  margin: 0 auto var(--space-2xl);
+  max-width: 800px;
+  margin: 0 auto var(--space-12);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -28,135 +15,126 @@
 .badge-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 100px;
-  font-size: 0.875rem;
-  color: #10b981;
-  margin-bottom: var(--space-lg);
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4);
+  background-color: var(--color-brand-subtle);
+  border: 1px solid var(--color-brand-subtle);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-brand-text);
+  margin-bottom: var(--space-5);
 }
 
 .badge-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #10b981;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-brand);
   border-radius: 50%;
-  box-shadow: 0 0 10px #10b981;
 }
 
 .hero h1 {
-  font-size: 3.5rem;
-  color: var(--color-text);
-  margin-bottom: var(--space-md);
+  font-size: var(--text-display);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-5);
   line-height: 1.1;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.hero .text-gradient {
+  color: var(--color-brand-text);
 }
 
 .hero-subhead {
-  font-size: 1.25rem;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-xl);
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-6);
   max-width: 600px;
+  line-height: 1.6;
 }
 
 .hero-actions {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--space-4);
 }
 
 .hero-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--space-lg);
-  max-width: 1200px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-5);
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .benefit-card {
-  padding: var(--space-xl);
+  padding: var(--space-6);
   text-align: left;
-  transition: transform 0.3s, box-shadow 0.3s;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  transition: box-shadow var(--transition-fast);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .benefit-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-brand);
 }
 
-.icon-box {
-  width: 56px;
-  height: 56px;
-  background: rgba(16, 185, 129, 0.1);
-  border-radius: 12px;
+.benefit-card .icon-box {
+  width: 48px;
+  height: 48px;
+  background-color: var(--color-brand-subtle);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #10b981;
-  margin-bottom: var(--space-md);
-}
-
-/* Remove amber accent - use green for all */
-.icon-box.accent {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  color: var(--color-brand-text);
+  margin-bottom: var(--space-4);
 }
 
 .benefit-card h3 {
-  color: var(--color-text);
-  font-size: 1.25rem;
-  margin-bottom: var(--space-sm);
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
 }
 
 .benefit-card p {
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.5;
 }
 
 @media (max-width: 768px) {
   .hero {
-    padding: var(--space-xl) var(--space-sm);
+    padding: var(--space-8) var(--space-4);
   }
 
   .hero h1 {
-    font-size: 2.25rem; /* Slightly smaller for mobile */
-    letter-spacing: -0.02em;
+    font-size: var(--text-3xl);
   }
-  
+
   .hero-subhead {
-    font-size: 1.125rem;
-    margin-bottom: var(--space-lg);
+    font-size: var(--text-md);
   }
-  
+
   .hero-actions {
     flex-direction: column;
     width: 100%;
-    gap: 0.75rem;
   }
-  
-  .btn {
+
+  .hero-actions .btn {
     width: 100%;
     justify-content: center;
   }
 
   .hero-cards {
     grid-template-columns: 1fr;
-    gap: var(--space-md);
   }
-  
+
   .benefit-card {
-    padding: var(--space-lg);
+    padding: var(--space-5);
   }
 }

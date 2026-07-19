@@ -115,7 +115,7 @@ const Demo = () => {
                 <span className="stat-label">Limit Increase</span>
               </div>
             </div>
-            <Button onClick={resetDemo} variant="primary" className="glow-primary restart-btn">
+            <Button onClick={resetDemo} variant="primary" className="restart-btn">
               <RefreshCw size={16} /> Start New Cycle
             </Button>
           </div>
@@ -145,7 +145,7 @@ const Demo = () => {
           <span>Interactive Demo</span>
         </div>
         <h1 className="demo-title">
-          Experience <span className="text-gradient">Amana</span> in Action
+          Experience Amana in Action
         </h1>
         <p className="demo-subtitle">
           Walk through a complete Murabaha financing cycle. Switch between Retailer and Vendor views to see both sides of the transaction.
