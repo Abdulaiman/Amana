@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { 
     ShoppingBag, CheckCircle, Clock, AlertTriangle, X, Eye, 
-    DollarSign, User, Calendar, ClipboardList
+    DollarSign, User, Calendar, ClipboardList, Search
 } from 'lucide-react';
 import './AdminAAPDashboard.css';
 
@@ -11,6 +11,7 @@ const AdminAAPDashboard = () => {
     const [stats, setStats] = useState({});
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('pending_admin_approval');
+    const [searchTerm, setSearchTerm] = useState('');
     const [selectedAAP, setSelectedAAP] = useState(null);
     const [disbursementForm, setDisbursementForm] = useState({
         method: 'bank_transfer',
@@ -101,6 +102,16 @@ const AdminAAPDashboard = () => {
         return labels[status] || status;
     };
 
+    const filteredAAPs = aaps.filter(aap => {
+        if (!searchTerm) return true;
+        const term = searchTerm.toLowerCase();
+        return (
+            aap.productName?.toLowerCase().includes(term) ||
+            aap.retailer?.name?.toLowerCase().includes(term) ||
+            aap.agent?.name?.toLowerCase().includes(term)
+        );
+    });
+
     return (
         <div className="admin-page">
             <div className="page-hero">
@@ -181,33 +192,55 @@ const AdminAAPDashboard = () => {
                 </div>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="tab-nav aap-tabs">
-                {['pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered', 'received', 'expired', 'declined'].map(s => (
-                    <button 
-                        key={s}
-                        className={`tab-btn ${filter === s ? 'active' : ''}`}
-                        onClick={() => setFilter(s)}
+            {/* Controls Bar */}
+            <div className="aap-controls-bar">
+                <div className="aap-search-wrapper">
+                    <Search size={18} className="search-icon" />
+                    <input 
+                        type="text"
+                        placeholder="Search by product, retailer, or agent..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="form-control aap-search-input"
+                    />
+                    {searchTerm && (
+                        <button className="clear-search-btn" onClick={() => setSearchTerm('')}>
+                            <X size={14} />
+                        </button>
+                    )}
+                </div>
+
+                <div className="aap-filter-select-container">
+                    <span className="filter-label">Status Filter</span>
+                    <select 
+                        value={filter}
+                        onChange={e => setFilter(e.target.value)}
+                        className="form-select aap-filter-select"
                     >
-                        {s.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </button>
-                ))}
-                <button className={`tab-btn ${!filter ? 'active' : ''}`} onClick={() => setFilter('')}>
-                    All
-                </button>
+                        <option value="">All Purchases</option>
+                        <option value="pending_admin_approval">Pending Approval</option>
+                        <option value="pending_murabaha_acceptance">Murabaha Offer Sent</option>
+                        <option value="murabaha_accepted">Murabaha Accepted</option>
+                        <option value="fund_disbursed">Fund Disbursed</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="received">Received / Completed</option>
+                        <option value="expired">Expired</option>
+                        <option value="declined">Declined</option>
+                    </select>
+                </div>
             </div>
 
             {/* AAP List */}
             {loading ? (
                 <div className="aap-loading">Loading...</div>
-            ) : aaps.length === 0 ? (
+            ) : filteredAAPs.length === 0 ? (
                 <div className="aap-empty">
                     <ShoppingBag size={48} strokeWidth={1} />
-                    <p>No purchases in this category</p>
+                    <p>{searchTerm ? "No matching purchases found." : "No purchases in this category."}</p>
                 </div>
             ) : (
                 <div className="aap-grid">
-                    {aaps.map(aap => (
+                    {filteredAAPs.map(aap => (
                         <div key={aap._id} className="card aap-card">
                             <div className="aap-card-header">
                                 <div>
