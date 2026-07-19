@@ -16,14 +16,14 @@
 
 /* ── Hero Section ── */
 .hero-section {
-  min-height: 80vh;
+  min-height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   position: relative;
-  padding: var(--space-20) var(--space-6) var(--space-16);
+  padding: var(--space-12) var(--space-6);
 }
 
 .hero-section.islamic-pattern {
@@ -98,6 +98,26 @@
   background-color: #c97e06;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+}
+
+.btn-cta-secondary {
+  background-color: transparent;
+  color: var(--color-brand-text) !important;
+  border: 2px solid var(--color-brand);
+  font-size: var(--text-md);
+  font-weight: 600;
+  padding: calc(var(--space-4) - 2px) var(--space-8);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: all var(--transition-fast);
+}
+
+.btn-cta-secondary:hover {
+  background-color: var(--color-brand-subtle);
+  transform: translateY(-2px);
 }
 
 .link-secondary {
@@ -356,7 +376,8 @@
     gap: var(--space-4);
   }
   
-  .btn-cta-lg {
+  .btn-cta-lg,
+  .btn-cta-secondary {
     width: 100%;
     justify-content: center;
   }

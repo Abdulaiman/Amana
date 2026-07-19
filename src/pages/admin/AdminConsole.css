@@ -631,10 +631,19 @@
     left: -280px;
     bottom: 0;
     width: 280px;
-    height: 100vh;
+    height: 100dvh;
     z-index: var(--z-modal);
     transition: left var(--transition-base);
     box-shadow: var(--shadow-xl);
+  }
+
+  .admin-sidebar .sidebar-footer {
+    padding: var(--space-3) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom, 12px));
+  }
+
+  .admin-sidebar .user-profile-mini {
+    margin-bottom: var(--space-2);
+    padding: var(--space-1) var(--space-2);
   }
 
   .admin-sidebar.open {

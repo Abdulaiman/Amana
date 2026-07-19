@@ -61,7 +61,20 @@ function App() {
         <Routes>
             <Route path="/payment/callback" element={<PaymentCallback />} />
             
-            {/* Public Routes with Standard Navbar/Footer */}
+            {/* Landing page route - no page-container wrapper so sections can span full width */}
+            <Route element={
+                <>
+                    <Navbar />
+                    <main className="main-content">
+                        <Outlet />
+                    </main>
+                    <Footer />
+                </>
+            }>
+                <Route path="/" element={<Landing />} />
+            </Route>
+
+            {/* Public Routes with Standard Navbar/Footer and page-container */}
             <Route element={
                 <>
                     <Navbar />
@@ -73,7 +86,6 @@ function App() {
                     <Footer />
                 </>
             }>
-                <Route path="/" element={<Landing />} />
                 <Route path="/problem" element={<Navigate to="/#problem" replace />} />
                 <Route path="/solution" element={<Navigate to="/#solution" replace />} />
                 <Route path="/how-it-works" element={<Navigate to="/#how-it-works" replace />} />

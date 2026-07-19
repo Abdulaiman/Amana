@@ -3,6 +3,7 @@
   height: 580px;
   margin: 0 auto;
   position: relative;
+  pointer-events: none;
 }
 
 .phone-bezel {

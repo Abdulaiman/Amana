@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, ShieldCheck, Award } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ShieldCheck, Award, Download } from 'lucide-react';
 import './landing.css';
 import AppPromo from '../components/AppPromo';
 
@@ -53,9 +53,12 @@ const Landing = () => {
             <Link to="/register" className="btn-cta-lg">
               Apply for Financing <ArrowRight size={20} />
             </Link>
-          </div>
-          <div className="hero-visual">
-            <img src="/hero-trader.png" alt="Nigerian trader managing inventory in market" />
+            <a 
+              href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" 
+              className="btn-cta-secondary"
+            >
+              Download for Android <Download size={20} />
+            </a>
           </div>
         </div>
       </section>
