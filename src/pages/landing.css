@@ -61,6 +61,8 @@
 
 .hero-visual {
   margin-top: var(--space-8);
+  margin-left: auto;
+  margin-right: auto;
   max-width: 600px;
   width: 100%;
   border-radius: var(--radius-xl);
