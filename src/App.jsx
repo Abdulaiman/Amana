@@ -25,7 +25,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Banned from './pages/Banned';
 import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
+import VerificationSent from './pages/VerificationSent';
 import RetailerDashboard from './pages/RetailerDashboard';
 import RetailerTransactions from './pages/RetailerTransactions';
 import VendorDashboard from './pages/VendorDashboard';
@@ -42,6 +42,7 @@ import PsychometricTest from './pages/PsychometricTest';
 import AdminPlayground from './pages/AdminPlayground';
 import Marketplace from './pages/Marketplace';
 import AgentDashboard from './pages/AgentDashboard';
+import AgentFieldVisitPage from './pages/AgentFieldVisitPage';
 import AgentAAPCreate from './pages/AgentAAPCreate';
 import AgentAAPLink from './pages/AgentAAPLink';
 import AgentAAPDetail from './pages/AgentAAPDetail';
@@ -102,7 +103,8 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/banned" element={<Banned />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+                <Route path="/verify-email-sent" element={<VerificationSent />} />
             </Route>
 
             {/* Protected Dashboard Routes with AppLayout */}
@@ -116,6 +118,7 @@ function App() {
                     <Route path="/onboarding" element={<PsychometricTest />} />
                     <Route path="/marketplace" element={<Marketplace />} />
                     <Route path="/agent/tasks" element={<AgentDashboard />} />
+                    <Route path="/agent/field-visit/:id" element={<AgentFieldVisitPage />} />
                     <Route path="/agent/aap/new" element={<AgentAAPCreate />} />
                     <Route path="/agent/aap/:id" element={<AgentAAPDetail />} />
                     <Route path="/agent/aap/:id/link" element={<AgentAAPLink />} />

@@ -182,7 +182,7 @@ const UserProfileView = () => {
                         </div>
 
                         <div className="card p-lg">
-                            <h3 className="section-title mb-4"><FileText size={18} style={{ display: 'inline', marginRight: '8px' }} /> Business Info</h3>
+                            <h3 className="section-title mb-4"><FileText size={18} style={{ display: 'inline', marginRight: '8px' }} /> Business & Eligibility Checklist</h3>
                              <div className="space-y-4">
                                 {user.businessInfo ? (
                                     <>
@@ -191,12 +191,16 @@ const UserProfileView = () => {
                                             <span className="info-value" style={{ fontSize: '1rem' }}>{user.businessInfo.businessName}</span>
                                         </div>
                                         <div className="info-card-row">
-                                            <span className="info-label">Address</span>
-                                            <span className="info-value" style={{ fontSize: '1rem' }}>{user.businessInfo.address}</span>
+                                            <span className="info-label">Verification Status</span>
+                                            <span className="info-value highlight" style={{ fontSize: '0.9rem', textTransform: 'uppercase' }}>{user.verificationStatus}</span>
                                         </div>
                                         <div className="info-card-row">
-                                            <span className="info-label">CAC Number</span>
-                                            <span className="info-value" style={{ fontSize: '1rem' }}>{user.businessInfo.cacNumber}</span>
+                                            <span className="info-label">Verified Capital (B1)</span>
+                                            <span className="info-value">₦{(user.eligibilityChecklist?.verifiedCapitalAmount || 0).toLocaleString()}</span>
+                                        </div>
+                                        <div className="info-card-row">
+                                            <span className="info-label">Financing Ceiling (B3)</span>
+                                            <span className="info-value highlight">₦{(user.eligibilityChecklist?.calculatedCeilingAmount || 0).toLocaleString()}</span>
                                         </div>
                                     </>
                                 ) : (

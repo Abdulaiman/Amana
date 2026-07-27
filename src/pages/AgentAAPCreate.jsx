@@ -33,16 +33,8 @@ const AgentAAPCreate = () => {
 
     const determineMarkup = (score, termDays) => {
         if (!termDays) return 0;
-        let baseMarkup = 15.0;
-        if (score >= 80) baseMarkup = 5.0;
-        else if (score >= 60) baseMarkup = 8.0;
-        else if (score >= 40) baseMarkup = 12.0;
-
-        let termMultiplier = 1.0;
-        if (termDays <= 3) termMultiplier = 0.5;
-        else if (termDays <= 7) termMultiplier = 0.75;
-
-        return Math.max(baseMarkup * termMultiplier, 4.0);
+        if (termDays <= 7) return 4.0;
+        return 8.0;
     };
 
     const handlePhoneChange = async (val) => {
@@ -286,22 +278,25 @@ const AgentAAPCreate = () => {
                         </div>
                     </div>
 
-                    <button 
-                        className="btn-primary" 
-                        onClick={() => {
-                            if (!form.productName.trim() || !form.purchasePrice) {
-                                addToast('Product name and price are required', 'warning');
-                                return;
-                            }
-                            if (photos.length === 0) {
-                                addToast('At least one product photo is required', 'warning');
-                                return;
-                            }
-                            setStep(2);
-                        }}
-                    >
-                        Continue to Seller Info
-                    </button>
+                    <div className="btn-row">
+                        <button 
+                            className="btn-primary" 
+                            style={{ width: '100%' }}
+                            onClick={() => {
+                                if (!form.productName.trim() || !form.purchasePrice) {
+                                    addToast('Product name and price are required', 'warning');
+                                    return;
+                                }
+                                if (photos.length === 0) {
+                                    addToast('At least one product photo is required', 'warning');
+                                    return;
+                                }
+                                setStep(2);
+                            }}
+                        >
+                            Continue to Seller Info &rarr;
+                        </button>
+                    </div>
                 </div>
             )}
 

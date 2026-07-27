@@ -64,18 +64,7 @@ const AgentAAPLink = () => {
     const calculateMarkupPreview = () => {
         if (!retailer || !aap || !selectedTerm) return { percentage: 0, amount: 0, total: 0 };
         
-        // Mirror server-side determineMarkup logic
-        const score = retailer.amanaScore;
-        let baseMarkup = 15.0;
-        if (score >= 80) baseMarkup = 5.0;
-        else if (score >= 60) baseMarkup = 8.0;
-        else if (score >= 40) baseMarkup = 12.0;
-
-        let termMultiplier = 1.0;
-        if (selectedTerm <= 3) termMultiplier = 0.5;
-        else if (selectedTerm <= 7) termMultiplier = 0.75;
-
-        const percentage = Math.max(baseMarkup * termMultiplier, 4.0);
+        const percentage = selectedTerm <= 7 ? 4.0 : 8.0;
         const amount = aap.purchasePrice * (percentage / 100);
         const total = aap.purchasePrice + amount;
 

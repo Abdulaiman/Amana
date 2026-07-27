@@ -1,12 +1,13 @@
 /* Agent AAP Create */
 
 .aap-create-container {
-  max-width: 700px;
+  max-width: 760px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
   padding-top: var(--space-8);
+  padding-bottom: 6rem;
 }
 
 .aap-create-header {
@@ -377,8 +378,69 @@ textarea.form-control {
 
 .btn-row {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-4);
   justify-content: flex-end;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-brand, #10b981) 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background-color: var(--color-surface, #1e293b);
+  color: var(--color-text-secondary, #94a3b8);
+  border: 1px solid var(--color-border, #334155);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-bg-tertiary, #334155);
+  color: var(--color-text-primary, #ffffff);
+  border-color: var(--color-text-tertiary, #64748b);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* Term & duration options */
@@ -503,7 +565,7 @@ textarea.form-control {
 /* Responsive */
 @media (max-width: 640px) {
   .aap-create-container {
-    padding: 0 var(--space-4);
+    padding: var(--space-4) var(--space-4) 6rem;
   }
 
   .step-progress .step-label {
@@ -528,7 +590,9 @@ textarea.form-control {
     flex-direction: column;
   }
 
-  .btn-row .btn {
+  .btn-row button,
+  .btn-row .btn-primary,
+  .btn-row .btn-secondary {
     width: 100%;
   }
 }

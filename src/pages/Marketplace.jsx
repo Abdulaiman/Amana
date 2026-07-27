@@ -99,7 +99,7 @@ const Marketplace = () => {
                     vendor: selectedProduct.vendor._id
                 }],
                 itemsPrice: selectedProduct.price,
-                markupPercentage: user ? getMarkupPercentage(user.amanaScore) : 5,
+                markupPercentage: getMarkupPercentage(user?.amanaScore),
                 markupAmount: calculateFinance(selectedProduct.price).markup,
                 totalRepaymentAmount: calculateFinance(selectedProduct.price).total,
                 totalPrice: selectedProduct.price, // Base price for reference
@@ -115,20 +115,12 @@ const Marketplace = () => {
     };
 
     const getMarkupPercentage = (score, term = repaymentTerm) => {
-        let base = 15.0;
-        if (score >= 80) base = 5.0;
-        else if (score >= 60) base = 8.0;
-        else if (score >= 40) base = 12.0;
-
-        let multiplier = 1.0;
-        if (term <= 3) multiplier = 0.5;
-        else if (term <= 7) multiplier = 0.75;
-
-        return Math.max(base * multiplier, 4.0);
+        if (term <= 7) return 4.0;
+        return 8.0;
     };
 
     const calculateFinance = (price) => {
-        const rate = user ? getMarkupPercentage(user.amanaScore) : 5;
+        const rate = getMarkupPercentage(user?.amanaScore);
         // Logic: Markup is calculated on the base price
         const markup = price * (rate / 100);
         const total = price + markup;
@@ -388,9 +380,9 @@ const Marketplace = () => {
                                                     <span className="stat-value text-blue-400">{user.amanaScore || 0}/100</span>
                                                 </div>
                                                 <div className="health-stat border-l border-gray-700 pl-4">
-                                                    <span className="stat-label">Quality Tier</span>
+                                                    <span className="stat-label">Term Rate</span>
                                                     <span className="stat-value text-white">
-                                                        {(user.amanaScore || 0) >= 80 ? 'Premium (5.0%)' : (user.amanaScore || 0) >= 60 ? 'Standard (8.0%)' : (user.amanaScore || 0) >= 40 ? 'Basic (12.0%)' : 'High Risk (15.0%)'}
+                                                        {repaymentTerm <= 7 ? 'Short Term (4.0%)' : 'Standard Term (8.0%)'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -407,11 +399,7 @@ const Marketplace = () => {
                                                         className={`term-option-btn ${repaymentTerm === term ? 'active' : ''}`}
                                                     >
                                                         <span className="term-days">{term} Days</span>
-                                                        {term < 14 ? (
-                                                            <span className="term-discount">-{term === 3 ? '50' : '25'}% Markup</span>
-                                                        ) : (
-                                                            <span className="term-standard">Standard</span>
-                                                        )}
+                                                        <span className="term-discount">{term <= 7 ? '4.0%' : '8.0%'} Markup</span>
                                                     </button>
                                                 ))}
                                             </div>
@@ -425,7 +413,7 @@ const Marketplace = () => {
                                             <span className="contract-value">₦{selectedProduct.price.toLocaleString()}</span>
                                         </div>
                                         <div className="contract-row">
-                                            <span className="contract-label">Profit Markup ({(user ? getMarkupPercentage(user.amanaScore) : 5)}%)</span>
+                                            <span className="contract-label">Profit Markup ({getMarkupPercentage(user?.amanaScore)}%)</span>
                                             <span className="markup-value">+ ₦{calculateFinance(selectedProduct.price).markup.toLocaleString()}</span>
                                         </div>
                                         <div className="contract-divider"></div>

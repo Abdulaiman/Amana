@@ -1,13 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Clock, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Lock, Clock, AlertTriangle, ChevronRight, UserCheck } from 'lucide-react';
 
 const KYCStatusGate = ({ profile, role }) => {
     const navigate = useNavigate();
 
     if (!profile) return null;
 
-    const isPending = profile.verificationStatus === 'pending';
+    const isAgentVerification = profile.verificationStatus === 'pending_agent_verification';
+    const isAdminReview = profile.verificationStatus === 'pending_admin_approval' || profile.verificationStatus === 'pending';
+    const isPending = isAgentVerification || isAdminReview;
     const isRejected = profile.verificationStatus === 'rejected';
     const isRetailer = role === 'retailer';
 
@@ -34,11 +36,14 @@ const KYCStatusGate = ({ profile, role }) => {
                     justifyContent: 'center',
                     margin: '0 auto var(--space-5)',
                     backgroundColor: isRejected ? 'var(--color-danger-subtle)' :
+                        isAgentVerification ? 'var(--color-brand-subtle)' :
                         isPending ? 'var(--color-warning-subtle)' : 'var(--color-brand-subtle)',
                     color: isRejected ? 'var(--color-danger)' :
+                        isAgentVerification ? 'var(--color-brand-text)' :
                         isPending ? 'var(--color-warning)' : 'var(--color-brand-text)'
                 }}>
                     {isRejected ? <AlertTriangle size={32} /> :
+                        isAgentVerification ? <UserCheck size={32} /> :
                         isPending ? <Clock size={32} /> : <Lock size={32} />}
                 </div>
 
@@ -49,7 +54,8 @@ const KYCStatusGate = ({ profile, role }) => {
                     marginBottom: 'var(--space-3)'
                 }}>
                     {isRejected ? 'Action Required' :
-                        isPending ? 'Verification Pending' :
+                        isAgentVerification ? 'Field Verification Scheduled' :
+                        isPending ? 'Final Admin Review' :
                         isRetailer ? 'Unlock Your Credit' : 'Complete Your Profile'}
                 </h2>
 
@@ -65,13 +71,15 @@ const KYCStatusGate = ({ profile, role }) => {
                             <br />
                             <strong style={{ color: 'var(--color-danger)' }}>"{profile.rejectionReason}"</strong>
                         </>
+                    ) : isAgentVerification ? (
+                        "Application submitted! Your assigned Market Agent will visit your store premises for physical verification."
                     ) : isPending ? (
                         isRetailer
-                            ? "We're reviewing your documents. This usually takes less than 24 hours."
+                            ? "Field verification complete! Admin is performing final review and setting your credit limit."
                             : "We're reviewing your business documents. This usually takes less than 24 hours."
                     ) : (
                         isRetailer
-                            ? "You've passed the initial assessment! Now, verify your business identity to unlock your credit limit."
+                            ? "Complete your trader onboarding application to unlock your credit limit."
                             : "To start receiving orders and request payouts, please complete your vendor profile."
                     )}
                 </p>
@@ -82,14 +90,14 @@ const KYCStatusGate = ({ profile, role }) => {
                         className="btn btn-primary"
                     >
                         {isRejected ? (isRetailer ? 'Update Documents' : 'Update Business Info') :
-                            (isRetailer ? 'Complete Verification' : 'Complete Profile')}
+                            (isRetailer ? 'Start Onboarding' : 'Complete Profile')}
                         <ChevronRight size={18} />
                     </button>
                 )}
 
                 {isPending ? (
                     <div className="badge badge-warning" style={{ marginTop: 'var(--space-4)' }}>
-                        Processing Submission...
+                        {isAgentVerification ? 'Agent Visit Pending...' : 'Processing Submission...'}
                     </div>
                 ) : (
                     <p style={{

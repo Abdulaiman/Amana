@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import './Login.css'; // Shared Auth Styles
+import api from '../services/api';
+import './Login.css';
+
+const getPasswordStrength = (pw) => {
+  if (!pw) return null;
+  const hasLetter = /[a-zA-Z]/.test(pw);
+  const hasNumber = /\d/.test(pw);
+  if (pw.length < 8 || !hasLetter || !hasNumber) return 'weak';
+  return 'strong';
+};
 
 const Register = () => {
     const { search } = useLocation();
@@ -21,10 +30,53 @@ const Register = () => {
         description: '', 
         phones: [user?.phone || '', '']
     });
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const [emailTaken, setEmailTaken] = useState(false);
+    const [phoneTaken, setPhoneTaken] = useState(false);
+    const [emailChecking, setEmailChecking] = useState(false);
+    const [phoneChecking, setPhoneChecking] = useState(false);
 
     const navigate = useNavigate();
     const { addToast } = useToast();
+    const emailTimer = useRef(null);
+    const phoneTimer = useRef(null);
+
+    const checkUniqueness = useCallback(async (fields) => {
+      try {
+        const { data } = await api.post('/auth/check-uniqueness', fields);
+        if (data.emailTaken !== undefined) setEmailTaken(data.emailTaken);
+        if (data.phoneTaken !== undefined) setPhoneTaken(data.phoneTaken);
+      } catch {
+        // silently fail
+      }
+    }, []);
+
+    const handleEmailBlur = () => {
+      if (!formData.email) return;
+      setEmailChecking(true);
+      clearTimeout(emailTimer.current);
+      emailTimer.current = setTimeout(async () => {
+        await checkUniqueness({ email: formData.email });
+        setEmailChecking(false);
+      }, 400);
+    };
+
+    const handlePhoneBlur = () => {
+      if (!formData.phone) return;
+      setPhoneChecking(true);
+      clearTimeout(phoneTimer.current);
+      phoneTimer.current = setTimeout(async () => {
+        await checkUniqueness({ phone: formData.phone });
+        setPhoneChecking(false);
+      }, 400);
+    };
+
+    const strength = getPasswordStrength(formData.password);
+    const passwordsMatch = formData.password === confirmPassword;
 
     const handleChange = (e) => {
         if (e.target.name.startsWith('phone_')) {
@@ -39,6 +91,36 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (formData.password && formData.password.length < 8) {
+          addToast('Password must be at least 8 characters', 'error');
+          return;
+        }
+        if (formData.password && !/[a-zA-Z]/.test(formData.password)) {
+          addToast('Password must contain at least one letter', 'error');
+          return;
+        }
+        if (formData.password && !/\d/.test(formData.password)) {
+          addToast('Password must contain at least one number', 'error');
+          return;
+        }
+        if (formData.password && confirmPassword !== formData.password) {
+          addToast('Passwords do not match', 'error');
+          return;
+        }
+        if (strength === 'weak') {
+          addToast('Password must be at least 8 characters and contain both letters and numbers', 'error');
+          return;
+        }
+        if (emailTaken) {
+          addToast('This email is already registered. Please log in instead.', 'error');
+          return;
+        }
+        if (phoneTaken) {
+          addToast('This phone number is already registered. Please log in instead.', 'error');
+          return;
+        }
+
         setLoading(true);
 
         try {
@@ -47,19 +129,19 @@ const Register = () => {
                     name: formData.name, email: formData.email,
                     password: formData.password, phone: formData.phone
                 });
-                addToast('Registration successful!', 'success');
-                navigate('/dashboard');
+                addToast('Account created! Check your email to verify.', 'success');
+                navigate('/verify-email-sent?email=' + encodeURIComponent(formData.email));
             } else {
                 await registerVendor({
                     businessName: formData.businessName, email: formData.email,
                     password: formData.password, phones: formData.phones,
                     address: formData.address, description: formData.description
                 });
-                addToast('Registration successful!', 'success');
-                navigate('/vendor');
+                addToast('Account created! Check your email to verify.', 'success');
+                navigate('/verify-email-sent?email=' + encodeURIComponent(formData.email));
             }
         } catch (err) {
-            addToast(err?.message || 'Registration failed', 'error');
+            addToast(err || 'Registration failed', 'error');
         } finally {
             setLoading(false);
         }
@@ -91,8 +173,6 @@ const Register = () => {
                     </button>
                 </div>
 
-
-
                 <form onSubmit={handleSubmit}>
                     {role === 'retailer' ? (
                         <>
@@ -102,7 +182,13 @@ const Register = () => {
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Phone Number</label>
-                                <input name="phone" type="tel" className="form-input" onChange={handleChange} required />
+                                <input name="phone" type="tel" className="form-input" onChange={handleChange} onBlur={handlePhoneBlur} required />
+                                {phoneChecking && <div className="uniqueness-message checking">Checking...</div>}
+                                {phoneTaken && !phoneChecking && (
+                                  <div className="uniqueness-message taken">
+                                    This phone is already registered. <Link to="/login">Log in instead</Link>
+                                  </div>
+                                )}
                             </div>
                         </>
                     ) : (
@@ -114,13 +200,19 @@ const Register = () => {
                             <div className="grid-cols-2">
                                 <div>
                                     <label className="form-label">Phone 1</label>
-                                    <input name="phone_0" type="tel" className="form-input" onChange={handleChange} required />
+                                    <input name="phone_0" type="tel" className="form-input" onChange={handleChange} onBlur={handlePhoneBlur} required />
                                 </div>
                                 <div>
                                     <label className="form-label">Phone 2</label>
-                                    <input name="phone_1" type="tel" className="form-input" onChange={handleChange} required />
+                                    <input name="phone_1" type="tel" className="form-input" onChange={handleChange} />
                                 </div>
                             </div>
+                            {phoneChecking && <div className="uniqueness-message checking">Checking...</div>}
+                            {phoneTaken && !phoneChecking && (
+                              <div className="uniqueness-message taken" style={{ marginBottom: 'var(--space-5)' }}>
+                                This phone is already registered. <Link to="/login">Log in instead</Link>
+                              </div>
+                            )}
                             <div className="form-group">
                                 <label className="form-label">Address</label>
                                 <input name="address" type="text" className="form-input" onChange={handleChange} required />
@@ -132,11 +224,70 @@ const Register = () => {
                         <>
                             <div className="form-group">
                                 <label className="form-label">Email Address</label>
-                                <input name="email" type="email" className="form-input" value={formData.email} onChange={handleChange} required />
+                                <input name="email" type="email" className="form-input" value={formData.email} onChange={handleChange} onBlur={handleEmailBlur} required />
+                                {emailChecking && <div className="uniqueness-message checking">Checking...</div>}
+                                {emailTaken && !emailChecking && (
+                                  <div className="uniqueness-message taken">
+                                    This email is already registered. <Link to="/login">Log in instead</Link>
+                                  </div>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Password</label>
-                                <input name="password" type="password" className="form-input" onChange={handleChange} required />
+                                <div className="password-input-wrapper">
+                                  <input
+                                    name="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    className="form-input"
+                                    onChange={handleChange}
+                                    required
+                                  />
+                                  <button
+                                    type="button"
+                                    className="password-toggle-btn"
+                                    onClick={() => setShowPassword((p) => !p)}
+                                    tabIndex={-1}
+                                  >
+                                    {showPassword ? '🙈' : '👁️'}
+                                  </button>
+                                </div>
+                                {strength && (
+                                  <div className="password-strength">
+                                    <div className="strength-bars">
+                                      <div className={`strength-bar active ${strength}`} />
+                                      <div className={`strength-bar ${strength === 'strong' ? 'active strong' : ''}`} />
+                                    </div>
+                                    <span className={`strength-label ${strength}`}>
+                                    {strength === 'weak' && 'At least 8 characters with letters and numbers'}
+                                    {strength === 'strong' && 'Strong password'}
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Confirm Password</label>
+                                <div className="password-input-wrapper">
+                                  <input
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    className="form-input"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                  />
+                                  <button
+                                    type="button"
+                                    className="password-toggle-btn"
+                                    onClick={() => setShowConfirmPassword((p) => !p)}
+                                    tabIndex={-1}
+                                  >
+                                    {showConfirmPassword ? '🙈' : '👁️'}
+                                  </button>
+                                </div>
+                                {confirmPassword && !passwordsMatch && (
+                                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)', fontWeight: 'var(--font-weight-medium)', marginTop: 4, display: 'block' }}>
+                                    Passwords do not match
+                                  </span>
+                                )}
                             </div>
                         </>
                     )}
@@ -147,7 +298,7 @@ const Register = () => {
                     )}
 
                     <div className="form-actions">
-                        <button type="submit" className="btn-auth" disabled={loading}>
+                        <button type="submit" className="btn-auth" disabled={loading || !passwordsMatch}>
                             {loading ? 'Creating Account...' : 'Sign Up'}
                         </button>
                     </div>

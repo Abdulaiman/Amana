@@ -330,6 +330,110 @@
   display: inline-block;
 }
 
+/* ── Password Input with Eye Toggle ── */
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper .form-input {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  font-size: 18px;
+  padding: 0;
+  font-family: inherit;
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-text-secondary);
+}
+
+/* ── Password Strength Meter ── */
+.password-strength {
+  margin-top: 8px;
+}
+
+.strength-bars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.strength-bar {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background-color: var(--color-border);
+  transition: background-color var(--transition-fast);
+}
+
+.strength-bar.active.weak {
+  background-color: var(--color-danger);
+}
+
+.strength-bar.active.medium {
+  background-color: #f59e0b;
+}
+
+.strength-bar.active.strong {
+  background-color: var(--color-brand);
+}
+
+.strength-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.strength-label.weak { color: var(--color-danger); }
+.strength-label.medium { color: #f59e0b; }
+.strength-label.strong { color: var(--color-brand); }
+
+/* ── Uniqueness Message ── */
+.uniqueness-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.uniqueness-message.taken {
+  color: var(--color-danger);
+}
+
+.uniqueness-message.available {
+  color: var(--color-brand);
+}
+
+.uniqueness-message.checking {
+  color: var(--color-text-tertiary);
+}
+
+.uniqueness-message a {
+  color: var(--color-brand);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.uniqueness-message a:hover {
+  color: var(--color-brand-hover);
+}
+
 @media (max-width: 640px) {
   .login-page {
     padding: var(--space-4);

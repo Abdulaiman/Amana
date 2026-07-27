@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Package, MapPin, ShieldCheck, User, PhoneOutgoing, Mail, Plus, CheckCircle } from 'lucide-react';
+import { Package, MapPin, ShieldCheck, User, PhoneOutgoing, Mail, Plus, CheckCircle, ClipboardList, ChevronRight } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import './AgentDashboard.css';
@@ -11,7 +11,9 @@ const AgentDashboard = () => {
     const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
     const [aapQueue, setAapQueue] = useState([]);
-    const [activeTab, setActiveTab] = useState('active'); // 'active' | 'history' | 'aap'
+    const [pendingVisits, setPendingVisits] = useState([]);
+    const [showVisits, setShowVisits] = useState(false);
+    const [activeTab, setActiveTab] = useState('active'); // 'active' | 'history'
     const [loading, setLoading] = useState(true);
     const { addToast } = useToast();
 
@@ -24,10 +26,18 @@ const AgentDashboard = () => {
         }
     };
 
+    const fetchPendingVisits = async () => {
+        try {
+            const res = await api.get('/agent/field-visits/pending');
+            setPendingVisits(res.data);
+        } catch { /* silently fail */ }
+    };
+
     useEffect(() => {
         if (user) {
             fetchTasks();
             fetchAAPQueue();
+            fetchPendingVisits();
         }
     }, [user]);
 
@@ -88,7 +98,7 @@ const AgentDashboard = () => {
         </div>
     );
 
-    const displayedTasks = activeTab === 'active' ? activeTasks : (activeTab === 'history' ? historyTasks : activeAap);
+    const displayedTasks = activeTab === 'active' ? [...activeTasks, ...activeAap] : historyTasks;
 
     return (
         <div className="agent-dashboard-container animate-fade-in">
@@ -102,13 +112,6 @@ const AgentDashboard = () => {
                     <p style={{fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem'}}>Hello, {user?.name}</p>
                 </div>
                 <div className="page-hero-actions">
-                    <button 
-                        className="new-aap-btn"
-                        onClick={() => navigate('/agent/aap/new')}
-                    >
-                        <Plus size={20} />
-                        <span>New Agent Purchase</span>
-                    </button>
                     <div className="agent-badge">
                         <ShieldCheck size={20} /> <span style={{letterSpacing: '0.02em'}}>Verified Amana Agent</span>
                     </div>
@@ -123,34 +126,68 @@ const AgentDashboard = () => {
                 </div>
             </section>
 
+            {pendingVisits.length > 0 && (
+                <section className="pending-visits-section animate-slide-up">
+                    <div className="pending-visits-header" onClick={() => setShowVisits(!showVisits)} style={{ cursor: 'pointer' }}>
+                        <div className="pending-visits-left">
+                            <ClipboardList size={20} style={{ color: 'var(--color-brand)' }} />
+                            <h3>Trader Onboarding Field Visits</h3>
+                            <span className="pending-visits-badge">{pendingVisits.length}</span>
+                        </div>
+                        <ChevronRight size={18} style={{ transform: showVisits ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', color: 'var(--color-text-tertiary)' }} />
+                    </div>
+                    {showVisits && (
+                        <div className="pending-visits-list">
+                            {pendingVisits.map(trader => (
+                                <div key={trader._id} className="pending-visit-item" onClick={() => navigate(`/agent/field-visit/${trader._id}`)}>
+                                    <div className="visit-item-avatar">
+                                        {trader.name?.charAt(0)?.toUpperCase() || 'T'}
+                                    </div>
+                                    <div className="visit-item-info">
+                                        <span className="visit-item-name">{trader.name}</span>
+                                        <span className="visit-item-detail">{trader.phone} — {trader.businessInfo?.businessName || 'No business name'}</span>
+                                        <span className="visit-item-date">Registered {new Date(trader.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                    <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)', flexShrink: 0 }} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            )}
+
             <section className="tasks-section">
                 <div className="tasks-header-row">
                     <div className="flex items-center gap-4">
                         <div style={{ width: '6px', height: '32px', background: 'var(--color-brand)', borderRadius: '3px', boxShadow: '0 0 15px var(--color-brand)' }}></div>
                         <h2 style={{ fontSize: '1.85rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
-                            {activeTab === 'active' ? 'Active Assignments' : (activeTab === 'history' ? 'Task History' : 'AAP Queue')}
+                            {activeTab === 'active' ? 'Active Assignments' : 'Task History'}
                         </h2>
                     </div>
 
-                    <div className="tab-pill-container">
-                        <button 
-                            onClick={() => setActiveTab('active')}
-                            className={`tab-pill ${activeTab === 'active' ? 'active' : ''}`}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                        <button
+                            className="aap-corner-link"
+                            onClick={() => navigate('/agent/aap/new')}
+                            title="Agent-Assisted Purchase (proxy)"
                         >
-                            Active <span className="tab-count">{activeTasks.length}</span>
+                            <Plus size={14} />
+                            Proxy
                         </button>
-                        <button 
-                            onClick={() => setActiveTab('aap')}
-                            className={`tab-pill ${activeTab === 'aap' ? 'active' : ''}`}
-                        >
-                            AAP <span className="tab-count">{activeAap.length}</span>
-                        </button>
-                        <button 
-                            onClick={() => setActiveTab('history')}
-                            className={`tab-pill ${activeTab === 'history' ? 'active' : ''}`}
-                        >
-                            History <span className="tab-count">{historyTasks.length}</span>
-                        </button>
+                        <div className="tab-pill-container">
+                            <button 
+                                onClick={() => setActiveTab('active')}
+                                className={`tab-pill ${activeTab === 'active' ? 'active' : ''}`}
+                            >
+                                Active <span className="tab-count">{activeTasks.length + activeAap.length}</span>
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('history')}
+                                className={`tab-pill ${activeTab === 'history' ? 'active' : ''}`}
+                            >
+                                History <span className="tab-count">{historyTasks.length}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
@@ -160,12 +197,11 @@ const AgentDashboard = () => {
                             <Package size={50} color="var(--color-text-secondary)" />
                         </div>
                         <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.5rem' }}>
-                            {activeTab === 'active' ? 'No Assignments' : (activeTab === 'history' ? 'No History' : 'Queue Empty')}
+                            {activeTab === 'active' ? 'No Assignments' : 'No History'}
                         </h2>
                         <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem' }}>
-                            {activeTab === 'active' ? 'Relax! There are no pickup assignments directed to you at this moment.' : 
-                             activeTab === 'history' ? 'You haven\'t completed any tasks yet.' : 
-                             'No Agent-Assisted Purchases in your queue.'}
+                            {activeTab === 'active' ? 'No active assignments or proxy purchases at this moment.' : 
+                             'You haven\'t completed any tasks yet.'}
                         </p>
                     </div>
                 ) : (

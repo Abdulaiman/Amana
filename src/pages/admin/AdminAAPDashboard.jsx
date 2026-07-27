@@ -346,7 +346,7 @@ const AdminAAPDashboard = () => {
                                         <h4>{selectedAAP.proxyMurabahaAcceptance ? 'Proxy Murabaha Acceptance' : 'Proxy Verification Required'}</h4>
                                     </div>
                                     <p className="proxy-desc">
-                                        Agent <strong>{selectedAAP.agent?.name}</strong> {selectedAAP.proxyMurabahaAcceptance ? 'confirmed Murabaha acceptance' : selectedAAP.proxyReceipt ? 'confirmed delivery' : 'confirmed interest'} on behalf of the retailer. 
+                                        Agent <strong>{selectedAAP.agent?.name}</strong> {selectedAAP.proxyMurabahaAcceptance ? 'confirmed Murabaha acceptance' : selectedAAP.proxyReceipt ? 'confirmed delivery' : 'confirmed intent'} on behalf of the retailer. 
                                         Please verify the identity match below:
                                     </p>
                                     

@@ -84,19 +84,46 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleVerifyRetailer = async (id) => {
+    const [customCreditLimit, setCustomCreditLimit] = useState('');
+
+    const handleVerifyRetailer = async (id, overrideLimit) => {
         setIsActionLoading(true);
         try {
-            await api.put(`/admin/retailer/${id}/verify`);
+            const limit = overrideLimit !== undefined ? overrideLimit : (customCreditLimit ? Number(customCreditLimit) : undefined);
+            await api.put(`/admin/retailer/${id}/verify`, {
+                approvedCreditLimit: limit,
+                d1_validId: true,
+                d2_noAdverseHistory: true,
+                c1_peerReferral: { pass: true },
+                c2_marketUnionAwareness: { pass: true },
+                adminNote: rejectionReason
+            });
             await loadData();
-            addToast('Retailer Verified & Credit Assigned', 'success');
+            addToast('Retailer Approved & Credit Limit Allocated!', 'success');
             setSelectedEntity(null);
+            setCustomCreditLimit('');
+            setRejectionReason('');
         } catch (e) {
-            addToast('Verification Failed', 'error');
+            const data = e.response?.data;
+            if (data?.needsCorrection) {
+                setConfirmModal({
+                    isOpen: true,
+                    title: 'Adjust Credit Limit?',
+                    message: data.message,
+                    onConfirm: () => {
+                        setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null });
+                        handleVerifyRetailer(id, data.suggestedLimit);
+                    },
+                    confirmText: `Use ₦${data.suggestedLimit.toLocaleString()}`
+                });
+            } else {
+                addToast(data?.message || 'Verification Failed', 'error');
+            }
         } finally {
             setIsActionLoading(false);
         }
     };
+
 
     const handleRejectRetailer = async (id) => {
         if (!rejectionReason) return addToast('Please provide a reason for rejection', 'error');
@@ -603,170 +630,338 @@ const AdminDashboard = () => {
                 <div className="admin-modal-overlay">
                     <div className="admin-modal-content animate-slide-up">
                         <div className="admin-modal-header">
-                            <div>
-                                <h2 className="modal-title">Review {selectedEntity.type === 'vendor' ? 'Vendor' : 'Retailer'}</h2>
-                                <p className="modal-subtitle">ID: {selectedEntity.data._id}</p>
+                            <div className="modal-header-left">
+                                <div className="modal-entity-avatar">
+                                    {selectedEntity.data.name?.charAt(0) || selectedEntity.data.businessName?.charAt(0) || '?'}
+                                </div>
+                                <div>
+                                    <h2 className="modal-title">
+                                        {selectedEntity.data.businessName || selectedEntity.data.name}
+                                        <span className={`modal-status-badge ${selectedEntity.data.verificationStatus || 'pending'}`}>
+                                            {(selectedEntity.data.verificationStatus || 'PENDING').replace(/_/g, ' ')}
+                                        </span>
+                                    </h2>
+                                    <p className="modal-subtitle">
+                                        {selectedEntity.type === 'vendor' ? 'Vendor' : 'Retailer'} · ID: {selectedEntity.data._id?.substring(0, 10)}...
+                                    </p>
+                                </div>
                             </div>
                             <button className="close-btn" onClick={() => setSelectedEntity(null)}><X size={20} /></button>
                         </div>
-                        
+
                         <div className="admin-modal-body">
-                            <div className="review-comprehensive-grid">
-                                {/* Left Column: Info Sections */}
-                                <div className="info-column">
-                                    <section className="modal-section">
-                                        <h3 className="section-title">👤 Personal / Owner Information</h3>
-                                        <div className="info-card-grid">
-                                            {selectedEntity.type === 'vendor' ? (
-                                                <>
-                                                    <div className="info-item"><label>Owner Name</label><p>{selectedEntity.data.ownerName}</p></div>
-                                                    <div className="info-item"><label>Owner Phone</label><p>{selectedEntity.data.ownerPhone}</p></div>
-                                                    <div className="info-item"><label>Business Email</label><p>{selectedEntity.data.email}</p></div>
-                                                    <div className="info-item"><label>Business Address</label><p>{selectedEntity.data.address}</p></div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="info-item"><label>Full Name</label><p>{selectedEntity.data.name}</p></div>
-                                                    <div className="info-item"><label>Email</label><p>{selectedEntity.data.email}</p></div>
-                                                    <div className="info-item"><label>Phone</label><p>{selectedEntity.data.phone}</p></div>
-                                                    <div className="info-item"><label>NIN</label><p>{selectedEntity.data.kyc?.nin}</p></div>
-                                                    <div className="info-item"><label>BVN</label><p>{selectedEntity.data.kyc?.bvn}</p></div>
-                                                    <div className="info-item full-width"><label>Home Address</label><p>{selectedEntity.data.address}</p></div>
-                                                </>
-                                            )}
+                            {selectedEntity.type === 'retailer' ? (
+                                <div className="review-tab-content">
+                                    {/* ===== TAB 1: PROFILE ===== */}
+                                    <details className="review-section" open>
+                                        <summary className="review-section-header">
+                                            <span className="review-section-icon">👤</span>
+                                            <span>Personal & Business Profile</span>
+                                            <span className="review-section-toggle">▼</span>
+                                        </summary>
+                                        <div className="review-section-body">
+                                            <div className="profile-two-col">
+                                                <div className="profile-col">
+                                                    <h4 className="profile-col-title">Personal Information</h4>
+                                                    <div className="profile-field"><span className="profile-field-label">Full Name</span><span className="profile-field-value">{selectedEntity.data.name}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Email</span><span className="profile-field-value">{selectedEntity.data.email}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Phone</span><span className="profile-field-value">{selectedEntity.data.phone}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">NIN</span><span className="profile-field-value">{selectedEntity.data.kyc?.nin || 'N/A'}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">BVN</span><span className="profile-field-value">{selectedEntity.data.kyc?.bvn || 'N/A'}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Home Address</span><span className="profile-field-value">{selectedEntity.data.address || 'N/A'}</span></div>
+                                                </div>
+                                                <div className="profile-col">
+                                                    <h4 className="profile-col-title">Business Information</h4>
+                                                    <div className="profile-field"><span className="profile-field-label">Business Name</span><span className="profile-field-value">{selectedEntity.data.businessInfo?.businessName || 'N/A'}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Industry</span><span className="profile-field-value">{selectedEntity.data.businessInfo?.businessType || 'N/A'}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Years in Business</span><span className="profile-field-value">{selectedEntity.data.businessInfo?.yearsInBusiness || 'N/A'} yrs</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Starting Capital</span><span className="profile-field-value">₦{selectedEntity.data.businessInfo?.startingCapital || 'N/A'}</span></div>
+                                                    <div className="profile-field full-width"><span className="profile-field-label">Description</span><span className="profile-field-value">{selectedEntity.data.businessInfo?.description || 'N/A'}</span></div>
+                                                    <div className="profile-field full-width"><span className="profile-field-label">Peer Referrals</span><span className="profile-field-value">{selectedEntity.data.peerReferrals?.map(r => r.refereePhone).join(', ') || 'None'}</span></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </section>
+                                    </details>
 
-                                    <section className="modal-section mt-6">
-                                        <h3 className="section-title">🏢 Business Operations</h3>
-                                        <div className="info-card-grid">
-                                            {selectedEntity.type === 'vendor' ? (
-                                                <>
-                                                    <div className="info-item"><label>Business Name</label><p>{selectedEntity.data.businessName}</p></div>
-                                                    <div className="info-item"><label>CAC Number</label><p>{selectedEntity.data.cacNumber}</p></div>
-                                                    <div className="info-item full-width"><label>Description</label><p>{selectedEntity.data.description}</p></div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="info-item"><label>Business Name</label><p>{selectedEntity.data.businessInfo?.businessName}</p></div>
-                                                    <div className="info-item"><label>Industry</label><p>{selectedEntity.data.businessInfo?.businessType}</p></div>
-                                                    <div className="info-item"><label>Years in Biz</label><p>{selectedEntity.data.businessInfo?.yearsInBusiness} Yrs</p></div>
-                                                    <div className="info-item"><label>Initial Capital</label><p>{selectedEntity.data.businessInfo?.startingCapital}</p></div>
-                                                    <div className="info-item full-width"><label>Business Description</label><p>{selectedEntity.data.businessInfo?.description}</p></div>
-                                                </>
+                                    {/* ===== TAB 2: AGENT FIELD VISIT REPORT ===== */}
+                                    <details className="review-section" open>
+                                        <summary className="review-section-header">
+                                            <span className="review-section-icon">📋</span>
+                                            <span>Agent Field Visit Report</span>
+                                            {selectedEntity.data.eligibilityChecklist?.fieldVisitDate && (
+                                                <span className="visit-date-badge">
+                                                    Visited {new Date(selectedEntity.data.eligibilityChecklist.fieldVisitDate).toLocaleDateString()}
+                                                </span>
                                             )}
-                                        </div>
-                                    </section>
+                                            <span className="review-section-toggle">▼</span>
+                                        </summary>
+                                        <div className="review-section-body">
+                                            {/* Section A: Business Legitimacy */}
+                                            <div className="checklist-group">
+                                                <h4 className="checklist-group-title">Section A — Business Legitimacy</h4>
+                                                <div className="checklist-cards">
+                                                    <div className={`checklist-card ${selectedEntity.data.eligibilityChecklist?.a1_physicalStore?.pass ? 'pass' : 'fail'}`}>
+                                                        <div className="checklist-card-header">
+                                                            <span className={`checklist-badge ${selectedEntity.data.eligibilityChecklist?.a1_physicalStore?.pass ? 'pass' : 'fail'}`}>
+                                                                {selectedEntity.data.eligibilityChecklist?.a1_physicalStore?.pass ? 'PASS' : 'FAIL'}
+                                                            </span>
+                                                            <span className="checklist-card-title">A1 Physical Store</span>
+                                                        </div>
+                                                        {selectedEntity.data.eligibilityChecklist?.a1_physicalStore?.notes && (
+                                                            <p className="checklist-agent-note">“{selectedEntity.data.eligibilityChecklist.a1_physicalStore.notes}”</p>
+                                                        )}
+                                                    </div>
+                                                    <div className={`checklist-card ${selectedEntity.data.eligibilityChecklist?.a2_minTradingHistory?.pass ? 'pass' : 'fail'}`}>
+                                                        <div className="checklist-card-header">
+                                                            <span className={`checklist-badge ${selectedEntity.data.eligibilityChecklist?.a2_minTradingHistory?.pass ? 'pass' : 'fail'}`}>
+                                                                {selectedEntity.data.eligibilityChecklist?.a2_minTradingHistory?.pass ? 'PASS' : 'FAIL'}
+                                                            </span>
+                                                            <span className="checklist-card-title">A2 Trading History (≥6mo)</span>
+                                                        </div>
+                                                        {selectedEntity.data.eligibilityChecklist?.a2_minTradingHistory?.notes && (
+                                                            <p className="checklist-agent-note">“{selectedEntity.data.eligibilityChecklist.a2_minTradingHistory.notes}”</p>
+                                                        )}
+                                                    </div>
+                                                    <div className={`checklist-card ${selectedEntity.data.eligibilityChecklist?.a3_goodsResaleOnly?.pass ? 'pass' : 'fail'}`}>
+                                                        <div className="checklist-card-header">
+                                                            <span className={`checklist-badge ${selectedEntity.data.eligibilityChecklist?.a3_goodsResaleOnly?.pass ? 'pass' : 'fail'}`}>
+                                                                {selectedEntity.data.eligibilityChecklist?.a3_goodsResaleOnly?.pass ? 'PASS' : 'FAIL'}
+                                                            </span>
+                                                            <span className="checklist-card-title">A3 Goods for Resale Only</span>
+                                                        </div>
+                                                        {selectedEntity.data.eligibilityChecklist?.a3_goodsResaleOnly?.notes && (
+                                                            <p className="checklist-agent-note">“{selectedEntity.data.eligibilityChecklist.a3_goodsResaleOnly.notes}”</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                    <section className="modal-section mt-6">
-                                        <h3 className="section-title">📋 Supplemental Records</h3>
-                                        <div className="info-card-grid">
-                                            {selectedEntity.type === 'vendor' ? (
-                                                <>
-                                                    <div className="info-item"><label>Bank Name</label><p>{selectedEntity.data.bankDetails?.bankName}</p></div>
-                                                    <div className="info-item"><label>Account Number</label><p>{selectedEntity.data.bankDetails?.accountNumber}</p></div>
-                                                    <div className="info-item full-width"><label>Account Name</label><p>{selectedEntity.data.bankDetails?.accountName}</p></div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="info-item"><label>Next of Kin</label><p>{selectedEntity.data.nextOfKin?.name}</p></div>
-                                                    <div className="info-item"><label>NOK Relationship</label><p>{selectedEntity.data.nextOfKin?.relationship}</p></div>
-                                                    <div className="info-item"><label>NOK Phone</label><p>{selectedEntity.data.nextOfKin?.phone}</p></div>
-                                                    <div className="info-item"><label>Assessment Score</label><p className="highlight-score">{selectedEntity.data.testScore}/75</p></div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </section>
-                                </div>
-                                
-                                {/* Right Column: Documents */}
-                                <div className="docs-column">
-                                    <h3 className="section-title">📂 Document Verification</h3>
-                                    <div className="docs-scroll-grid">
-                                        {selectedEntity.type === 'vendor' ? (
-                                            <>
-                                                <div className="doc-review-card">
-                                                    <label>CAC Documents</label>
-                                                    <a href={selectedEntity.data.cacDocumentUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
-                                                        <img src={selectedEntity.data.cacDocumentUrl} alt="CAC" className="doc-preview" />
-                                                        <div className="viewer-overlay">View Full Document</div>
-                                                    </a>
+                                            {/* Section B: Financial Capacity */}
+                                            <div className="checklist-group">
+                                                <h4 className="checklist-group-title">Section B — Financial Capacity</h4>
+                                                <div className="financial-summary">
+                                                    <div className="financial-metric">
+                                                        <span className="financial-label">B1 Verified Capital</span>
+                                                        <span className="financial-value">₦{(selectedEntity.data.eligibilityChecklist?.verifiedCapitalAmount || 0).toLocaleString()}</span>
+                                                    </div>
+                                                    <div className={`financial-metric ${selectedEntity.data.eligibilityChecklist?.b2_minCapitalMet ? 'pass' : 'fail'}`}>
+                                                        <span className="financial-label">B2 Minimum Capital ≥₦500,000</span>
+                                                        <span className="financial-value">
+                                                            {selectedEntity.data.eligibilityChecklist?.b2_minCapitalMet ? 'PASS ✓' : 'FAIL ✕'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="financial-metric highlight">
+                                                        <span className="financial-label">B3 Financing Ceiling (20%)</span>
+                                                        <span className="financial-value">₦{(selectedEntity.data.eligibilityChecklist?.calculatedCeilingAmount || 0).toLocaleString()}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="doc-review-card">
-                                                    <label>Owner Profile Pic</label>
-                                                    <a href={selectedEntity.data.profilePicUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
-                                                        <img src={selectedEntity.data.profilePicUrl} alt="Profile" className="doc-preview" />
-                                                    </a>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div className="doc-review-card">
-                                                    <label>ID Card (Front/Back)</label>
-                                                    <a href={selectedEntity.data.kyc?.idCardUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
-                                                        <img src={selectedEntity.data.kyc?.idCardUrl} alt="ID" className="doc-preview" />
-                                                    </a>
-                                                </div>
-                                                <div className="doc-review-card">
-                                                    <label>Proof of Location</label>
-                                                    <a href={selectedEntity.data.kyc?.locationProofUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
-                                                        <img src={selectedEntity.data.kyc?.locationProofUrl} alt="Location" className="doc-preview" />
-                                                    </a>
-                                                </div>
-                                                <div className="doc-review-card">
-                                                    <label>Profile Picture</label>
-                                                    <a href={selectedEntity.data.kyc?.profilePicUrl} target="_blank" rel="noreferrer" className="doc-viewer-link">
-                                                        <img src={selectedEntity.data.kyc?.profilePicUrl} alt="Profile" className="doc-preview" />
-                                                    </a>
-                                                </div>
-                                                
-                                                {/* BANK STATEMENT PDF */}
-                                                <div className="doc-review-card">
-                                                    <label>Bank Statement (PDF)</label>
-                                                    {selectedEntity.data.kyc?.bankStatementUrl ? (
-                                                        <a href={selectedEntity.data.kyc.bankStatementUrl} target="_blank" rel="noreferrer" className="pdf-doc-viewer">
-                                                            <div className="pdf-icon-box">
-                                                                <FileText size={48} className="pdf-icon" />
-                                                                <span>Click to view PDF</span>
-                                                            </div>
-                                                        </a>
-                                                    ) : (
-                                                        <div className="no-doc-fallback">Not Uploaded</div>
+                                            </div>
+
+                                            {/* Section C2: Social Vetting */}
+                                            <div className="checklist-group">
+                                                <h4 className="checklist-group-title">Section C2 — Market Union Awareness</h4>
+                                                <div className={`checklist-card ${selectedEntity.data.eligibilityChecklist?.c2_marketUnionAwareness?.pass ? 'pass' : 'fail'}`}>
+                                                    <div className="checklist-card-header">
+                                                        <span className={`checklist-badge ${selectedEntity.data.eligibilityChecklist?.c2_marketUnionAwareness?.pass ? 'pass' : 'fail'}`}>
+                                                            {selectedEntity.data.eligibilityChecklist?.c2_marketUnionAwareness?.pass ? 'PASS' : 'FAIL'}
+                                                        </span>
+                                                        <span className="checklist-card-title">C2 Market Union Awareness</span>
+                                                    </div>
+                                                    {selectedEntity.data.eligibilityChecklist?.c2_marketUnionAwareness?.notes && (
+                                                        <p className="checklist-agent-note">“{selectedEntity.data.eligibilityChecklist.c2_marketUnionAwareness.notes}”</p>
                                                     )}
                                                 </div>
-                                            </>
-                                        )}
-                                    </div>
+                                            </div>
 
-                                    <div className="rejection-card mt-6">
-                                        <label className="rejection-label">Admin Decision Note</label>
-                                        <textarea 
-                                            placeholder="Provide reason if rejecting, or notes for internal use..."
-                                            value={rejectionReason}
-                                            onChange={e => setRejectionReason(e.target.value)}
-                                            className="admin-decision-input"
-                                        />
+                                            {/* Agent Notes */}
+                                            {selectedEntity.data.adminNotes?.filter(n => n.content?.startsWith('Agent Field Visit Note')).length > 0 && (
+                                                <div className="checklist-group">
+                                                    <h4 className="checklist-group-title">Agent Notes</h4>
+                                                    <div className="agent-notes-box">
+                                                        {selectedEntity.data.adminNotes
+                                                            .filter(n => n.content?.startsWith('Agent Field Visit Note'))
+                                                            .map((note, i) => (
+                                                                <p key={i} className="agent-note-item">
+                                                                    <span className="agent-note-bullet">📝</span>
+                                                                    {note.content.replace('Agent Field Visit Note: ', '')}
+                                                                    <span className="agent-note-date">{new Date(note.createdAt).toLocaleDateString()}</span>
+                                                                </p>
+                                                            ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Store Photo from Field Visit */}
+                                            {selectedEntity.data.eligibilityChecklist?.storePhotoUrl && (
+                                                <div className="checklist-group">
+                                                    <h4 className="checklist-group-title">Store Photo (Agent Upload)</h4>
+                                                    <a href={selectedEntity.data.eligibilityChecklist.storePhotoUrl} target="_blank" rel="noreferrer" className="store-photo-link">
+                                                        <img src={selectedEntity.data.eligibilityChecklist.storePhotoUrl} alt="Store" className="store-photo-preview" />
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </details>
+
+                                    {/* ===== TAB 3: DOCUMENTS ===== */}
+                                    <details className="review-section">
+                                        <summary className="review-section-header">
+                                            <span className="review-section-icon">📂</span>
+                                            <span>Uploaded Documents</span>
+                                            <span className="review-section-toggle">▼</span>
+                                        </summary>
+                                        <div className="review-section-body">
+                                            <div className="docs-grid">
+                                                <div className="doc-card">
+                                                    <div className="doc-card-label">ID Card (D1)</div>
+                                                    {selectedEntity.data.kyc?.idCardUrl ? (
+                                                        <a href={selectedEntity.data.kyc.idCardUrl} target="_blank" rel="noreferrer" className="doc-thumb-link">
+                                                            <img src={selectedEntity.data.kyc.idCardUrl} alt="ID Card" className="doc-thumb" />
+                                                            <span className="doc-view-label">Click to view</span>
+                                                        </a>
+                                                    ) : (
+                                                        <div className="doc-missing">Not uploaded</div>
+                                                    )}
+                                                </div>
+                                                <div className="doc-card">
+                                                    <div className="doc-card-label">Market Union Card (C2)</div>
+                                                    {selectedEntity.data.kyc?.marketMembershipCardUrl ? (
+                                                        <a href={selectedEntity.data.kyc.marketMembershipCardUrl} target="_blank" rel="noreferrer" className="doc-thumb-link">
+                                                            <img src={selectedEntity.data.kyc.marketMembershipCardUrl} alt="Market Union Card" className="doc-thumb" />
+                                                            <span className="doc-view-label">Click to view</span>
+                                                        </a>
+                                                    ) : (
+                                                        <div className="doc-missing">Not uploaded</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </details>
+                                </div>
+                            ) : (
+                                /* ===== VENDOR REVIEW ===== */
+                                <div className="review-tab-content">
+                                    <details className="review-section" open>
+                                        <summary className="review-section-header">
+                                            <span className="review-section-icon">👤</span>
+                                            <span>Owner & Business Information</span>
+                                            <span className="review-section-toggle">▼</span>
+                                        </summary>
+                                        <div className="review-section-body">
+                                            <div className="profile-two-col">
+                                                <div className="profile-col">
+                                                    <h4 className="profile-col-title">Owner Details</h4>
+                                                    <div className="profile-field"><span className="profile-field-label">Owner Name</span><span className="profile-field-value">{selectedEntity.data.ownerName}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Owner Phone</span><span className="profile-field-value">{selectedEntity.data.ownerPhone}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">Email</span><span className="profile-field-value">{selectedEntity.data.email}</span></div>
+                                                </div>
+                                                <div className="profile-col">
+                                                    <h4 className="profile-col-title">Business Details</h4>
+                                                    <div className="profile-field"><span className="profile-field-label">Business Name</span><span className="profile-field-value">{selectedEntity.data.businessName}</span></div>
+                                                    <div className="profile-field"><span className="profile-field-label">CAC Number</span><span className="profile-field-value">{selectedEntity.data.cacNumber || 'N/A'}</span></div>
+                                                    <div className="profile-field full-width"><span className="profile-field-label">Address</span><span className="profile-field-value">{selectedEntity.data.address}</span></div>
+                                                    <div className="profile-field full-width"><span className="profile-field-label">Description</span><span className="profile-field-value">{selectedEntity.data.description}</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </details>
+                                    <details className="review-section">
+                                        <summary className="review-section-header">
+                                            <span className="review-section-icon">🏦</span>
+                                            <span>Bank & Payout Details</span>
+                                            <span className="review-section-toggle">▼</span>
+                                        </summary>
+                                        <div className="review-section-body">
+                                            <div className="bank-details-display">
+                                                <div className="bank-detail-row"><span>Bank</span><strong>{selectedEntity.data.bankDetails?.bankName || 'N/A'}</strong></div>
+                                                <div className="bank-detail-row"><span>Account Number</span><strong>{selectedEntity.data.bankDetails?.accountNumber || selectedEntity.data.accountNumber || 'N/A'}</strong></div>
+                                                <div className="bank-detail-row"><span>Account Name</span><strong>{selectedEntity.data.bankDetails?.accountName || 'N/A'}</strong></div>
+                                            </div>
+                                        </div>
+                                    </details>
+                                    <details className="review-section">
+                                        <summary className="review-section-header">
+                                            <span className="review-section-icon">📂</span>
+                                            <span>Documents</span>
+                                            <span className="review-section-toggle">▼</span>
+                                        </summary>
+                                        <div className="review-section-body">
+                                            <div className="docs-grid">
+                                                <div className="doc-card">
+                                                    <div className="doc-card-label">CAC Document</div>
+                                                    {selectedEntity.data.cacDocumentUrl ? (
+                                                        <a href={selectedEntity.data.cacDocumentUrl} target="_blank" rel="noreferrer" className="doc-thumb-link">
+                                                            <img src={selectedEntity.data.cacDocumentUrl} alt="CAC" className="doc-thumb" />
+                                                            <span className="doc-view-label">Click to view</span>
+                                                        </a>
+                                                    ) : (
+                                                        <div className="doc-missing">Not uploaded</div>
+                                                    )}
+                                                </div>
+                                                <div className="doc-card">
+                                                    <div className="doc-card-label">Profile Picture</div>
+                                                    {selectedEntity.data.profilePicUrl ? (
+                                                        <a href={selectedEntity.data.profilePicUrl} target="_blank" rel="noreferrer" className="doc-thumb-link">
+                                                            <img src={selectedEntity.data.profilePicUrl} alt="Profile" className="doc-thumb" />
+                                                            <span className="doc-view-label">Click to view</span>
+                                                        </a>
+                                                    ) : (
+                                                        <div className="doc-missing">Not uploaded</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </details>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ===== DECISION PANEL (FOOTER) ===== */}
+                        <div className="admin-modal-decision">
+                            <div className="decision-credit-row">
+                                {selectedEntity.type === 'retailer' && (
+                                    <div className="decision-credit-field">
+                                        <label className="decision-label">
+                                            Credit Limit <span className="decision-ceiling-hint">(max: ₦{(selectedEntity.data.eligibilityChecklist?.calculatedCeilingAmount || 100000).toLocaleString()})</span>
+                                        </label>
+                                        <div className="credit-input-wrapper">
+                                            <span className="credit-currency">₦</span>
+                                            <input
+                                                type="number"
+                                                placeholder="Enter amount"
+                                                value={customCreditLimit}
+                                                onChange={e => setCustomCreditLimit(e.target.value)}
+                                                className="decision-credit-input"
+                                            />
+                                        </div>
                                     </div>
+                                )}
+                                <div className="decision-note-field">
+                                    <label className="decision-label">Admin Note</label>
+                                    <textarea
+                                        placeholder="Decision note, rejection reason, or internal remark..."
+                                        value={rejectionReason}
+                                        onChange={e => setRejectionReason(e.target.value)}
+                                        className="decision-note-input"
+                                        rows={2}
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div className="admin-modal-footer">
-                            <button className="cancel-pill" onClick={() => setSelectedEntity(null)}>Cancel</button>
-                            <div className="action-pills">
-                                <button 
-                                    className="reject-pill" 
+                            <div className="decision-actions">
+                                <button className="decision-cancel" onClick={() => setSelectedEntity(null)}>Cancel</button>
+                                <button
+                                    className="decision-reject"
                                     onClick={() => selectedEntity.type === 'vendor' ? handleRejectVendor(selectedEntity.data._id) : handleRejectRetailer(selectedEntity.data._id)}
                                     disabled={isActionLoading}
                                 >
-                                    Reject Application
+                                    {isActionLoading ? 'Processing...' : 'Reject'}
                                 </button>
-                                <button 
-                                    className="approve-pill" 
+                                <button
+                                    className="decision-approve"
                                     onClick={() => selectedEntity.type === 'vendor' ? handleVerifyVendor(selectedEntity.data._id) : handleVerifyRetailer(selectedEntity.data._id)}
-                                    disabled={isActionLoading}
+                                    disabled={isActionLoading || (selectedEntity.type === 'retailer' && !customCreditLimit)}
                                 >
-                                    {isActionLoading ? 'Processing...' : 'Approve & Verify'}
+                                    {isActionLoading ? 'Processing...' : selectedEntity.type === 'vendor' ? 'Verify Vendor' : 'Approve & Set Limit'}
                                 </button>
                             </div>
                         </div>

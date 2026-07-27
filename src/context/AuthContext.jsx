@@ -34,8 +34,10 @@ export const AuthProvider = ({ children }) => {
   const registerRetailer = async (userData) => {
     try {
       const { data } = await api.post('/auth/register', userData);
-      setUser(data);
-      localStorage.setItem('user', JSON.stringify(data));
+      if (!data.registered) {
+        setUser(data);
+        localStorage.setItem('user', JSON.stringify(data));
+      }
       return data;
     } catch (error) {
       throw error.response?.data?.message || 'Registration failed';
@@ -46,8 +48,10 @@ export const AuthProvider = ({ children }) => {
   const registerVendor = async (vendorData) => {
     try {
       const { data } = await api.post('/auth/register-vendor', vendorData);
-      setUser(data);
-      localStorage.setItem('user', JSON.stringify(data));
+      if (!data.registered) {
+        setUser(data);
+        localStorage.setItem('user', JSON.stringify(data));
+      }
       return data;
     } catch (error) {
        throw error.response?.data?.message || 'Registration failed';

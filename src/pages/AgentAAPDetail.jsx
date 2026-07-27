@@ -192,7 +192,7 @@ const AgentAAPDetail = () => {
             };
             const endpoint = endpoints[pendingAction] || `/aap/${id}/proxy-deliver`;
             const messages = {
-                'confirm': 'Interest confirmed via agent!',
+                'confirm': 'Intent confirmed via agent!',
                 'accept-murabaha': 'Murabaha accepted via agent!',
                 'deliver': 'Proxy Delivered & Received!'
             };
@@ -233,7 +233,7 @@ const AgentAAPDetail = () => {
     const getStatusConfig = (status) => {
         const configs = {
             draft: { color: '#94a3b8', label: 'Draft', icon: <Clock size={14} /> },
-            awaiting_retailer_confirm: { color: '#f59e0b', label: 'Awaiting Retailer Interest', icon: <Clock size={14} /> },
+            awaiting_retailer_confirm: { color: '#f59e0b', label: 'Awaiting Retailer Intent', icon: <Clock size={14} /> },
             pending_admin_approval: { color: '#8b5cf6', label: 'Pending Admin Approval', icon: <ShieldCheck size={14} /> },
             fund_disbursed: { color: '#10b981', label: 'Funds Disbursed', icon: <DollarSign size={14} /> },
             pending_murabaha_acceptance: { color: '#f59e0b', label: 'Murabaha Offer Sent', icon: <Clock size={14} /> },
@@ -343,29 +343,39 @@ const AgentAAPDetail = () => {
                                 onChange={handleFileChange} 
                             />
 
-                            {/* Proxy Confirm Action */}
+                            {/* Step 1: Awaiting Trader Intent */}
                             {aap.status === 'awaiting_retailer_confirm' && (
                                 <div className="action-box warning-box">
-                                    <p>Let's verify together! Take a quick photo of the retailer consenting.</p>
-                                    <button 
-                                        className="btn-warning-action" 
-                                        onClick={() => triggerProxyAction('confirm')}
-                                        disabled={actionLoading}
-                                    >
-                                        <Camera size={16} />
-                                        {actionLoading && pendingAction === 'confirm' ? 'Opening Camera...' : 'Proxy Confirm (Take Photo)'}
-                                    </button>
+                                    <p style={{ fontWeight: 600, marginBottom: 4 }}>
+                                        <Clock size={16} style={{ marginRight: 6 }} />
+                                        Awaiting Trader Confirmation
+                                    </p>
+                                    <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
+                                        The trader must log into their Amana app and tap "Express Intent" to confirm this purchase.
+                                    </p>
+                                    <div className="subtle-backup-row" style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trader unable to use their phone?</span>
+                                        <button 
+                                            className="btn-subtle-photo" 
+                                            onClick={() => triggerProxyAction('confirm')}
+                                            disabled={actionLoading}
+                                        >
+                                            <Camera size={13} />
+                                            {actionLoading && pendingAction === 'confirm' ? 'Opening Camera...' : 'Take Photo Backup'}
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
+                            {/* Step 2: Send Murabaha Offer */}
                             {aap.status === 'fund_disbursed' && (
                                 <div className="action-box success-box">
                                     <p style={{ fontWeight: 600, marginBottom: 8 }}>
                                         <DollarSign size={16} style={{ marginRight: 6 }} />
-                                        Funds Disbursed — Purchase the goods from the seller
+                                        Funds Disbursed — Purchase Goods & Send Offer
                                     </p>
                                     <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
-                                        After purchasing, send the Murabaha offer to the retailer.
+                                        Purchase the requested goods from seller, then send the Murabaha sale offer for the trader to accept on their app.
                                     </p>
                                     {aap.expiresAt && (
                                         <p style={{ fontSize: '0.8rem', color: '#f59e0b', marginBottom: 12 }}>
@@ -373,57 +383,64 @@ const AgentAAPDetail = () => {
                                             Time remaining: {Math.max(0, Math.floor((new Date(aap.expiresAt) - new Date()) / 3600000))}h {Math.max(0, Math.floor(((new Date(aap.expiresAt) - new Date()) % 3600000) / 60000))}m
                                         </p>
                                     )}
-                                    <div className="action-row">
+                                    <button 
+                                        className="btn-primary-action" 
+                                        onClick={handleSendMurabahaOffer}
+                                        disabled={actionLoading}
+                                        style={{ width: '100%', marginBottom: 12 }}
+                                    >
+                                        Send Murabaha Offer (Trader App)
+                                    </button>
+
+                                    <div className="subtle-backup-row" style={{ paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trader unable to accept on phone?</span>
                                         <button 
-                                            className="btn-primary-action" 
-                                            onClick={handleSendMurabahaOffer}
-                                            disabled={actionLoading}
-                                        >
-                                            Send Murabaha Offer
-                                        </button>
-                                        <button 
-                                            className="btn-outline-action" 
+                                            className="btn-subtle-photo" 
                                             onClick={() => triggerProxyAction('accept-murabaha')}
                                             disabled={actionLoading}
                                         >
-                                            <Camera size={16} />
-                                            {actionLoading && pendingAction === 'accept-murabaha' ? 'Opening Camera...' : 'Proxy Accept Murabaha'}
+                                            <Camera size={13} />
+                                            {actionLoading && pendingAction === 'accept-murabaha' ? 'Opening Camera...' : 'Take Photo Backup'}
                                         </button>
                                     </div>
                                 </div>
                             )}
 
+                            {/* Step 3: Deliver Goods */}
                             {aap.status === 'murabaha_accepted' && (
                                 <div className="action-box success-box">
                                     <p style={{ fontWeight: 600, marginBottom: 8 }}>
                                         <CheckCircle size={16} style={{ marginRight: 6 }} />
-                                        Murabaha Accepted — Deliver the Goods
+                                        Murabaha Accepted — Deliver Goods
                                     </p>
                                     <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
-                                        Retailer agreed to purchase at ₦{aap.totalRetailerCost?.toLocaleString()} (₦{aap.purchasePrice?.toLocaleString()} + {aap.markupPercentage}% markup). Choose delivery method:
+                                        Trader agreed to terms (₦{aap.totalRetailerCost?.toLocaleString()}). Generate a pickup OTP for them to enter on their app.
                                     </p>
-                                    <div className="action-row">
+                                    <button 
+                                        className="btn-primary-action" 
+                                        onClick={handleMarkDelivered}
+                                        disabled={actionLoading}
+                                        style={{ width: '100%', marginBottom: 12 }}
+                                    >
+                                        Generate Pickup OTP (Trader App)
+                                    </button>
+
+                                    <div className="subtle-backup-row" style={{ paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trader unable to verify on phone?</span>
                                         <button 
-                                            className="btn-primary-action" 
-                                            onClick={handleMarkDelivered}
-                                            disabled={actionLoading}
-                                        >
-                                            Generate OTP (Retailer App)
-                                        </button>
-                                        <button 
-                                            className="btn-outline-action" 
+                                            className="btn-subtle-photo" 
                                             onClick={() => triggerProxyAction('deliver')}
                                             disabled={actionLoading}
                                         >
-                                            <Camera size={16} />
-                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Proxy Deliver (Photo)'}
+                                            <Camera size={13} />
+                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Take Photo Backup'}
                                         </button>
                                     </div>
                                 </div>
                             )}
 
-                             {/* Settle Debt (Proxy) */}
-                             {aap.status === 'received' && !aap.isPaid && (
+                            {/* Settle Debt (Proxy) */}
+                            {aap.status === 'received' && !aap.isPaid && (
                                 <div className="action-box success-box">
                                     <p>Accept cash and settle debt for the retailer. You will get a receipt.</p>
                                     <button 
@@ -436,23 +453,25 @@ const AgentAAPDetail = () => {
                                 </div>
                             )}
 
+                            {/* OTP Display Card */}
                             {aap.status === 'delivered' && aap.pickupCode && (
                                 <div className="otp-display-card">
-                                    <span className="otp-label">RETAILER PICKUP OTP</span>
+                                    <span className="otp-label">TRADER PICKUP OTP</span>
                                     <span className="otp-value">{aap.pickupCode}</span>
-                                    <p>Share this code with the retailer to confirm receipt.</p>
+                                    <p>Share this code with the trader to enter on their app to confirm receipt.</p>
                                     
                                     <div className="otp-divider"></div>
-                                    <p className="description" style={{ fontSize: '0.9rem', margin: '0 0 8px 0', opacity: 0.8 }}>Retailer unable to verify?</p>
-                                    <button 
-                                        className="btn-inverse-action" 
-                                        onClick={() => triggerProxyAction('deliver')}
-                                        disabled={actionLoading}
-                                        style={{ width: '100%', justifyContent: 'center', padding: '1rem', borderRadius: '12px' }}
-                                    >
-                                        <Camera size={16} />
-                                        {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Use Proxy Deliver (Photo)'}
-                                    </button>
+                                    <div className="subtle-backup-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Trader unable to enter code?</span>
+                                        <button 
+                                            className="btn-subtle-photo" 
+                                            onClick={() => triggerProxyAction('deliver')}
+                                            disabled={actionLoading}
+                                        >
+                                            <Camera size={13} />
+                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Take Photo Backup'}
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
