@@ -313,7 +313,7 @@ const termsData = [
     clauses: [
       { num: '30.1', text: 'Amana is operated by Amana Technologies Ltd, trading as AMANA, registered with the Corporate Affairs Commission under RC 9696997.' },
       { num: '30.2', text: 'Registered address: 131, Fegi, Doka, Kano State, Nigeria.' },
-      { num: '30.3', text: 'For questions about these Terms, contact us at admin@joinamana.com or 08032532333, or reach out to your assigned Market Agent.' },
+      { num: '30.3', text: 'For questions about these Terms, contact us at service.amanafinance@gmail.com or 08032532333, or reach out to your assigned Market Agent.' },
     ],
   },
 ];
@@ -363,14 +363,6 @@ const TermsAndConditions = () => {
           </div>
         </div>
 
-        {/* Draft Notice */}
-        <div className="terms-draft-notice">
-          <span className="terms-draft-notice-icon">⚠️</span>
-          <div className="terms-draft-notice-text">
-            <strong>Revised draft</strong> — Prepared for legal review. Not for
-            publication until approved by legal counsel. Draft date: 25 July 2026 (Revision 4).
-          </div>
-        </div>
 
         {/* Table of Contents */}
         <div className="terms-toc">

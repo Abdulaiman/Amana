@@ -39,12 +39,15 @@ const Footer = () => {
         <div className="footer-col">
           <h4>Legal</h4>
           <Link to="/terms">Terms & Conditions</Link>
+          <Link to="/privacy">Privacy Policy</Link>
         </div>
       </div>
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} AMANA. All rights reserved.</p>
         <div className="footer-bottom-links">
           <Link to="/terms">Terms and Conditions</Link>
+          <span className="footer-divider">·</span>
+          <Link to="/privacy">Privacy Policy</Link>
         </div>
       </div>
     </footer>

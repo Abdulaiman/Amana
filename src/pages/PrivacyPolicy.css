@@ -1,6 +1,6 @@
-/* Terms and Conditions Styling - Standard Application Theme Compatibility */
+/* Privacy Policy Styling - Mirrors Terms and Conditions design */
 
-.terms-page {
+.privacy-page {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   min-height: 100vh;
@@ -8,7 +8,7 @@
   font-family: var(--font-family);
 }
 
-.terms-container {
+.privacy-container {
   max-width: 800px;
   margin: 0 auto;
   display: flex;
@@ -17,13 +17,13 @@
 }
 
 /* Hero Section */
-.terms-hero {
+.privacy-hero {
   text-align: left;
   border-bottom: 2px solid var(--color-border);
   padding-bottom: var(--space-6);
 }
 
-.terms-hero h1 {
+.privacy-hero h1 {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(2.25rem, 5vw, 3rem);
   font-weight: 700;
@@ -32,14 +32,14 @@
   margin-bottom: var(--space-3);
 }
 
-.terms-hero-description {
+.privacy-hero-description {
   font-size: var(--text-md);
   line-height: 1.6;
   color: var(--color-text-secondary);
   max-width: 700px;
 }
 
-.terms-badge {
+.privacy-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -53,21 +53,21 @@
   width: fit-content;
 }
 
-.terms-badge-dot {
+.privacy-badge-dot {
   width: 6px;
   height: 6px;
   background-color: var(--color-brand);
   border-radius: 50%;
 }
 
-.terms-meta {
+.privacy-meta {
   display: flex;
   gap: var(--space-6);
   flex-wrap: wrap;
   margin-top: var(--space-4);
 }
 
-.terms-meta-item {
+.privacy-meta-item {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -76,21 +76,19 @@
   font-weight: var(--font-weight-medium);
 }
 
-.terms-meta-icon {
+.privacy-meta-icon {
   font-size: var(--text-sm);
 }
 
-
-
 /* Table of Contents */
-.terms-toc {
+.privacy-toc {
   background-color: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   padding: var(--space-6);
   border-radius: var(--radius-xl);
 }
 
-.terms-toc-title {
+.privacy-toc-title {
   font-size: var(--text-base);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
@@ -99,7 +97,7 @@
   letter-spacing: 0.05em;
 }
 
-.terms-toc-list {
+.privacy-toc-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-3);
@@ -108,7 +106,7 @@
   margin: 0;
 }
 
-.terms-toc-item {
+.privacy-toc-item {
   background: none;
   border: none;
   padding: 0;
@@ -123,24 +121,24 @@
   transition: color var(--transition-fast);
 }
 
-.terms-toc-item:hover {
+.privacy-toc-item:hover {
   color: var(--color-brand-hover);
   text-decoration: underline;
 }
 
-.terms-toc-number {
+.privacy-toc-number {
   color: var(--color-text-tertiary);
   font-weight: var(--font-weight-semibold);
 }
 
 /* Sections & Clauses */
-.terms-sections {
+.privacy-sections {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
 }
 
-.terms-section-card {
+.privacy-section-card {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
@@ -148,7 +146,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-.terms-section-header {
+.privacy-section-header {
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -157,7 +155,7 @@
   padding-bottom: var(--space-3);
 }
 
-.terms-section-number {
+.privacy-section-number {
   background-color: var(--color-brand-subtle);
   color: var(--color-brand-text);
   font-size: var(--text-sm);
@@ -170,26 +168,26 @@
   justify-content: center;
 }
 
-.terms-section-title {
+.privacy-section-title {
   font-size: var(--text-lg);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin: 0;
 }
 
-.terms-clauses {
+.privacy-clauses {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.terms-clause {
+.privacy-clause {
   display: flex;
   gap: var(--space-4);
   align-items: flex-start;
 }
 
-.terms-clause-number {
+.privacy-clause-number {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-brand-text);
@@ -198,25 +196,18 @@
   text-align: left;
 }
 
-.terms-clause-text {
+.privacy-clause-text {
   font-size: var(--text-sm);
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
 
-.terms-definition .terms-clause-text {
-  background-color: var(--color-bg-secondary);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  width: 100%;
-}
-
-.terms-clause-text strong {
+.privacy-clause-text strong {
   color: var(--color-text-primary);
 }
 
 /* Acceptance Footer card */
-.terms-acceptance-card {
+.privacy-acceptance-card {
   display: flex;
   align-items: center;
   gap: var(--space-5);
@@ -226,30 +217,30 @@
   border-radius: var(--radius-xl);
 }
 
-.terms-acceptance-icon {
+.privacy-acceptance-icon {
   font-size: 2rem;
   flex-shrink: 0;
 }
 
-.terms-acceptance-card p {
+.privacy-acceptance-card p {
   font-size: var(--text-sm);
   line-height: 1.5;
   color: var(--color-text-secondary);
   margin: 0;
 }
 
-.terms-acceptance-card strong {
+.privacy-acceptance-card strong {
   color: var(--color-brand-text);
 }
 
 /* Back to top button */
-.terms-back-to-top {
+.privacy-back-to-top {
   display: flex;
   justify-content: center;
   margin-top: var(--space-6);
 }
 
-.terms-back-to-top button {
+.privacy-back-to-top button {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-secondary);
   border: 1px solid var(--color-border);
@@ -261,7 +252,7 @@
   transition: all var(--transition-fast);
 }
 
-.terms-back-to-top button:hover {
+.privacy-back-to-top button:hover {
   background-color: var(--color-brand-subtle);
   color: var(--color-brand-text);
   border-color: var(--color-brand);
@@ -269,15 +260,15 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .terms-page {
+  .privacy-page {
     padding: var(--space-6) var(--space-3);
   }
   
-  .terms-section-card {
+  .privacy-section-card {
     padding: var(--space-4) var(--space-5);
   }
   
-  .terms-toc-list {
+  .privacy-toc-list {
     grid-template-columns: 1fr;
   }
 }
