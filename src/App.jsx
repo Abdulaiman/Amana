@@ -20,6 +20,7 @@ import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import DeleteAccount from './pages/DeleteAccount';
 
 // Auth & Dashboards
 import Login from './pages/Login';
@@ -101,6 +102,7 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/delete-account" element={<DeleteAccount />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/banned" element={<Banned />} />
