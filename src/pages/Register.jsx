@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../services/api';
+import { termsData } from './TermsAndConditions';
 import './Login.css';
 
 const getPasswordStrength = (pw) => {
@@ -39,6 +40,8 @@ const Register = () => {
     const [phoneTaken, setPhoneTaken] = useState(false);
     const [emailChecking, setEmailChecking] = useState(false);
     const [phoneChecking, setPhoneChecking] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
 
     const navigate = useNavigate();
     const { addToast } = useToast();
@@ -118,6 +121,12 @@ const Register = () => {
         }
         if (phoneTaken) {
           addToast('This phone number is already registered. Please log in instead.', 'error');
+          return;
+        }
+
+        if (!acceptedTerms) {
+          addToast('Please read and agree to the Terms & Conditions to proceed.', 'error');
+          setShowTermsModal(true);
           return;
         }
 
@@ -297,6 +306,28 @@ const Register = () => {
                         </p>
                     )}
 
+                    <div className="terms-checkbox-row">
+                      <input
+                        type="checkbox"
+                        id="acceptTermsWeb"
+                        checked={acceptedTerms}
+                        onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      />
+                      <label htmlFor="acceptTermsWeb" className="terms-checkbox-label">
+                        I agree to the{' '}
+                        <span 
+                          className="terms-link"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowTermsModal(true);
+                          }}
+                        >
+                          Terms &amp; Conditions
+                        </span>
+                      </label>
+                    </div>
+
                     <div className="form-actions">
                         <button type="submit" className="btn-auth" disabled={loading || !passwordsMatch}>
                             {loading ? 'Creating Account...' : 'Sign Up'}
@@ -308,6 +339,54 @@ const Register = () => {
                     Already have an account? <span className="link-primary" onClick={() => navigate('/login')} style={{cursor: 'pointer'}}>Login</span>
                 </p>
             </div>
+
+            {showTermsModal && (
+              <div className="web-terms-modal-overlay" onClick={() => setShowTermsModal(false)}>
+                <div className="web-terms-modal-card" onClick={(e) => e.stopPropagation()}>
+                  <div className="web-terms-modal-header">
+                    <h3>Terms &amp; Conditions</h3>
+                    <button 
+                      type="button" 
+                      className="web-terms-modal-close"
+                      onClick={() => setShowTermsModal(false)}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  <div className="web-terms-modal-body">
+                    <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.25rem', fontSize: '0.875rem' }}>
+                      Please read and review the Amana platform Terms and Conditions below.
+                    </p>
+                    {termsData.map((section) => (
+                      <div key={section.id || section.number} className="web-terms-modal-section">
+                        <h4>{section.number}. {section.title}</h4>
+                        {section.clauses ? (
+                          section.clauses.map((c) => (
+                            <p key={c.num}>
+                              <strong>{c.num}</strong> {c.text}
+                            </p>
+                          ))
+                        ) : (
+                          <p>{section.content}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="web-terms-modal-footer">
+                    <button
+                      type="button"
+                      className="btn-auth"
+                      onClick={() => {
+                        setAcceptedTerms(true);
+                        setShowTermsModal(false);
+                      }}
+                    >
+                      I Agree to Terms &amp; Conditions
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
         </div>
     );
 };

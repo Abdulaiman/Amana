@@ -1,7 +1,7 @@
 import React from 'react';
 import './TermsAndConditions.css';
 
-const termsData = [
+export const termsData = [
   {
     id: 'introduction',
     number: '1',
