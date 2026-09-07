@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { User, Building, CreditCard, MapPin, ShieldCheck, Mail, Phone, Loader } from 'lucide-react';
+import { User, Building, CreditCard, MapPin, ShieldCheck, Mail, Phone, Loader, AlertTriangle, ArrowRight, Store } from 'lucide-react';
 import './UserProfile.css';
 
 const UserProfile = () => {
+    const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -22,13 +24,17 @@ const UserProfile = () => {
     }, []);
 
 
-    if (loading) return (
-        <div className="loading-container">
-            <Loader className="animate-spin" style={{ color: 'var(--color-brand)' }} />
-        </div>
-    );
+    if (loading) {
+        return (
+            <div className="profile-container flex-center">
+                <Loader className="spinner" size={40} />
+            </div>
+        );
+    }
 
     if (!profile) return <div className="error-message">Failed to load profile.</div>;
+
+    const isAgentRejected = profile.rejectedByRole === 'agent';
 
     return (
         <div className="user-profile-container user-profile-content">
@@ -107,13 +113,64 @@ const UserProfile = () => {
                     </h2>
                     <div className="verification-status-card">
                         <div>
-                            <p className="verification-title">Identity Verification</p>
-                            <p className="verification-subtitle">BVN, ID, and Location</p>
+                            <p className="verification-title">Trader Verification</p>
+                            <p className="verification-subtitle">Store Visit, Eligibility & Identity</p>
                         </div>
-                        <span className={`status-badge ${profile.isProfileComplete ? 'status-verified' : 'status-pending'}`}>
-                            {profile.isProfileComplete ? 'Verified' : 'Pending'}
+                        <span className={`status-badge ${
+                            profile.verificationStatus === 'approved' || profile.isProfileComplete ? 'status-verified' : 
+                            profile.verificationStatus === 'rejected' ? 'status-rejected' : 'status-pending'
+                        }`}>
+                            {profile.verificationStatus === 'approved' || profile.isProfileComplete ? 'Verified' : 
+                             profile.verificationStatus === 'rejected' ? 'Declined' : 'Pending'}
                         </span>
                     </div>
+
+                    {profile.verificationStatus === 'rejected' && (
+                        <div style={{
+                            marginTop: 'var(--space-4)',
+                            padding: 'var(--space-4) var(--space-5)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                            border: '1px solid rgba(239, 68, 68, 0.35)',
+                            borderRadius: 'var(--radius-lg)',
+                            textAlign: 'left'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                color: 'var(--color-danger)',
+                                fontWeight: 800,
+                                fontSize: 'var(--text-xs)',
+                                letterSpacing: '0.5px',
+                                textTransform: 'uppercase',
+                                marginBottom: '6px'
+                            }}>
+                                {isAgentRejected ? (
+                                    <><Store size={15} /> Field Verification Declined by Agent</>
+                                ) : (
+                                    <><AlertTriangle size={15} /> Admin Rejection Reason</>
+                                )}
+                            </div>
+                            <p style={{
+                                color: 'var(--color-text-primary)',
+                                fontStyle: 'italic',
+                                fontSize: 'var(--text-sm)',
+                                lineHeight: 1.5,
+                                margin: '0 0 var(--space-3) 0',
+                                fontWeight: 600
+                            }}>
+                                "{profile.rejectionReason || 'Information provided was incomplete or requires correction.'}"
+                            </p>
+                            <button
+                                onClick={() => navigate('/complete-profile')}
+                                className="btn btn-primary btn-sm"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                            >
+                                {isAgentRejected ? 'Re-apply for Verification' : 'Update Application & Resubmit'} <ArrowRight size={14} />
+                            </button>
+                        </div>
+                    )}
+
                     {profile.sensitiveDataLocked && (
                          <p className="locked-message">
                             <ShieldCheck size={12} /> Sensitive data is locked for your security. Contact support to update.

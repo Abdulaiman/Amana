@@ -727,3 +727,943 @@
     gap: var(--space-4);
   }
 }
+
+/* Cancellation Report Card */
+.cancellation-card {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(185, 28, 28, 0.02) 100%) !important;
+  padding: 1.5rem !important;
+  margin-bottom: var(--space-4);
+}
+
+.cancellation-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cancellation-icon-glow {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cancellation-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.35rem;
+}
+
+.cancellation-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-text-primary, #fff);
+  margin: 0 0 0.2rem 0;
+}
+
+.cancellation-sub {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary, #9ca3af);
+  margin: 0;
+}
+
+.cancellation-body {
+  border-top: 1px solid rgba(239, 68, 68, 0.2);
+  padding-top: 1rem;
+}
+
+.cancellation-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.cancellation-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cm-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary, #9ca3af);
+  letter-spacing: 0.03em;
+}
+
+.cm-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #fff);
+}
+
+.cm-role-tag {
+  font-size: 0.72rem;
+  color: #ef4444;
+  margin-left: 0.35rem;
+  font-weight: 600;
+}
+
+.cm-reason-quote {
+  font-size: 0.92rem;
+  color: #fca5a5;
+  font-style: italic;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid #ef4444;
+}
+
+.cancelled-status-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+/* ── Mobile Responsive Overhauls for AAP Detail ── */
+@media (max-width: 860px) {
+  .aap-detail-container {
+    gap: var(--space-4);
+    padding-top: var(--space-3);
+    padding-bottom: 5rem;
+  }
+
+  .aap-detail-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .aap-detail-header {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .header-status {
+    width: 100%;
+    margin-left: 48px;
+    margin-top: 2px;
+  }
+
+  .main-info {
+    gap: var(--space-4);
+  }
+
+  .detail-card {
+    border-radius: var(--radius-md);
+  }
+
+  .action-btn-primary,
+  .action-btn-secondary,
+  .action-btn-outline {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .step-actions {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .step-actions button {
+    width: 100%;
+  }
+
+  .photo-stagger img {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-info h1 {
+    font-size: var(--text-lg);
+  }
+
+  .cm-row {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .cancellation-report-card {
+    padding: 1rem;
+  }
+
+  .cancellation-report-header {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+}
+
+/* ── Direct Mobile Verification Notice ── */
+.direct-mobile-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary, #94a3b8);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.direct-mobile-notice svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Modern Cancellation Request Modal
+   ══════════════════════════════════════════════════════════ */
+.aap-cancel-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 10000);
+  padding: var(--space-4);
+  animation: aapOverlayFade 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Lightbox Overlay in AgentAAPDetail ── */
+.aap-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: var(--z-modal-top, 10250);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  animation: fadeIn 0.2s ease;
+}
+
+.aap-lightbox-overlay .lightbox-top-bar {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  z-index: 10;
+}
+
+.aap-lightbox-overlay .lightbox-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.aap-lightbox-overlay .lightbox-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.aap-lightbox-overlay .lightbox-external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.aap-lightbox-overlay .lightbox-external-link:hover {
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+
+.aap-lightbox-overlay .lightbox-close-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  background: #ef4444;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 7px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.aap-lightbox-overlay .lightbox-close-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.55);
+}
+
+.aap-lightbox-overlay .lightbox-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 92vw;
+  max-height: 84vh;
+}
+
+.aap-lightbox-overlay .lightbox-img {
+  max-width: 90vw;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@keyframes aapOverlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes aapCardSpring {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.aap-cancel-modal-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  max-width: 540px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 
+    0 25px 60px -15px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(245, 158, 11, 0.12);
+  overflow: hidden;
+  animation: aapCardSpring 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aap-cancel-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b 0%, #ef4444 50%, #f59e0b 100%);
+  z-index: 2;
+}
+
+.aap-cancel-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.aap-cancel-icon-glow {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.16) 0%, rgba(245, 158, 11, 0.12) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.aap-cancel-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.aap-cancel-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  margin-bottom: 6px;
+}
+
+.aap-cancel-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+}
+
+.aap-cancel-subtitle {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.aap-cancel-close-x {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.aap-cancel-close-x:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.aap-cancel-body {
+  padding: 18px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: calc(90vh - 165px);
+}
+
+/* ── Treasury Card ── */
+.aap-treasury-card {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.05) 0%, rgba(15, 23, 42, 0.02) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aap-treasury-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.12);
+}
+
+.aap-treasury-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #f59e0b;
+}
+
+.aap-treasury-status-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.aap-treasury-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aap-treasury-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.86rem;
+}
+
+.aap-tr-label {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+}
+
+.aap-tr-value {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.aap-treasury-acc-row {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 2px;
+}
+
+.aap-treasury-acc-num {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+.aap-copy-acc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.aap-copy-acc-btn:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.4);
+  transform: translateY(-1px);
+}
+
+.aap-copy-acc-btn.copied {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.aap-treasury-refund-amt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.aap-treasury-refund-amt strong {
+  font-size: 1rem;
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* ── Form Groups ── */
+.aap-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aap-field-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.aap-form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.required-star {
+  color: #ef4444;
+}
+
+.aap-field-hint {
+  font-size: 0.74rem;
+  color: var(--color-text-tertiary);
+}
+
+/* ── Upload Dropzone ── */
+.aap-upload-dropzone {
+  border: 2px dashed rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.03);
+  border-radius: 12px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.aap-upload-dropzone:hover {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.07);
+  transform: translateY(-1px);
+}
+
+.aap-dropzone-icon-ring {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f59e0b;
+  transition: transform 0.2s ease;
+}
+
+.aap-upload-dropzone:hover .aap-dropzone-icon-ring {
+  transform: scale(1.08);
+}
+
+.aap-dropzone-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aap-dropzone-primary {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.aap-dropzone-secondary {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+/* ── Receipt Preview Card ── */
+.aap-receipt-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.aap-receipt-thumb-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.aap-receipt-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.aap-receipt-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.aap-receipt-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.aap-receipt-filename {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aap-receipt-filesize {
+  font-size: 0.72rem;
+  color: var(--color-text-tertiary);
+}
+
+.aap-receipt-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.aap-receipt-btn-change,
+.aap-receipt-btn-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.aap-receipt-btn-change {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-secondary);
+}
+
+.aap-receipt-btn-change:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-text-primary);
+}
+
+.aap-receipt-btn-remove {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.aap-receipt-btn-remove:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* ── Preset Chips ── */
+.aap-preset-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.aap-preset-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  padding: 5px 11px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.aap-preset-chip:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: var(--color-text-primary);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.aap-preset-chip.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+/* ── Textarea ── */
+.aap-cancel-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary, rgba(0, 0, 0, 0.2));
+  color: var(--color-text-primary);
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aap-cancel-textarea:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.aap-textarea-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.73rem;
+}
+
+.aap-textarea-hint {
+  color: var(--color-text-tertiary);
+}
+
+.aap-char-counter {
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
+
+.aap-char-counter.valid {
+  color: #10b981;
+}
+
+/* ── Footer ── */
+.aap-cancel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.aap-btn-secondary {
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.aap-btn-secondary:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.aap-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.aap-btn-submit-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+  transition: all 0.2s ease;
+}
+
+.aap-btn-submit-danger:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+  transform: translateY(-1px);
+}
+
+.aap-btn-submit-danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.aap-btn-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@media (max-width: 540px) {
+  .aap-cancel-modal-card {
+    border-radius: 16px;
+  }
+
+  .aap-cancel-header {
+    padding: 16px 18px 12px;
+  }
+
+  .aap-cancel-body {
+    padding: 14px 18px;
+    gap: 14px;
+  }
+
+  .aap-cancel-footer {
+    padding: 14px 18px;
+    flex-direction: column-reverse;
+  }
+
+  .aap-btn-secondary,
+  .aap-btn-submit-danger {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+

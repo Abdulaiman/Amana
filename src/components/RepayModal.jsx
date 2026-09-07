@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Lock, CheckCircle, Printer, Share2 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -8,24 +9,42 @@ import './RepayModal.css';
 const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSuccess }) => {
     const { addToast } = useToast();
     
-    // Logic to determine amount
+    // Logic to determine outstanding amount
     const getOrderAmount = () => {
         if (!order) return 0;
-        return order.totalRetailerCost || order.totalRepaymentAmount || 0;
+        if (order.remainingBalance !== undefined && order.remainingBalance !== null) {
+            return order.remainingBalance;
+        }
+        const total = order.totalRetailerCost || order.totalRepaymentAmount || 0;
+        const paid = order.amountPaid || 0;
+        return Math.max(0, total - paid);
     };
 
-    const [amount, setAmount] = useState(order ? getOrderAmount().toString() : '');
+    const maxAmount = order ? getOrderAmount() : (user?.usedCredit || 0);
+    const [amount, setAmount] = useState(maxAmount > 0 ? maxAmount.toString() : '');
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState('input'); // input, verifying, success
     const [paymentReference, setPaymentReference] = useState(null);
     const [receiptData, setReceiptData] = useState(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            const calculatedMax = order ? getOrderAmount() : (user?.usedCredit || 0);
+            setAmount(calculatedMax > 0 ? calculatedMax.toString() : '');
+            setStep('input');
+            setPaymentReference(null);
+            setReceiptData(null);
+        }
+    }, [isOpen, order, user]);
 
     if (!isOpen) return null;
 
     const isOrderSpecific = !!order;
 
     const handleInitialize = async () => {
-        const finalAmount = isOrderSpecific ? getOrderAmount() : parseFloat(amount);
+        const fullOrderAmount = isOrderSpecific ? getOrderAmount() : (user?.usedCredit || 0);
+        const parsed = parseFloat(amount);
+        const finalAmount = isAgentProxy && !isNaN(parsed) && parsed > 0 ? parsed : fullOrderAmount;
         if (!finalAmount || finalAmount <= 0) {
             addToast('Please enter a valid amount', 'warning');
             return;
@@ -50,6 +69,7 @@ const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSucc
                 payload = {
                     amount: finalAmount,
                     retailerId: user._id, 
+                    orderId: order?._id || null,
                     callbackUrl
                 };
             }
@@ -243,9 +263,9 @@ const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSucc
         }
     };
 
-    return (
-        <div className="repay-modal-overlay">
-            <div className="repay-modal animate-scale-in">
+    const modalNode = (
+        <div className="repay-modal-overlay" onClick={onClose}>
+            <div className="repay-modal animate-scale-in" onClick={e => e.stopPropagation()}>
                 <div className="repay-header">
                     <h3>{isAgentProxy ? 'Settle via Proxy' : 'Make Repayment'}</h3>
                     <button onClick={onClose} className="close-btn"><X size={20} /></button>
@@ -255,16 +275,31 @@ const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSucc
                     {step === 'input' && (
                         <>
                             <div className="amount-display">
-                                <label>Amount to Pay</label>
-                                <div className="amount-value">₦{parseFloat(amount || 0).toLocaleString()}</div>
-                                {!isOrderSpecific && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                    <label>
+                                        {order?.amountPaid > 0 ? 'Price Left to Settle (In Full)' : 'Full Settlement Amount'}
+                                    </label>
+                                    {order?.amountPaid > 0 && (
+                                        <span style={{ fontSize: '0.75rem', color: '#10b981' }}>
+                                            ₦{order.amountPaid.toLocaleString()} paid of ₦{(order.totalRetailerCost || order.totalRepaymentAmount || 0).toLocaleString()}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="amount-value">
+                                    ₦{(isAgentProxy ? (parseFloat(amount) || maxAmount) : maxAmount).toLocaleString()}
+                                </div>
+                                {isAgentProxy ? (
                                     <input 
                                         type="number" 
                                         value={amount} 
                                         onChange={e => setAmount(e.target.value)}
                                         className="amount-input"
-                                        placeholder="Enter amount"
+                                        placeholder="Enter agent payment amount"
                                     />
+                                ) : (
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', margin: '8px 0 0' }}>
+                                        Traders pay the full price remaining for each contract.
+                                    </p>
                                 )}
                             </div>
 
@@ -275,8 +310,13 @@ const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSucc
                                 </div>
                             )}
 
-                            <button className="btn-pay" onClick={handleInitialize} disabled={loading}>
-                                {loading ? 'Processing...' : `Pay ₦${parseFloat(amount || 0).toLocaleString()}`}
+                            <button 
+                                className="btn-pay" 
+                                onClick={handleInitialize} 
+                                disabled={loading || (isAgentProxy ? (!amount || parseFloat(amount) <= 0) : maxAmount <= 0)}
+                            >
+                                <Lock size={18} />
+                                {loading ? 'Processing...' : `Pay ₦${(isAgentProxy ? (parseFloat(amount) || maxAmount) : maxAmount).toLocaleString()} in Full`}
                             </button>
                             
                             <div className="secure-tag">
@@ -317,6 +357,8 @@ const RepayModal = ({ isOpen, onClose, order, user, isAgentProxy = false, onSucc
             </div>
         </div>
     );
+
+    return typeof document !== 'undefined' ? createPortal(modalNode, document.body) : modalNode;
 };
 
 export default RepayModal;

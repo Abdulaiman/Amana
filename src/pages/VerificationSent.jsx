@@ -73,6 +73,7 @@ const VerificationSent = () => {
     try {
       await api.post('/auth/verify-code', { email, code });
       setSuccess(true);
+      try { sessionStorage.removeItem('amana_registration_draft'); } catch {}
       addToast('Email verified! You can now log in.', 'success');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -103,13 +104,15 @@ const VerificationSent = () => {
   const handleWrongEmail = async () => {
     setCancelling(true);
     try {
-      await api.post('/auth/cancel-registration', { email });
-      addToast('Registration cancelled. You can sign up again with the correct email.', 'info');
-      navigate('/register');
-    } catch (err) {
-      addToast(err.response?.data?.message || 'Failed to cancel registration', 'error');
+      if (email) {
+        await api.post('/auth/cancel-registration', { email });
+      }
+      addToast('You can now update your email or details.', 'info');
+    } catch {
+      // Even if network or cancel fails, let user proceed back to edit
     } finally {
       setCancelling(false);
+      navigate('/register', { state: { editEmail: true } });
     }
   };
 
@@ -181,13 +184,13 @@ const VerificationSent = () => {
         </div>
 
         <p style={{ marginTop: 20, fontSize: 14, color: '#6B7280' }}>
-          Wrong email?{' '}
+          Mistake in email or phone?{' '}
           <button
             onClick={handleWrongEmail}
             disabled={cancelling}
             style={{ background: 'none', border: 'none', color: '#0F766E', cursor: 'pointer', fontSize: 14, fontWeight: 600, textDecoration: 'underline', padding: 0 }}
           >
-            {cancelling ? 'Cancelling...' : 'Cancel & try again'}
+            {cancelling ? 'Updating...' : 'Edit details & try again'}
           </button>
         </p>
       </div>

@@ -38,7 +38,7 @@ export const termsData = [
     clauses: [
       { num: '3.1', text: 'Amana provides Sharia-compliant inventory financing to traders using the Murabaha model.' },
       { num: '3.2', text: 'In each transaction, Amana purchases the Goods a Trader has requested, through its appointed Agent, and sells the Goods to the Trader under a Murabaha contract at cost price plus an agreed Profit Margin.' },
-      { num: '3.3', text: 'Amana does not provide cash loans. Financing is always structured as a purchase and resale of specific Goods.' },
+      { num: '3.3', text: 'Amana provides non-cash, asset-backed inventory financing. All transactions are strictly structured as purchase and resale (Murabaha) of specific tangible inventory goods, with zero cash lending.' },
       { num: '3.4', text: 'Amana only finances Goods intended for resale by the Trader in the ordinary course of their trading business. Amana does not finance the purchase of equipment, vehicles, or other assets intended for use in the Trader\'s business rather than resale.' },
     ],
   },

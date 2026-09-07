@@ -181,6 +181,11 @@
   color: var(--color-warning);
 }
 
+.status-rejected {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: var(--color-danger);
+}
+
 .full-width {
   grid-column: 1 / -1;
 }

@@ -9,7 +9,7 @@ const Problem = () => {
         <div className="p-lg bg-white rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-danger mb-sm">1. The Riba Barrier</h3>
           <p className="text-muted">
-            Most traders refuse conventional loans because they involve interest (Riba), 
+            Most traders refuse conventional commercial credit because it involves interest (Riba), 
             which is forbidden in Islam. This locks millions of honest, high-performing 
             traders out of formal credit.
           </p>

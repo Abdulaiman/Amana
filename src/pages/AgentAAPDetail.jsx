@@ -1,15 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { 
     Package, MapPin, Store, Calendar, ArrowLeft, 
     CheckCircle, Clock, AlertCircle, ShieldCheck, DollarSign, User,
-    Phone, Mail, Camera, CreditCard, UploadCloud, XCircle, FileText
+    Phone, Mail, Smartphone, CreditCard, UploadCloud, XCircle, FileText,
+    AlertTriangle, X, Copy, Check, Camera, Building, Trash2,
+    ExternalLink, Eye, ZoomIn
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import RepayModal from '../components/RepayModal';
+import TraderCreditCard from '../components/TraderCreditCard';
 import './AgentAAPDetail.css';
+
+const CANCELLATION_PRESETS = [
+    'Trader changed their mind',
+    'Goods unavailable / out of stock',
+    'Supplier price changed unexpectedly',
+    'Duplicate purchase order',
+    'Trader requested order alteration'
+];
 
 const AgentAAPDetail = () => {
     const { id } = useParams();
@@ -22,13 +34,41 @@ const AgentAAPDetail = () => {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [repayModalOpen, setRepayModalOpen] = useState(false);
-    const fileInputRef = React.useRef(null);
     const refundInputRef = React.useRef(null);
-    const [pendingAction, setPendingAction] = useState(null); // 'confirm' or 'deliver'
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [cancelReason, setCancelReason] = useState('');
     const [refundProofFile, setRefundProofFile] = useState(null);
     const [refundProofPreview, setRefundProofPreview] = useState(null);
+    const [copiedAccount, setCopiedAccount] = useState(false);
+
+    // Lightbox / Image inspection state
+    const [inspectImage, setInspectImage] = useState(null);
+    const [inspectTitle, setInspectTitle] = useState('');
+
+    // Handle ESC key to dismiss modal stack in reverse order and lock body scroll
+    useEffect(() => {
+        const anyModalOpen = !!(showCancelModal || inspectImage);
+        if (!anyModalOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                if (inspectImage) {
+                    setInspectImage(null);
+                } else if (showCancelModal) {
+                    if (!actionLoading) setShowCancelModal(false);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        const origOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            document.body.style.overflow = origOverflow;
+        };
+    }, [showCancelModal, inspectImage, actionLoading]);
 
     const fetchAAP = useCallback(async () => {
         try {
@@ -119,7 +159,27 @@ const AgentAAPDetail = () => {
         setCancelReason('');
         setRefundProofFile(null);
         setRefundProofPreview(null);
+        setCopiedAccount(false);
+        if (refundInputRef.current) {
+            refundInputRef.current.value = '';
+        }
         setShowCancelModal(true);
+    };
+
+    const handleCopyAccount = (accountNum = '6042197639') => {
+        navigator.clipboard.writeText(accountNum);
+        setCopiedAccount(true);
+        addToast('Treasury account copied to clipboard', 'info');
+        setTimeout(() => setCopiedAccount(false), 2500);
+    };
+
+    const handleClearRefundProof = (e) => {
+        e?.stopPropagation();
+        setRefundProofFile(null);
+        setRefundProofPreview(null);
+        if (refundInputRef.current) {
+            refundInputRef.current.value = '';
+        }
     };
 
     const handleRefundFileChange = (e) => {
@@ -168,49 +228,6 @@ const AgentAAPDetail = () => {
         return res.data.url;
     };
 
-    const triggerProxyAction = (action) => {
-        setPendingAction(action);
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = async (e) => {
-        const file = e.target.files[0];
-        if (!file || !pendingAction) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-             addToast('File too large (Max 5MB)', 'warning');
-             return;
-        }
-
-        setActionLoading(true);
-        try {
-            const proofUrl = await handleUploadProof(file);
-            const endpoints = {
-                'confirm': `/aap/${id}/proxy-confirm`,
-                'accept-murabaha': `/aap/${id}/proxy-accept-murabaha`,
-                'deliver': `/aap/${id}/proxy-deliver`
-            };
-            const endpoint = endpoints[pendingAction] || `/aap/${id}/proxy-deliver`;
-            const messages = {
-                'confirm': 'Intent confirmed via agent!',
-                'accept-murabaha': 'Murabaha accepted via agent!',
-                'deliver': 'Proxy Delivered & Received!'
-            };
-            
-            await api.put(endpoint, { photoProof: proofUrl });
-            
-            addToast(messages[pendingAction] || 'Action completed!', 'success');
-            fetchAAP();
-        } catch (error) {
-            console.error(error);
-            addToast('Action failed', 'error');
-        } finally {
-            setActionLoading(false);
-            setPendingAction(null);
-            e.target.value = ''; // Reset input
-        }
-    };
-
     if (loading) return (
         <div className="aap-detail-loading">
             <div className="spinner"></div>
@@ -233,11 +250,11 @@ const AgentAAPDetail = () => {
     const getStatusConfig = (status) => {
         const configs = {
             draft: { color: '#94a3b8', label: 'Draft', icon: <Clock size={14} /> },
-            awaiting_retailer_confirm: { color: '#f59e0b', label: 'Awaiting Retailer Intent', icon: <Clock size={14} /> },
-            pending_admin_approval: { color: '#8b5cf6', label: 'Pending Admin Approval', icon: <ShieldCheck size={14} /> },
-            fund_disbursed: { color: '#10b981', label: 'Funds Disbursed', icon: <DollarSign size={14} /> },
-            pending_murabaha_acceptance: { color: '#f59e0b', label: 'Murabaha Offer Sent', icon: <Clock size={14} /> },
-            murabaha_accepted: { color: '#10b981', label: 'Murabaha Accepted', icon: <CheckCircle size={14} /> },
+            awaiting_retailer_confirm: { color: '#f59e0b', label: 'Awaiting Deed of Undertaking', icon: <Clock size={14} /> },
+            pending_admin_approval: { color: '#8b5cf6', label: 'Undertaking Signed · Admin Review', icon: <ShieldCheck size={14} /> },
+            fund_disbursed: { color: '#10b981', label: 'Funds Disbursed · Sourcing Goods', icon: <DollarSign size={14} /> },
+            pending_murabaha_acceptance: { color: '#f59e0b', label: 'Murabaha Contract Pending', icon: <Clock size={14} /> },
+            murabaha_accepted: { color: '#10b981', label: 'Murabaha Contract Concluded', icon: <CheckCircle size={14} /> },
             delivered: { color: '#3b82f6', label: 'Delivered', icon: <Package size={14} /> },
             received: { color: '#10b981', label: 'Received', icon: <CheckCircle size={14} /> },
             completed: { color: '#10b981', label: 'Completed', icon: <CheckCircle size={14} /> },
@@ -274,16 +291,66 @@ const AgentAAPDetail = () => {
 
             <div className="aap-detail-grid">
                 <div className="main-info">
-                    {/* Photos Section */}
-                    <div className="detail-card photo-section">
-                        <div className="photo-stagger">
-                            {aap.productPhotos?.map((url, i) => (
-                                <div key={i} className="photo-frame">
-                                    <img src={url} alt={`Product ${i+1}`} onClick={() => window.open(url, '_blank')} />
+                    {/* Cancellation Report Card */}
+                    {aap.status === 'cancelled' && (
+                        <div className="detail-card cancellation-card animate-slide-up">
+                            <div className="cancellation-header">
+                                <div className="cancellation-icon-glow">
+                                    <XCircle size={24} color="#ef4444" />
                                 </div>
-                            ))}
+                                <div>
+                                    <span className="cancellation-badge">TRANSACTION CANCELLED</span>
+                                    <h3 className="cancellation-title">This purchase was cancelled</h3>
+                                    <p className="cancellation-sub">
+                                        Cancelled on {new Date(aap.cancelledAt || aap.updatedAt).toLocaleString()}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="cancellation-body">
+                                <div className="cancellation-meta-grid">
+                                    <div className="cancellation-meta-item">
+                                        <span className="cm-label">Cancelled By:</span>
+                                        <span className="cm-val">
+                                            {aap.cancelledBy?.name || (aap.cancelReason?.toLowerCase().includes('trader') ? 'Trader' : 'Agent / Admin')}
+                                            {aap.cancelledBy?.role && <span className="cm-role-tag">({aap.cancelledBy.role})</span>}
+                                        </span>
+                                    </div>
+                                    <div className="cancellation-meta-item">
+                                        <span className="cm-label">Cancellation Reason:</span>
+                                        <p className="cm-reason-quote">"{aap.cancelReason || 'No specific cancellation reason provided.'}"</p>
+                                    </div>
+                                </div>
+                                {aap.traderRequestNote && (
+                                    <div className="cancellation-note-item" style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                                        <span className="cm-label" style={{ display: 'block', marginBottom: '0.25rem', color: 'var(--color-text-tertiary)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Original Trader Request:</span>
+                                        <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--color-text-secondary)', fontSize: '0.88rem' }}>"{aap.traderRequestNote}"</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
+
+                    {/* Photos Section */}
+                    {aap.productPhotos && aap.productPhotos.length > 0 && (
+                        <div className="detail-card photo-section">
+                            <div className="photo-stagger">
+                                {aap.productPhotos?.map((url, i) => (
+                                    <div key={i} className="photo-frame">
+                                        <img 
+                                            src={url} 
+                                            alt={`Product ${i+1}`} 
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => {
+                                                setInspectImage(url);
+                                                setInspectTitle(`Product Photo ${i+1}`);
+                                            }} 
+                                            title="Click to inspect photo"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Product & Terms */}
                     <div className="detail-card product-card">
@@ -333,49 +400,32 @@ const AgentAAPDetail = () => {
                                 <h3>Agent Operations</h3>
                             </div>
                             
-                            {/* Hidden File Input for Proxy Actions */}
-                            <input 
-                                type="file" 
-                                ref={fileInputRef} 
-                                style={{ display: 'none' }} 
-                                accept="image/*" 
-                                capture="environment"
-                                onChange={handleFileChange} 
-                            />
-
-                            {/* Step 1: Awaiting Trader Intent */}
+                            {/* Step 1: Awaiting Trader Deed of Undertaking */}
                             {aap.status === 'awaiting_retailer_confirm' && (
-                                <div className="action-box warning-box">
-                                    <p style={{ fontWeight: 600, marginBottom: 4 }}>
-                                        <Clock size={16} style={{ marginRight: 6 }} />
-                                        Awaiting Trader Confirmation
-                                    </p>
-                                    <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
-                                        The trader must log into their Amana app and tap "Express Intent" to confirm this purchase.
-                                    </p>
-                                    <div className="subtle-backup-row" style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trader unable to use their phone?</span>
-                                        <button 
-                                            className="btn-subtle-photo" 
-                                            onClick={() => triggerProxyAction('confirm')}
-                                            disabled={actionLoading}
-                                        >
-                                            <Camera size={13} />
-                                            {actionLoading && pendingAction === 'confirm' ? 'Opening Camera...' : 'Take Photo Backup'}
-                                        </button>
-                                    </div>
-                                </div>
+                                 <div className="action-box warning-box">
+                                     <p style={{ fontWeight: 600, marginBottom: 4 }}>
+                                         <Clock size={16} style={{ marginRight: 6 }} />
+                                         Awaiting Trader Deed of Undertaking (Wa'd)
+                                     </p>
+                                     <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
+                                         The trader must log into their Amana app and review & execute the Deed of Undertaking (Wa'd) to commit to purchase under Murabaha once goods are acquired.
+                                     </p>
+                                     <div className="direct-mobile-notice">
+                                         <Smartphone size={14} />
+                                         <span>Trader signs the Deed of Undertaking directly on their smartphone or Amana app.</span>
+                                     </div>
+                                 </div>
                             )}
 
-                            {/* Step 2: Send Murabaha Offer */}
+                            {/* Step 2: Send Murabaha Contract */}
                             {aap.status === 'fund_disbursed' && (
                                 <div className="action-box success-box">
                                     <p style={{ fontWeight: 600, marginBottom: 8 }}>
                                         <DollarSign size={16} style={{ marginRight: 6 }} />
-                                        Funds Disbursed — Purchase Goods & Send Offer
+                                        Funds Disbursed — Purchase Goods & Send Murabaha Contract
                                     </p>
                                     <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: 12 }}>
-                                        Purchase the requested goods from seller, then send the Murabaha sale offer for the trader to accept on their app.
+                                        Purchase the requested goods from the seller, then issue the Murabaha Contract for the trader to review and sign on their app.
                                     </p>
                                     {aap.expiresAt && (
                                         <p style={{ fontSize: '0.8rem', color: '#f59e0b', marginBottom: 12 }}>
@@ -387,21 +437,13 @@ const AgentAAPDetail = () => {
                                         className="btn-primary-action" 
                                         onClick={handleSendMurabahaOffer}
                                         disabled={actionLoading}
-                                        style={{ width: '100%', marginBottom: 12 }}
+                                        style={{ width: '100%' }}
                                     >
-                                        Send Murabaha Offer (Trader App)
+                                        Issue Murabaha Contract (Trader App)
                                     </button>
-
-                                    <div className="subtle-backup-row" style={{ paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trader unable to accept on phone?</span>
-                                        <button 
-                                            className="btn-subtle-photo" 
-                                            onClick={() => triggerProxyAction('accept-murabaha')}
-                                            disabled={actionLoading}
-                                        >
-                                            <Camera size={13} />
-                                            {actionLoading && pendingAction === 'accept-murabaha' ? 'Opening Camera...' : 'Take Photo Backup'}
-                                        </button>
+                                    <div className="direct-mobile-notice" style={{ marginTop: 10 }}>
+                                        <Smartphone size={14} />
+                                        <span>Trader reviews and signs the Murabaha Contract directly on their app.</span>
                                     </div>
                                 </div>
                             )}
@@ -420,22 +462,10 @@ const AgentAAPDetail = () => {
                                         className="btn-primary-action" 
                                         onClick={handleMarkDelivered}
                                         disabled={actionLoading}
-                                        style={{ width: '100%', marginBottom: 12 }}
+                                        style={{ width: '100%' }}
                                     >
                                         Generate Pickup OTP (Trader App)
                                     </button>
-
-                                    <div className="subtle-backup-row" style={{ paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Trader unable to verify on phone?</span>
-                                        <button 
-                                            className="btn-subtle-photo" 
-                                            onClick={() => triggerProxyAction('deliver')}
-                                            disabled={actionLoading}
-                                        >
-                                            <Camera size={13} />
-                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Take Photo Backup'}
-                                        </button>
-                                    </div>
                                 </div>
                             )}
 
@@ -459,19 +489,6 @@ const AgentAAPDetail = () => {
                                     <span className="otp-label">TRADER PICKUP OTP</span>
                                     <span className="otp-value">{aap.pickupCode}</span>
                                     <p>Share this code with the trader to enter on their app to confirm receipt.</p>
-                                    
-                                    <div className="otp-divider"></div>
-                                    <div className="subtle-backup-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Trader unable to enter code?</span>
-                                        <button 
-                                            className="btn-subtle-photo" 
-                                            onClick={() => triggerProxyAction('deliver')}
-                                            disabled={actionLoading}
-                                        >
-                                            <Camera size={13} />
-                                            {actionLoading && pendingAction === 'deliver' ? 'Opening Camera...' : 'Take Photo Backup'}
-                                        </button>
-                                    </div>
                                 </div>
                             )}
 
@@ -546,8 +563,12 @@ const AgentAAPDetail = () => {
                             <img 
                                 src={aap.refundProofUrl} 
                                 alt="Refund Receipt" 
-                                onClick={() => window.open(aap.refundProofUrl, '_blank')} 
-                                style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                onClick={() => {
+                                    setInspectImage(aap.refundProofUrl);
+                                    setInspectTitle('Refund Receipt Evidence');
+                                }} 
+                                style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+                                title="Click to inspect refund receipt"
                             />
                             {aap.cancelReason && (
                                 <p className="description" style={{ marginTop: '12px', fontSize: '0.9rem' }}>
@@ -569,8 +590,12 @@ const AgentAAPDetail = () => {
                             <img 
                                 src={aap.proxyProofUrl} 
                                 alt="Proof" 
-                                onClick={() => window.open(aap.proxyProofUrl, '_blank')} 
-                                style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                onClick={() => {
+                                    setInspectImage(aap.proxyProofUrl);
+                                    setInspectTitle(aap.proxyMurabahaAcceptance ? 'Proof of Murabaha Acceptance' : 'Verification Proof');
+                                }} 
+                                style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+                                title="Click to inspect proof photo"
                             />
                             <p className="description" style={{ marginTop: '12px', fontSize: '0.9rem' }}>
                                 Verified by Agent <strong>{aap.agent?.name}</strong> via Camera
@@ -582,27 +607,39 @@ const AgentAAPDetail = () => {
 
                 <aside className="side-info">
                    {/* Seller Details */}
-                    <div className="detail-card entity-card">
-                        <div className="card-header">
-                            <Store size={18} />
-                            <h3>Seller Information</h3>
-                        </div>
-
-
-                        <div className="entity-content">
-                            <h4>{aap.sellerName}</h4>
-                            <div className="contact-item">
-                                <MapPin size={14} />
-                                <span>{aap.sellerLocation}</span>
+                    {aap.sellerName ? (
+                        <div className="detail-card entity-card">
+                            <div className="card-header">
+                                <Store size={18} />
+                                <h3>Seller Information</h3>
                             </div>
-                            {aap.sellerPhone && (
-                                <a href={`tel:${aap.sellerPhone}`} className="contact-link">
-                                    <Phone size={14} />
-                                    <span>{aap.sellerPhone}</span>
-                                </a>
-                            )}
+                            <div className="entity-content">
+                                <h4>{aap.sellerName}</h4>
+                                {aap.sellerLocation && (
+                                    <div className="contact-item">
+                                        <MapPin size={14} />
+                                        <span>{aap.sellerLocation}</span>
+                                    </div>
+                                )}
+                                {aap.sellerPhone && (
+                                    <a href={`tel:${aap.sellerPhone}`} className="contact-link">
+                                        <Phone size={14} />
+                                        <span>{aap.sellerPhone}</span>
+                                    </a>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="detail-card entity-card">
+                            <div className="card-header">
+                                <Store size={18} />
+                                <h3>Seller Information</h3>
+                            </div>
+                            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem', margin: '0.5rem 0 0 0' }}>
+                                Not recorded yet (captured upon goods purchase).
+                            </p>
+                        </div>
+                    )}
 
                     {/* Retailer Details */}
                     <div className="detail-card entity-card">
@@ -617,8 +654,9 @@ const AgentAAPDetail = () => {
                                     <Phone size={14} />
                                     <span>{aap.retailer.phone}</span>
                                 </div>
+                                <TraderCreditCard retailer={aap.retailer} variant="full" />
                                 {aap.retailer.email && (
-                                    <a href={`mailto:${aap.retailer.email}`} className="contact-link">
+                                    <a href={`mailto:${aap.retailer.email}`} className="contact-link" style={{ marginTop: '0.5rem' }}>
                                         <Mail size={14} />
                                         <span>{aap.retailer.email}</span>
                                     </a>
@@ -662,65 +700,271 @@ const AgentAAPDetail = () => {
             )}
 
             {/* Cancellation Request Modal */}
-            {showCancelModal && (
-                <div className="modal-overlay" onClick={() => !actionLoading && setShowCancelModal(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3 style={{ marginTop: 0 }}>Request Cancellation</h3>
-
-                        <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-                            <strong style={{ color: '#f59e0b', fontSize: '0.85rem' }}>Send refund to:</strong>
-                            <p style={{ margin: '4px 0', fontSize: '0.95rem' }}>🏦 Moniepoint Bank</p>
-                            <p style={{ margin: '4px 0', fontSize: '0.95rem' }}>👤 Amana Murabaha Global Enterprise</p>
-                            <p style={{ margin: '4px 0', fontSize: '0.95rem', fontWeight: 800 }}>🔢 6042197639</p>
+            {showCancelModal && typeof document !== 'undefined' && createPortal(
+                <div className="aap-cancel-modal-overlay" onClick={() => !actionLoading && setShowCancelModal(false)}>
+                    <div className="aap-cancel-modal-card" onClick={e => e.stopPropagation()}>
+                        <div className="aap-cancel-stripe" />
+                        
+                        {/* Header */}
+                        <div className="aap-cancel-header">
+                            <div className="aap-cancel-icon-glow">
+                                <AlertTriangle size={22} />
+                            </div>
+                            <div className="aap-cancel-header-text">
+                                <div className="aap-cancel-badge">CANCELLATION REQUEST</div>
+                                <h3 className="aap-cancel-title">Request Purchase Cancellation</h3>
+                                <p className="aap-cancel-subtitle">
+                                    Disbursed funds must be refunded to Amana Treasury before admin can approve this cancellation.
+                                </p>
+                            </div>
+                            <button 
+                                type="button"
+                                className="aap-cancel-close-x" 
+                                onClick={() => !actionLoading && setShowCancelModal(false)}
+                                title="Close"
+                                disabled={actionLoading}
+                            >
+                                <X size={18} />
+                            </button>
                         </div>
 
-                        <label style={{ fontWeight: 600, fontSize: '0.9rem', display: 'block', marginBottom: 6 }}>
-                            Upload Receipt / Proof of Refund *
-                        </label>
-                        <input
-                            type="file"
-                            ref={refundInputRef}
-                            accept="image/*"
-                            capture="environment"
-                            onChange={handleRefundFileChange}
-                            style={{ marginBottom: 12 }}
-                        />
-                        {refundProofPreview && (
-                            <div style={{ marginBottom: 12 }}>
-                                <img src={refundProofPreview} alt="Receipt preview" style={{ width: '100%', maxHeight: 180, borderRadius: 8, objectFit: 'cover' }} />
+                        <div className="aap-cancel-body">
+                            {/* Treasury Bank Details Card */}
+                            <div className="aap-treasury-card">
+                                <div className="aap-treasury-card-header">
+                                    <div className="aap-treasury-title-wrap">
+                                        <Building size={15} />
+                                        <span>AMANA TREASURY ACCOUNT</span>
+                                    </div>
+                                    <span className="aap-treasury-status-tag">REFUND TARGET</span>
+                                </div>
+                                <div className="aap-treasury-details">
+                                    <div className="aap-treasury-row">
+                                        <span className="aap-tr-label">Bank Name</span>
+                                        <span className="aap-tr-value">Moniepoint MFB</span>
+                                    </div>
+                                    <div className="aap-treasury-row">
+                                        <span className="aap-tr-label">Account Name</span>
+                                        <span className="aap-tr-value">Amana Murabaha Global Enterprise</span>
+                                    </div>
+                                    <div className="aap-treasury-row aap-treasury-acc-row">
+                                        <div>
+                                            <span className="aap-tr-label">Account Number</span>
+                                            <div className="aap-treasury-acc-num">6042197639</div>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            className={`aap-copy-acc-btn ${copiedAccount ? 'copied' : ''}`}
+                                            onClick={() => handleCopyAccount('6042197639')}
+                                            title="Copy Account Number"
+                                        >
+                                            {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
+                                            <span>{copiedAccount ? 'Copied' : 'Copy Number'}</span>
+                                        </button>
+                                    </div>
+                                    {aap.purchasePrice && (
+                                        <div className="aap-treasury-refund-amt">
+                                            <span>Required Refund Amount:</span>
+                                            <strong>₦{aap.purchasePrice.toLocaleString()}</strong>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        )}
 
-                        <label style={{ fontWeight: 600, fontSize: '0.9rem', display: 'block', marginBottom: 6 }}>
-                            Reason for Cancellation *
-                        </label>
-                        <textarea
-                            value={cancelReason}
-                            onChange={e => setCancelReason(e.target.value)}
-                            placeholder="e.g. Trader changed their mind..."
-                            rows={3}
-                            style={{ width: '100%', borderRadius: 10, border: '1px solid rgba(255,255,255,0.2)', padding: 12, fontSize: '0.95rem', resize: 'vertical', marginBottom: 16, boxSizing: 'border-box' }}
-                        />
+                            {/* Proof of Refund Upload Section */}
+                            <div className="aap-form-group">
+                                <div className="aap-field-header">
+                                    <label className="aap-form-label">
+                                        Upload Receipt / Proof of Refund <span className="required-star">*</span>
+                                    </label>
+                                    <span className="aap-field-hint">Transfer receipt or bank alert</span>
+                                </div>
 
-                        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                                <input
+                                    type="file"
+                                    ref={refundInputRef}
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={handleRefundFileChange}
+                                    style={{ display: 'none' }}
+                                />
+
+                                {!refundProofPreview ? (
+                                    <div 
+                                        className="aap-upload-dropzone"
+                                        onClick={() => refundInputRef.current?.click()}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') refundInputRef.current?.click(); }}
+                                    >
+                                        <div className="aap-dropzone-icon-ring">
+                                            <UploadCloud size={22} />
+                                        </div>
+                                        <div className="aap-dropzone-text">
+                                            <span className="aap-dropzone-primary">Click to upload refund receipt</span>
+                                            <span className="aap-dropzone-secondary">PNG, JPG or WEBP (Max 5MB)</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="aap-receipt-preview-card">
+                                        <div className="aap-receipt-thumb-wrap">
+                                            <img src={refundProofPreview} alt="Receipt preview" className="aap-receipt-thumb" />
+                                        </div>
+                                        <div className="aap-receipt-info">
+                                            <div className="aap-receipt-status">
+                                                <CheckCircle size={14} />
+                                                <span>Receipt attached</span>
+                                            </div>
+                                            <div className="aap-receipt-filename">
+                                                {refundProofFile?.name || 'receipt_document.jpg'}
+                                            </div>
+                                            <div className="aap-receipt-filesize">
+                                                {refundProofFile?.size ? `${(refundProofFile.size / 1024).toFixed(1)} KB` : 'Attached file'}
+                                            </div>
+                                            <div className="aap-receipt-actions">
+                                                <button 
+                                                    type="button" 
+                                                    className="aap-receipt-btn-change"
+                                                    onClick={() => refundInputRef.current?.click()}
+                                                >
+                                                    <Camera size={13} /> Change
+                                                </button>
+                                                <button 
+                                                    type="button" 
+                                                    className="aap-receipt-btn-remove"
+                                                    onClick={handleClearRefundProof}
+                                                >
+                                                    <Trash2 size={13} /> Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Reason for Cancellation */}
+                            <div className="aap-form-group">
+                                <div className="aap-field-header">
+                                    <label className="aap-form-label">
+                                        Reason for Cancellation <span className="required-star">*</span>
+                                    </label>
+                                    <span className="aap-field-hint">Quick presets or write details</span>
+                                </div>
+                                
+                                <div className="aap-preset-chips">
+                                    {CANCELLATION_PRESETS.map((preset, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            className={`aap-preset-chip ${cancelReason === preset ? 'active' : ''}`}
+                                            onClick={() => setCancelReason(preset)}
+                                        >
+                                            {preset}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <textarea
+                                    className="aap-cancel-textarea"
+                                    value={cancelReason}
+                                    onChange={e => setCancelReason(e.target.value)}
+                                    placeholder="Explain why this purchase is being cancelled (minimum 5 characters)..."
+                                    rows={3}
+                                />
+                                <div className="aap-textarea-footer">
+                                    <span className="aap-textarea-hint">
+                                        Submitted for admin approval and logged
+                                    </span>
+                                    <span className={`aap-char-counter ${cancelReason.trim().length >= 5 ? 'valid' : ''}`}>
+                                        {cancelReason.trim().length} / 5 min chars
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="aap-cancel-footer">
                             <button
-                                className="btn-secondary"
+                                type="button"
+                                className="aap-btn-secondary"
                                 onClick={() => setShowCancelModal(false)}
                                 disabled={actionLoading}
                             >
-                                Cancel
+                                Discard
                             </button>
                             <button
-                                className="btn-primary"
+                                type="button"
+                                className="aap-btn-submit-danger"
                                 onClick={submitCancellationRequest}
                                 disabled={actionLoading || !refundProofFile || !cancelReason.trim() || cancelReason.trim().length < 5}
-                                style={{ background: '#ef4444', color: '#fff', opacity: (!refundProofFile || !cancelReason.trim() || cancelReason.trim().length < 5) ? 0.5 : 1 }}
                             >
-                                {actionLoading ? 'Submitting...' : 'Submit Request'}
+                                {actionLoading ? (
+                                    <>
+                                        <span className="aap-btn-spinner" />
+                                        Submitting Request...
+                                    </>
+                                ) : (
+                                    <>
+                                        <AlertTriangle size={15} />
+                                        Submit Cancellation Request
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Lightbox Modal for Photo Inspection in AgentAAPDetail */}
+            {inspectImage && typeof document !== 'undefined' && createPortal(
+                <div 
+                    className="aap-lightbox-overlay"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setInspectImage(null);
+                    }}
+                >
+                    <div className="lightbox-top-bar" onClick={e => e.stopPropagation()}>
+                        <div className="lightbox-title-wrap">
+                            <Eye size={15} color="#fff" />
+                            <span>{inspectTitle || 'Document Inspection'}</span>
+                        </div>
+                        <div className="lightbox-actions-wrap">
+                            <a 
+                                href={inspectImage} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="lightbox-external-link"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <ExternalLink size={14} /> Open Original
+                            </a>
+                            <button 
+                                type="button" 
+                                className="lightbox-close-btn" 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setInspectImage(null);
+                                }}
+                                title="Close inspection"
+                            >
+                                <X size={18} />
+                                <span>Back to Details</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="lightbox-image-container" onClick={e => e.stopPropagation()}>
+                        <img 
+                            src={inspectImage} 
+                            alt="Document Preview" 
+                            className="lightbox-img" 
+                            onClick={e => e.stopPropagation()} 
+                        />
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

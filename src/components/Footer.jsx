@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+
 import './Footer.css';
 
 const Footer = () => {
@@ -21,7 +22,10 @@ const Footer = () => {
         <div className="footer-brand">
           <h3 className="serif-logo-footer">AMANA</h3>
           <p className="footer-tagline">Sharia-compliant trade financing for Nigeria's traders</p>
-          <p className="footer-cac">CAC Registered</p>
+          <div className="footer-brand-badges">
+            <p className="footer-cac">CAC Registered</p>
+          </div>
+  
         </div>
         
         <div className="footer-col">

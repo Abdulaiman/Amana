@@ -1,6 +1,7 @@
 import React from 'react';
 import PhoneFrame from './PhoneFrame';
 import { Smartphone, Download, ShieldCheck, Zap, Bell, Landmark, ShoppingCart, CheckCircle, Clock } from 'lucide-react';
+import GooglePlayBadge from './GooglePlayBadge';
 import './AppPromo.css';
 
 const AppPromo = () => {
@@ -106,11 +107,8 @@ const AppPromo = () => {
           </div>
 
           <div className="app-download-actions">
-            <a href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" className="btn btn-primary">
-              <Download size={20} />
-              <span>Download for Android</span>
-            </a>
-            <p className="download-hint">Supports Android 8.0 and above</p>
+            <GooglePlayBadge size="lg" />
+            <p className="download-hint">Official Release on Google Play Store • Android 8.0+</p>
           </div>
         </div>
       </div>

@@ -1,12 +1,15 @@
 .repay-modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-modal);
+  z-index: var(--z-modal-elevated, 10150);
   padding: var(--space-4);
+  animation: fadeIn var(--transition-base) ease;
 }
 
 .repay-modal {
@@ -204,4 +207,32 @@
 .btn-secondary:hover {
   border-color: var(--color-text-primary);
   color: var(--color-text-primary);
+}
+
+@media (max-width: 480px) {
+  .repay-modal-overlay {
+    padding: var(--space-2);
+  }
+
+  .repay-modal {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+  }
+
+  .repay-header {
+    padding: var(--space-4);
+  }
+
+  .repay-body {
+    padding: var(--space-4);
+  }
+
+  .amount-display {
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .amount-display .amount-value {
+    font-size: 28px;
+  }
 }

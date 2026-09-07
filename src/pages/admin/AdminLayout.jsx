@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, Users, Calculator, Briefcase, Settings, LogOut, Search, Activity, AlertTriangle, ShoppingBag, XCircle, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, Calculator, Briefcase, Settings, LogOut, Search, Activity, AlertTriangle, ShoppingBag, XCircle, Menu, X, ShieldCheck, Wallet, DollarSign, Smartphone } from 'lucide-react';
 import ThemeToggle from '../../components/ThemeToggle';
 import './AdminConsole.css';
 
@@ -46,6 +46,12 @@ const AdminLayout = () => {
                     <NavItem to="/admin/dashboard" icon={<LayoutDashboard size={20} />} label="Dashboard" onClick={closeSidebar} />
                     <NavItem to="/admin/analytics" icon={<Calculator size={20} />} label="Financials" onClick={closeSidebar} />
                     
+                    <div className="nav-section-label">Directories & KYC</div>
+                    <NavItem to="/admin/retailers" icon={<Users size={20} />} label="Retailers KYC" onClick={closeSidebar} />
+                    <NavItem to="/admin/vendors" icon={<Briefcase size={20} />} label="Vendors Directory" onClick={closeSidebar} />
+                    <NavItem to="/admin/agents" icon={<ShieldCheck size={20} />} label="Market Agents" onClick={closeSidebar} />
+                    <NavItem to="/admin/payouts" icon={<Wallet size={20} />} label="Payouts & Withdrawals" onClick={closeSidebar} />
+
                     <div className="nav-section-label">Management</div>
                     <NavItem to="/admin/users" icon={<Users size={20} />} label="User Universe" onClick={closeSidebar} />
                     <NavItem to="/admin/aap" icon={<ShoppingBag size={20} />} label="Agent Purchases" onClick={closeSidebar} />
@@ -53,6 +59,7 @@ const AdminLayout = () => {
                     <NavItem to="/admin/debt" icon={<AlertTriangle size={20} />} label="Debt Manager" onClick={closeSidebar} />
                     
                     <div className="nav-section-label">Operations</div>
+                    <NavItem to="/admin/app-releases" icon={<Smartphone size={20} />} label="App Updates & Version" onClick={closeSidebar} />
                     <NavItem to="/admin/audit" icon={<Activity size={20} />} label="Audit Logs" onClick={closeSidebar} />
                     <NavItem to="/admin/ops" icon={<Settings size={20} />} label="System Ops" onClick={closeSidebar} />
                 </nav>

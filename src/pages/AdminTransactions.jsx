@@ -44,16 +44,21 @@ const AdminTransactions = () => {
         if (typeFilter !== 'all') {
              if (typeFilter === 'payout') {
                 result = result.filter(t => t.type === 'payout');
-             } else {
-                result = result.filter(t => t.type !== 'payout');
+             } else if (typeFilter === 'order') {
+                result = result.filter(t => t.type === 'order_payment');
+             } else if (typeFilter === 'repayment') {
+                result = result.filter(t => t.type === 'repayment' || t.type === 'partial_repayment');
+             } else if (typeFilter === 'partial') {
+                result = result.filter(t => t.type === 'partial_repayment');
              }
         }
 
         if (searchTerm) {
             result = result.filter(t => 
-                t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                t._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (t.user && t.user.businessName && t.user.businessName.toLowerCase().includes(searchTerm.toLowerCase()))
+                t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                t._id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (t.reference && t.reference.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (t.user && (t.user.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) || t.user.name?.toLowerCase().includes(searchTerm.toLowerCase())))
             );
         }
 
@@ -106,6 +111,10 @@ const AdminTransactions = () => {
                          <span className="summary-value">₦{analytics.totalPayouts.toLocaleString()}</span>
                     </div>
                     <div className="summary-card">
+                         <span className="summary-label">Total Repayments</span>
+                         <span className="summary-value" style={{ color: '#10b981' }}>₦{(analytics.totalRepayments || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="summary-card">
                          <span className="summary-label">Pending Payouts</span>
                          <span className="summary-value" style={{ color: '#fbbf24' }}>₦{analytics.pendingPayoutsVolume.toLocaleString()}</span>
                     </div>
@@ -118,7 +127,7 @@ const AdminTransactions = () => {
                     <Search size={18} className="search-icon" />
                     <input 
                         type="text" 
-                        placeholder="Search by ID, Description, or Vendor..." 
+                        placeholder="Search by ID, Description, Trader, or Vendor..." 
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -135,6 +144,8 @@ const AdminTransactions = () => {
                     <option value="all">All Types</option>
                     <option value="payout">Payouts</option>
                     <option value="order">Orders</option>
+                    <option value="repayment">All Repayments</option>
+                    <option value="partial">Partial Repayments</option>
                 </select>
             </div>
 
@@ -146,7 +157,7 @@ const AdminTransactions = () => {
                             <tr>
                                 <th>Type</th>
                                 <th>Description</th>
-                                <th>Beneficiary</th>
+                                <th>Party / User</th>
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th>Status</th>
@@ -156,40 +167,44 @@ const AdminTransactions = () => {
                             {loading ? (
                                 <tr><td colSpan="6" className="empty-state">Loading transactions...</td></tr>
                             ) : currentItems.length > 0 ? (
-                                currentItems.map((tx) => (
-                                    <tr key={tx._id}>
-                                        <td>
-                                             <div className={`tx-type-badge ${tx.type === 'payout' ? 'payout' : (tx.type === 'order_payment' ? 'order' : 'earning')}`}>
-                                                <div className="tx-icon-wrapper">
-                                                    {tx.type === 'payout' ? <TrendingDown size={18} /> : (tx.type === 'order_payment' ? <TrendingUp size={18} /> : <TrendingUp size={18} />)}
+                                currentItems.map((tx) => {
+                                    const isRepay = tx.type === 'repayment' || tx.type === 'partial_repayment';
+                                    const isPartial = tx.type === 'partial_repayment';
+                                    return (
+                                        <tr key={tx._id}>
+                                            <td>
+                                                 <div className={`tx-type-badge ${tx.type === 'payout' ? 'payout' : (isPartial ? 'warning' : isRepay ? 'completed' : 'order')}`} style={isPartial ? { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' } : isRepay ? { background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' } : {}}>
+                                                    <div className="tx-icon-wrapper">
+                                                        {tx.type === 'payout' ? <TrendingDown size={18} /> : <TrendingUp size={18} />}
+                                                    </div>
+                                                    <span>{isPartial ? 'Partial Repay' : isRepay ? 'Repayment' : (tx.type === 'payout' ? 'Payout' : 'Order')}</span>
                                                 </div>
-                                                <span>{tx.type === 'payout' ? 'Payout' : 'Order'}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className="tx-description-main">{tx.description}</span>
-                                            <span className="tx-description-sub">Ref: {tx.reference}</span>
-                                        </td>
-                                        <td>
-                                            <span style={{ color: '#d1d5db' }}>{tx.user?.businessName || 'N/A'}</span>
-                                        </td>
-                                        <td>
-                                            <div className="tx-date-cell">
-                                                {new Date(tx.date).toLocaleDateString()}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={`tx-amount ${tx.type === 'payout' ? 'negative' : 'positive'}`}>
-                                                {tx.type === 'payout' ? '-' : '+'} ₦{tx.amount.toLocaleString()}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className={`status-pill ${tx.status}`}>
-                                                {tx.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))
+                                            </td>
+                                            <td>
+                                                <span className="tx-description-main">{tx.description}</span>
+                                                <span className="tx-description-sub">Ref: {tx.reference} {tx.channel ? `• ${tx.channel.toUpperCase()}` : ''}</span>
+                                            </td>
+                                            <td>
+                                                <span style={{ color: '#d1d5db' }}>{tx.user?.businessName || tx.user?.name || 'N/A'}</span>
+                                            </td>
+                                            <td>
+                                                <div className="tx-date-cell">
+                                                    {new Date(tx.date).toLocaleDateString()}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`tx-amount ${tx.type === 'payout' ? 'negative' : 'positive'}`}>
+                                                    {tx.type === 'payout' ? '-' : '+'} ₦{tx.amount.toLocaleString()}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`status-pill ${tx.status}`}>
+                                                    {tx.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
                                     <td colSpan="6" className="empty-state">

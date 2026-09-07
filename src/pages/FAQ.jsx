@@ -7,8 +7,8 @@ const FAQ = () => {
       
       <div className="max-w-2xl mx-auto space-y-md">
         <div className="bg-white p-lg rounded-lg shadow-sm border border-gray-200">
-          <h3 className="font-bold text-primary mb-xs">Q: Is this a loan?</h3>
-          <p className="text-muted">A: No. It is a Murabaha (cost-plus sale).</p>
+          <h3 className="font-bold text-primary mb-xs">Q: How does this financing work?</h3>
+          <p className="text-muted">A: It is 100% Halal Murabaha (cost-plus inventory sale). Amana purchases the inventory you request and sells it to you at an agreed, transparent profit margin.</p>
         </div>
 
         <div className="bg-white p-lg rounded-lg shadow-sm border border-gray-200">

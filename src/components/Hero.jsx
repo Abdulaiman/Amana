@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, Zap, TrendingUp } from 'lucide-react';
+import GooglePlayBadge from './GooglePlayBadge';
 import './Hero.css';
 
 const Hero = () => {
@@ -22,9 +23,7 @@ const Hero = () => {
           <Link to="/demo" className="btn btn-primary btn-lg">
             Launch Demo
           </Link>
-          <a href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" className="btn btn-secondary btn-lg">
-            Download for Android
-          </a>
+          <GooglePlayBadge size="md" />
         </div>
       </div>
 

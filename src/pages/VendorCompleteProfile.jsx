@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './CompleteProfile.css'; // Reuse retailer styling
-import { Upload, Building, User, CreditCard, ShieldCheck, ArrowRight, Loader, Briefcase, Landmark } from 'lucide-react';
+import { Upload, Building, User, CreditCard, ShieldCheck, ArrowRight, Loader, Briefcase, Landmark, AlertCircle } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
 const VendorCompleteProfile = () => {
@@ -11,6 +11,7 @@ const VendorCompleteProfile = () => {
     const [step, setStep] = useState(1);
     const [pageLoading, setPageLoading] = useState(true);
     const [isComplete, setIsComplete] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
     const { addToast } = useToast();
     
     const [formData, setFormData] = useState({
@@ -54,6 +55,10 @@ const VendorCompleteProfile = () => {
                         profilePicUrl: profile.profilePicUrl || '',
                         cacDocumentUrl: profile.cacDocumentUrl || ''
                     });
+
+                    if (profile.rejectionReason) {
+                        setRejectionReason(profile.rejectionReason);
+                    }
 
                     // Only block if complete AND NOT rejected
                     if (profile.isProfileComplete && profile.verificationStatus !== 'rejected') {
@@ -167,6 +172,22 @@ const VendorCompleteProfile = () => {
                 </div>
 
                 <div className="form-content">
+                    {/* Rejection Banner Callout */}
+                    {Boolean(rejectionReason) && (
+                        <div className="rejection-banner-callout animate-fade-in">
+                            <div className="rejection-banner-header">
+                                <AlertCircle size={20} />
+                                <span>Revision Requested by Admin</span>
+                            </div>
+                            <p className="rejection-banner-reason">
+                                "{rejectionReason}"
+                            </p>
+                            <p className="rejection-banner-hint">
+                                Please revise your business details or re-upload clear documents and resubmit for verification.
+                            </p>
+                        </div>
+                    )}
+
                     {/* STEP 1: Business Owner Info */}
                     {step === 1 && (
                         <div className="section-wrapper animate-fade-in">

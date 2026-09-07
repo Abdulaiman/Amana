@@ -2,10 +2,12 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import './CompleteProfile.css';
+import { useAuth } from '../context/AuthContext';
 import { Upload, Building, User, CreditCard, MapPin, CheckCircle, ShieldCheck, ArrowRight, Loader, UserCheck, XCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
 const CompleteProfile = () => {
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
@@ -97,12 +99,14 @@ const CompleteProfile = () => {
             setAgentLoading(true);
             try {
                 const res = await api.get('/retailer/agents');
-                setAgents(res.data);
+                const currentUserId = user?._id;
+                const filteredAgents = (res.data || []).filter(ag => !currentUserId || ag._id !== currentUserId);
+                setAgents(filteredAgents);
             } catch { /* ignore */ }
             setAgentLoading(false);
         };
         fetchAgents();
-    }, []);
+    }, [user?._id]);
 
     const verifyAgent = useCallback(async (phone) => {
         if (phone.length < 11) {
@@ -110,11 +114,24 @@ const CompleteProfile = () => {
             setAgentConfirmed(false);
             return;
         }
+
+        if (user?.phone && phone.trim() === user.phone.trim()) {
+            setAgentFound(null);
+            setAgentConfirmed(false);
+            addToast('You cannot select yourself as the agent', 'error');
+            return;
+        }
+
         setAgentVerifying(true);
         setAgentFound(null);
         setAgentConfirmed(false);
         try {
             const res = await api.get(`/retailer/verify-agent?phone=${phone}`);
+            if (user?._id && res.data?._id === user._id) {
+                setAgentFound(null);
+                addToast('You cannot select yourself as the agent', 'error');
+                return;
+            }
             setAgentFound(res.data);
         } catch (err) {
             setAgentFound(null);
@@ -123,7 +140,7 @@ const CompleteProfile = () => {
         } finally {
             setAgentVerifying(false);
         }
-    }, [addToast]);
+    }, [addToast, user?._id, user?.phone]);
 
     const handleAgentPhoneChange = (e) => {
         const val = e.target.value;
@@ -137,15 +154,35 @@ const CompleteProfile = () => {
     // New State for Locking
     const [isLocked, setIsLocked] = useState(false);
     const [pageLoading, setPageLoading] = useState(true);
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [rejectedByRole, setRejectedByRole] = useState('admin');
+    const [fieldVisitCompleted, setFieldVisitCompleted] = useState(false);
 
     useEffect(() => {
         const checkProfileStatus = async () => {
             try {
                 const res = await api.get('/retailer/profile');
-                if (res.data.isProfileComplete || res.data.sensitiveDataLocked) {
+                const isRejected = res.data.verificationStatus === 'rejected';
+                if ((res.data.isProfileComplete || res.data.sensitiveDataLocked) && !isRejected) {
                     setIsLocked(true);
+                } else {
+                    setIsLocked(false);
                 }
                 
+                if (res.data.rejectionReason) {
+                    setRejectionReason(res.data.rejectionReason);
+                }
+                const wasAgentRejected = res.data.rejectedByRole === 'agent' || res.data.agentRejected;
+                setRejectedByRole(res.data.rejectedByRole || (wasAgentRejected ? 'agent' : 'admin'));
+                if (res.data.fieldVisitCompleted && !wasAgentRejected) {
+                    setFieldVisitCompleted(true);
+                } else {
+                    setFieldVisitCompleted(false);
+                }
+                if (res.data.assignedAgent) {
+                    setSelectedAgent(res.data.assignedAgent);
+                }
+
                 // Pre-fill existing data
                 setFormData(prev => ({
                     ...prev,
@@ -154,7 +191,13 @@ const CompleteProfile = () => {
                     description: res.data.businessInfo?.description || '',
                     address: res.data.address || '',
                     nin: res.data.kyc?.nin || '',
-                    bvn: res.data.kyc?.bvn || ''
+                    bvn: res.data.kyc?.bvn || '',
+                    nokName: res.data.nextOfKin?.name || '',
+                    nokPhone: res.data.nextOfKin?.phone || '',
+                    nokRelationship: res.data.nextOfKin?.relationship || '',
+                    nokAddress: res.data.nextOfKin?.address || '',
+                    refereePhone1: res.data.peerReferrals?.[0]?.refereePhone || '',
+                    refereePhone2: res.data.peerReferrals?.[1]?.refereePhone || ''
                 }));
 
                 if (res.data.kyc) {
@@ -265,8 +308,14 @@ const CompleteProfile = () => {
                 bvn: formData.bvn
             };
 
-            await api.put('/retailer/profile/complete', payload);
-            addToast('Application submitted! Assigned Agent will perform a physical store verification.', 'success');
+            const res = await api.put('/retailer/profile/complete', payload);
+            const isResubmission = res.data.isResubmission || res.data.verificationStatus === 'pending_admin_approval';
+            addToast(
+                isResubmission
+                    ? 'Application updated and submitted directly for Admin review (no agent revisit needed)!'
+                    : 'Application submitted! Assigned Agent will perform a physical store verification.',
+                'success'
+            );
             navigate('/dashboard');
         } catch (error) {
             console.error('Submission Error', error);
@@ -298,6 +347,24 @@ const CompleteProfile = () => {
                 </div>
 
                 <div className="form-content">
+                    {/* Rejection Banner Callout */}
+                    {Boolean(rejectionReason) && (
+                        <div className="rejection-banner-callout animate-fade-in">
+                            <div className="rejection-banner-header">
+                                <AlertCircle size={20} />
+                                <span>{rejectedByRole === 'agent' ? 'Field Verification Declined by Agent' : 'Revision Requested by Admin'}</span>
+                            </div>
+                            <p className="rejection-banner-reason">
+                                "{rejectionReason}"
+                            </p>
+                            <p className="rejection-banner-hint">
+                                {rejectedByRole === 'agent'
+                                    ? 'Your physical store did not meet verification criteria. When you believe your store has reached the requirements, please update your store information and select a Market Agent to re-apply for an inspection.'
+                                    : 'Please update the required information below and resubmit your application for approval. Your physical store is already verified and will not need an agent revisit.'}
+                            </p>
+                        </div>
+                    )}
+
                     {/* STEP 1: Business Info */}
                     {step === 1 && (
                         <div className="section-wrapper animate-fade-in">
@@ -482,69 +549,105 @@ const CompleteProfile = () => {
                             </div>
 
                             <h3 className="text-sm font-bold text-brand mt-4 mb-2">2. Assigned Market Agent</h3>
-                            <div className="form-group">
-                                <label className="form-label">Select Market Agent</label>
-                                <div className="agent-picker-trigger" onClick={() => setShowAgentPicker(!showAgentPicker)} style={{ cursor: 'pointer', padding: '12px 16px', border: '1.5px solid var(--color-border)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    {selectedAgent ? (
-                                        <span>{selectedAgent.name} — {selectedAgent.market || selectedAgent.phone}</span>
-                                    ) : (
-                                        <span style={{ opacity: 0.5 }}>{agentLoading ? 'Loading agents...' : 'Choose a Market Agent or type number below'}</span>
-                                    )}
-                                    <span style={{ transform: showAgentPicker ? 'rotate(180deg)' : 'none' }}>▼</span>
+                            {fieldVisitCompleted ? (
+                                <div style={{
+                                    padding: 'var(--space-4) var(--space-5)',
+                                    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                                    border: '1.5px solid rgba(16, 185, 129, 0.35)',
+                                    borderRadius: 'var(--radius-lg)',
+                                    marginBottom: 'var(--space-4)',
+                                    textAlign: 'left'
+                                }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        color: 'var(--color-success)',
+                                        fontWeight: 800,
+                                        fontSize: 'var(--text-xs)',
+                                        letterSpacing: '0.5px',
+                                        textTransform: 'uppercase',
+                                        marginBottom: '6px'
+                                    }}>
+                                        <ShieldCheck size={16} /> Physical Store Verification Completed
+                                    </div>
+                                    <p style={{
+                                        color: 'var(--color-text-primary)',
+                                        fontSize: 'var(--text-sm)',
+                                        lineHeight: 1.5,
+                                        margin: 0
+                                    }}>
+                                        {selectedAgent?.name ? `Your store premises were already verified by Market Agent ${selectedAgent.name}. ` : 'Your store premises were already verified by an assigned market agent. '}
+                                        Your revised application will be forwarded directly to Admin for final review — no agent revisit is needed.
+                                    </p>
                                 </div>
-                                {showAgentPicker && (
-                                    <div className="agent-picker-dropdown" style={{ border: '1.5px solid var(--color-border)', borderRadius: '12px', marginTop: '8px', maxHeight: '200px', overflowY: 'auto' }}>
-                                        {agents.map(agent => (
-                                            <div key={agent._id} onClick={() => { setSelectedAgent(agent); setShowAgentPicker(false); setAgentPhoneInput(''); setAgentFound(null); setAgentConfirmed(false); }} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid var(--color-border)' }}>
-                                                <div style={{ fontWeight: 600 }}>{agent.name}</div>
-                                                <div style={{ opacity: 0.6, fontSize: '0.875rem' }}>{agent.market} — {agent.phone}</div>
+                            ) : (
+                                <>
+                                    <div className="form-group">
+                                        <label className="form-label">Select Market Agent</label>
+                                        <div className="agent-picker-trigger" onClick={() => setShowAgentPicker(!showAgentPicker)} style={{ cursor: 'pointer', padding: '12px 16px', border: '1.5px solid var(--color-border)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            {selectedAgent ? (
+                                                <span>{selectedAgent.name} — {selectedAgent.market || selectedAgent.phone}</span>
+                                            ) : (
+                                                <span style={{ opacity: 0.5 }}>{agentLoading ? 'Loading agents...' : 'Choose a Market Agent or type number below'}</span>
+                                            )}
+                                            <span style={{ transform: showAgentPicker ? 'rotate(180deg)' : 'none' }}>▼</span>
+                                        </div>
+                                        {showAgentPicker && (
+                                            <div className="agent-picker-dropdown" style={{ border: '1.5px solid var(--color-border)', borderRadius: '12px', marginTop: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                                                {agents.map(agent => (
+                                                    <div key={agent._id} onClick={() => { setSelectedAgent(agent); setShowAgentPicker(false); setAgentPhoneInput(''); setAgentFound(null); setAgentConfirmed(false); }} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid var(--color-border)' }}>
+                                                        <div style={{ fontWeight: 600 }}>{agent.name}</div>
+                                                        <div style={{ opacity: 0.6, fontSize: '0.875rem' }}>{agent.market} — {agent.phone}</div>
+                                                    </div>
+                                                ))}
+                                                {agents.length === 0 && !agentLoading && (
+                                                    <div style={{ padding: '12px 16px', opacity: 0.5 }}>No agents available</div>
+                                                )}
                                             </div>
-                                        ))}
-                                        {agents.length === 0 && !agentLoading && (
-                                            <div style={{ padding: '12px 16px', opacity: 0.5 }}>No agents available</div>
                                         )}
                                     </div>
-                                )}
-                            </div>
-                            {!selectedAgent && (
-                                <div className="form-group">
-                                    <label className="form-label">Or enter Agent Phone Number</label>
-                                    <input
-                                        value={agentPhoneInput}
-                                        onChange={handleAgentPhoneChange}
-                                        className="input-field"
-                                        placeholder="Enter nearest Market Agent phone..."
-                                        disabled={agentConfirmed}
-                                    />
-                                    {agentVerifying && <small className="text-muted mt-1 d-block">Verifying agent...</small>}
-                                    {agentFound && !agentConfirmed && (
-                                        <div style={{ marginTop: 8, padding: 12, border: '1.5px solid var(--color-border)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>
-                                                <div style={{ fontWeight: 600 }}>{agentFound.name}</div>
-                                                <div style={{ opacity: 0.6, fontSize: '0.875rem' }}>{agentFound.market} — {agentFound.phone}</div>
-                                            </div>
-                                            <button type="button" onClick={() => setAgentConfirmed(true)} className="btn btn-sm btn-brand" style={{ padding: '6px 16px', borderRadius: 8, background: 'var(--color-brand)', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
-                                                Confirm
-                                            </button>
+                                    {!selectedAgent && (
+                                        <div className="form-group">
+                                            <label className="form-label">Or enter Agent Phone Number</label>
+                                            <input
+                                                value={agentPhoneInput}
+                                                onChange={handleAgentPhoneChange}
+                                                className="input-field"
+                                                placeholder="Enter nearest Market Agent phone..."
+                                                disabled={agentConfirmed}
+                                            />
+                                            {agentVerifying && <small className="text-muted mt-1 d-block">Verifying agent...</small>}
+                                            {agentFound && !agentConfirmed && (
+                                                <div style={{ marginTop: 8, padding: 12, border: '1.5px solid var(--color-border)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div>
+                                                        <div style={{ fontWeight: 600 }}>{agentFound.name}</div>
+                                                        <div style={{ opacity: 0.6, fontSize: '0.875rem' }}>{agentFound.market} — {agentFound.phone}</div>
+                                                    </div>
+                                                    <button type="button" onClick={() => setAgentConfirmed(true)} className="btn btn-sm btn-brand" style={{ padding: '6px 16px', borderRadius: 8, background: 'var(--color-brand)', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
+                                                        Confirm
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {agentConfirmed && agentFound && (
+                                                <p style={{ fontSize: '0.8rem', marginTop: 8 }}>
+                                                    <CheckCircle size={14} style={{ color: 'var(--color-brand)' }} /> {agentFound.name} confirmed as your market agent{' '}
+                                                    <button type="button" onClick={() => { setAgentConfirmed(false); setAgentFound(null); setAgentPhoneInput(''); }} style={{ background: 'none', border: 'none', color: 'var(--color-brand)', cursor: 'pointer', fontWeight: 600, textDecoration: 'underline', padding: 0, fontFamily: 'inherit' }}>
+                                                        Change
+                                                    </button>
+                                                </p>
+                                            )}
                                         </div>
                                     )}
-                                    {agentConfirmed && agentFound && (
-                                        <p style={{ fontSize: '0.8rem', marginTop: 8 }}>
-                                            <CheckCircle size={14} style={{ color: 'var(--color-brand)' }} /> {agentFound.name} confirmed as your market agent{' '}
-                                            <button type="button" onClick={() => { setAgentConfirmed(false); setAgentFound(null); setAgentPhoneInput(''); }} style={{ background: 'none', border: 'none', color: 'var(--color-brand)', cursor: 'pointer', fontWeight: 600, textDecoration: 'underline', padding: 0, fontFamily: 'inherit' }}>
-                                                Change
+                                    {selectedAgent && (
+                                        <p style={{ fontSize: '0.8rem', marginTop: '-12px' }}>
+                                            <CheckCircle size={14} style={{ color: 'var(--color-brand)' }} /> {selectedAgent.name} will be assigned for your verification{' '}
+                                            <button type="button" onClick={() => { setSelectedAgent(null); }} style={{ background: 'none', border: 'none', color: 'var(--color-brand)', cursor: 'pointer', fontWeight: 600, textDecoration: 'underline', padding: 0, fontFamily: 'inherit' }}>
+                                                Clear
                                             </button>
                                         </p>
                                     )}
-                                </div>
-                            )}
-                            {selectedAgent && (
-                                <p style={{ fontSize: '0.8rem', marginTop: '-12px' }}>
-                                    <CheckCircle size={14} style={{ color: 'var(--color-brand)' }} /> {selectedAgent.name} will be assigned for your verification{' '}
-                                    <button type="button" onClick={() => { setSelectedAgent(null); }} style={{ background: 'none', border: 'none', color: 'var(--color-brand)', cursor: 'pointer', fontWeight: 600, textDecoration: 'underline', padding: 0, fontFamily: 'inherit' }}>
-                                        Clear
-                                    </button>
-                                </p>
+                                </>
                             )}
 
                             <h3 className="text-sm font-bold text-brand mt-4 mb-2">3. Next of Kin</h3>

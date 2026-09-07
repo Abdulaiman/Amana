@@ -150,7 +150,7 @@ const AgentAAPLink = () => {
                                 <div className="retailer-stats">
                                     <div className="stat-item">
                                         <label>Available Credit</label>
-                                        <span>₦{(retailer.creditLimit - retailer.usedCredit).toLocaleString()}</span>
+                                        <span>₦{(retailer.availableCredit !== undefined ? Math.max(0, retailer.availableCredit) : Math.max(0, retailer.creditLimit - retailer.usedCredit - (retailer.reservedCredit || 0))).toLocaleString()}</span>
                                     </div>
                                 </div>
                                 <button className="btn-next" onClick={() => setStep(2)}>

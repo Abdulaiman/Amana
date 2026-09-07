@@ -1,13 +1,24 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
-import { Camera, Package, Store, Calendar, ArrowLeft, Phone, MapPin, Upload, X, User, DollarSign, PlusCircle } from 'lucide-react';
+import { Camera, Package, Store, Calendar, ArrowLeft, Phone, MapPin, Upload, X, User, DollarSign, PlusCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import TraderCreditCard from '../components/TraderCreditCard';
 import './AgentAAPCreate.css';
+
+const CANCEL_REQUEST_PRESETS = [
+    'Price exceeds trader available credit limit',
+    'Goods unavailable in the market',
+    'Trader requested cancellation',
+    'Price mismatch with supplier',
+    'Trader unreachable / unresponsive'
+];
 
 const AgentAAPCreate = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const aapId = searchParams.get('aapId');
     const { addToast } = useToast();
     const { user: currentUser } = useAuth();
     const submitting = useRef(false);
@@ -31,11 +42,64 @@ const AgentAAPCreate = () => {
     const [searching, setSearching] = useState(false);
     const [lookupError, setLookupError] = useState(false);
 
+    // Trader-initiated fulfillment states
+    const [traderRequest, setTraderRequest] = useState(null);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [cancelReason, setCancelReason] = useState('');
+    const [cancelling, setCancelling] = useState(false);
+
+    // Fetch existing trader request if aapId is present
+    useEffect(() => {
+        if (!aapId) {
+            addToast('All purchases must be initiated directly by the trader.', 'info');
+            navigate('/agent/tasks');
+            return;
+        }
+        const fetchTraderRequest = async () => {
+            try {
+                const res = await api.get(`/aap/${aapId}`);
+                const req = res.data;
+                setTraderRequest(req);
+                const r = req.retailer || req.retailerId;
+                if (r && typeof r === 'object') {
+                    setRetailer(r);
+                    setPhone(r.phone || '');
+                    setForm(prev => ({
+                        ...prev,
+                        retailerId: r._id,
+                        productName: prev.productName || req.traderRequestNote || ''
+                    }));
+                } else if (r && typeof r === 'string') {
+                    // Fallback in case retailer was not populated
+                    try {
+                        const uRes = await api.get(`/retailer/${r}`);
+                        setRetailer(uRes.data);
+                        setPhone(uRes.data.phone || '');
+                        setForm(prev => ({
+                            ...prev,
+                            retailerId: r,
+                            productName: prev.productName || req.traderRequestNote || ''
+                        }));
+                    } catch (_) {}
+                }
+            } catch (err) {
+                addToast('Failed to load trader request details', 'error');
+            }
+        };
+        fetchTraderRequest();
+    }, [aapId, addToast, navigate]);
+
     const determineMarkup = (score, termDays) => {
         if (!termDays) return 0;
         if (termDays <= 7) return 4.0;
         return 8.0;
     };
+
+    const availableCredit = retailer ? ((retailer.creditLimit || 0) - (retailer.usedCredit || 0)) : 0;
+    const parsedPrice = parseFloat(form.purchasePrice) || 0;
+    const currentMarkup = determineMarkup(retailer?.amanaScore, form.repaymentTerm || 7);
+    const estimatedTotal = parsedPrice > 0 ? parsedPrice * (1 + currentMarkup / 100) : 0;
+    const isOverCredit = retailer && parsedPrice > 0 && estimatedTotal > availableCredit;
 
     const handlePhoneChange = async (val) => {
         setPhone(val);
@@ -96,7 +160,6 @@ const AgentAAPCreate = () => {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 
-                const uploadedUrl = res.data.url;
                 setPhotos(prev => prev.map(p => 
                     p.id === `temp-${startingIndex + i}` ? { id: res.data.url, url: res.data.url, loading: false } : p
                 ));
@@ -109,6 +172,24 @@ const AgentAAPCreate = () => {
 
     const removePhoto = (photoId) => {
         setPhotos(photos.filter(p => (p.url || p.id) !== photoId));
+    };
+
+    const handleCancelTraderRequest = async () => {
+        if (!cancelReason.trim()) {
+            addToast('Please provide a cancellation reason', 'warning');
+            return;
+        }
+        setCancelling(true);
+        try {
+            await api.put(`/aap/${aapId}/cancel`, { cancellationReason: cancelReason.trim() });
+            addToast('Transaction cancelled', 'info');
+            navigate('/agent/tasks');
+        } catch (err) {
+            addToast(err.response?.data?.message || 'Failed to cancel request', 'error');
+        } finally {
+            setCancelling(false);
+            setShowCancelModal(false);
+        }
     };
 
     const handleSubmit = async () => {
@@ -137,7 +218,7 @@ const AgentAAPCreate = () => {
         submitting.current = true;
         setLoading(true);
         try {
-            const res = await api.post('/aap', {
+            const payload = {
                 ...form,
                 productPhotos: uploadedPhotos,
                 purchasePrice: parseFloat(form.purchasePrice),
@@ -147,12 +228,19 @@ const AgentAAPCreate = () => {
                 repaymentTerm: form.repaymentTerm,
                 retailerId: form.retailerId,
                 requestedDuration: form.requestedDuration
-            });
+            };
 
-            addToast('Purchase created and linked successfully!', 'success');
-            navigate(`/agent/aap/${res.data._id}`);
+            if (!aapId) {
+                addToast('All purchases must be initiated directly by the trader.', 'error');
+                navigate('/agent/tasks');
+                return;
+            }
+
+            await api.put(`/aap/${aapId}/fulfill`, payload);
+            addToast('Trader request fulfilled & submitted to Admin for approval!', 'success');
+            navigate('/agent/tasks');
         } catch (error) {
-            addToast(error.response?.data?.message || 'Failed to create', 'error');
+            addToast(error.response?.data?.message || 'Failed to submit', 'error');
         } finally {
             setLoading(false);
             submitting.current = false;
@@ -160,7 +248,7 @@ const AgentAAPCreate = () => {
     };
 
     return (
-        <div className="aap-create-container">
+        <div className="aap-create-container animate-fade-in">
             <div className="page-hero">
                 <button className="back-btn" onClick={() => navigate('/agent/tasks')}>
                     <ArrowLeft size={20} />
@@ -169,10 +257,56 @@ const AgentAAPCreate = () => {
                     <PlusCircle size={24} />
                 </div>
                 <div className="page-hero-body">
-                    <h1 className="page-hero-title">New Agent Purchase</h1>
-                    <p className="page-hero-subtitle">Capture product for off-platform purchase</p>
+                    <h1 className="page-hero-title">
+                        Fulfill Trader Purchase Request
+                    </h1>
+                    <p className="page-hero-subtitle">
+                        Fulfilling direct inventory purchase requested by verified trader
+                    </p>
                 </div>
             </div>
+
+            {/* Fulfilling Request Banner */}
+            {aapId && traderRequest && (
+                <div className="trader-fulfill-banner animate-slide-up">
+                    <div className="tfb-top">
+                        <span className="tfb-badge">DIRECT TRADER REQUEST</span>
+                        {isOverCredit ? (
+                            <span className="tfb-status-badge danger">Credit Exceeded</span>
+                        ) : (
+                            <span className="tfb-status-badge success">Credit Check OK</span>
+                        )}
+                    </div>
+                    <div className="tfb-body">
+                        <div className="tfb-trader-info">
+                            <h4>{retailer?.name || traderRequest.retailerId?.name}</h4>
+                            <p>{retailer?.phone || traderRequest.retailerId?.phone} • {retailer?.businessInfo?.businessName || 'Verified Trader'}</p>
+                            {traderRequest.traderRequestNote && (
+                                <p className="tfb-goods-note">
+                                    <strong>Goods Requested:</strong> "{traderRequest.traderRequestNote}"
+                                </p>
+                            )}
+                        </div>
+                        {retailer && (
+                            <div className="tfb-credit-container" style={{ minWidth: '240px', maxWidth: '300px' }}>
+                                <TraderCreditCard retailer={retailer} variant="compact" title="TRADER AVAILABLE CREDIT" />
+                            </div>
+                        )}
+                    </div>
+                    <div className="tfb-actions">
+                        <button
+                            type="button"
+                            className="tfb-cancel-btn"
+                            onClick={() => {
+                                setCancelReason(isOverCredit ? `Goods cost (₦${estimatedTotal.toLocaleString()}) exceeds trader available credit limit (₦${availableCredit.toLocaleString()})` : '');
+                                setShowCancelModal(true);
+                            }}
+                        >
+                            Cancel Request
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Progress Steps */}
             <div className="step-progress">
@@ -203,39 +337,39 @@ const AgentAAPCreate = () => {
                         <p className="section-hint">Add 1-10 photos of the product</p>
 
                         <div className="photo-grid">
-                    {photos.map((photo, index) => (
-                        <div key={photo.id || index} className="photo-item">
-                            {photo.loading ? (
-                                <div className="photo-skeleton animate-pulse">
-                                    <Upload size={20} className="animate-bounce" />
+                            {photos.map((photo, index) => (
+                                <div key={photo.id || index} className="photo-item">
+                                    {photo.loading ? (
+                                        <div className="photo-skeleton animate-pulse">
+                                            <Upload size={20} className="animate-bounce" />
+                                        </div>
+                                    ) : (
+                                        <img src={photo.url} alt="Product" />
+                                    )}
+                                    <button 
+                                        className="remove-photo" 
+                                        onClick={() => removePhoto(photo.url || photo.id)}
+                                        type="button"
+                                    >
+                                        <X size={14} />
+                                    </button>
                                 </div>
-                            ) : (
-                                <img src={photo.url} alt="Product" />
+                            ))}
+                            {photos.length < 10 && (
+                                <label className="photo-upload-btn">
+                                    <Upload size={24} />
+                                    <span>Add Photo</span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handlePhotoUpload}
+                                        style={{ display: 'none' }}
+                                        disabled={loading}
+                                    />
+                                </label>
                             )}
-                            <button 
-                                className="remove-photo" 
-                                onClick={() => removePhoto(photo.url || photo.id)}
-                                type="button"
-                            >
-                                <X size={14} />
-                            </button>
                         </div>
-                    ))}
-                    {photos.length < 10 && (
-                        <label className="photo-upload-btn">
-                            <Upload size={24} />
-                            <span>Add Photo</span>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handlePhotoUpload}
-                                style={{ display: 'none' }}
-                                disabled={loading}
-                            />
-                        </label>
-                    )}
-                </div>
                     </div>
 
                     <div className="form-section">
@@ -276,6 +410,56 @@ const AgentAAPCreate = () => {
                                 placeholder="e.g. 25000"
                             />
                         </div>
+
+                        {/* Real-time Affordability Indicator */}
+                        {retailer && parsedPrice > 0 && (
+                            <div className={`aap-affordability-box animate-scale-in ${isOverCredit ? 'warning' : 'ok'}`}>
+                                <div className="aab-header">
+                                    <span>Affordability Calculation</span>
+                                    <span className={`aab-badge ${isOverCredit ? 'danger' : 'success'}`}>
+                                        {isOverCredit ? 'Over Credit Limit' : 'Within Credit Limit'}
+                                    </span>
+                                </div>
+                                <div className="aab-row">
+                                    <span>Available Trader Credit:</span>
+                                    <strong>₦{availableCredit.toLocaleString()}</strong>
+                                </div>
+                                <div className="aab-row">
+                                    <span>Purchase Price:</span>
+                                    <span>₦{parsedPrice.toLocaleString()}</span>
+                                </div>
+                                <div className="aab-row">
+                                    <span>Murabaha Markup ({currentMarkup}%):</span>
+                                    <span>+₦{(parsedPrice * currentMarkup / 100).toLocaleString()}</span>
+                                </div>
+                                <div className="aab-row total">
+                                    <span>Estimated Total:</span>
+                                    <strong className={isOverCredit ? 'text-danger' : 'text-success'}>
+                                        ₦{estimatedTotal.toLocaleString()}
+                                    </strong>
+                                </div>
+                                {isOverCredit && (
+                                    <div className="aab-warning-note">
+                                        <AlertTriangle size={16} />
+                                        <div className="aab-warning-text">
+                                            <span>This purchase exceeds the trader's available credit of ₦{availableCredit.toLocaleString()}.</span>
+                                            {aapId && (
+                                                <button
+                                                    type="button"
+                                                    className="aab-cancel-link"
+                                                    onClick={() => {
+                                                        setCancelReason(`Goods cost (₦${estimatedTotal.toLocaleString()}) exceeds trader credit limit (₦${availableCredit.toLocaleString()})`);
+                                                        setShowCancelModal(true);
+                                                    }}
+                                                >
+                                                    Cancel transaction with reason &rarr;
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="btn-row">
@@ -308,49 +492,66 @@ const AgentAAPCreate = () => {
                             <User size={18} />
                             <h3>Retailer (Buyer)</h3>
                         </div>
-                        <p className="section-hint">Enter the retailer's phone number to link this purchase</p>
-                        
-                        <div className="form-group">
-                            <label className="form-label">Retailer Phone Number</label>
-                            <div className="input-icon-wrapper">
-                                <Phone size={16} className="input-icon" />
-                                <input
-                                    type="tel"
-                                    className="form-control with-icon"
-                                    value={phone}
-                                    onChange={(e) => handlePhoneChange(e.target.value)}
-                                    placeholder="08012345678"
-                                />
-                                {searching ? (
-                                    <div className="input-loader"></div>
-                                ) : lookupError ? (
-                                    <X size={16} className="input-icon-right text-error" />
-                                ) : retailer ? (
-                                    <Package size={16} className="input-icon-right text-primary" />
-                                ) : null}
-                            </div>
-                        </div>
 
-                        {lookupError && (
-                            <div className="lookup-error-box animate-scale-in">
-                                <p>No approved retailer found with this number</p>
-                            </div>
-                        )}
-
-                        {retailer && (
-                            <div className="retailer-preview animate-scale-in">
-                                <div className="retailer-avatar">
-                                    {retailer.name.charAt(0)}
-                                </div>
-                                <div className="retailer-info">
-                                    <h4>{retailer.name}</h4>
-                                    <p>{retailer.businessInfo?.businessName || 'Independent Retailer'}</p>
-                                    <div className="retailer-stats-mini">
-                                        <span className="score">Score: {retailer.amanaScore}</span>
-                                        <span className="credit">Limit: ₦{(retailer.creditLimit - retailer.usedCredit).toLocaleString()}</span>
+                        {aapId && retailer ? (
+                            <div className="prelinked-trader-box animate-scale-in">
+                                <div className="ptb-tag">✓ Pre-linked from Trader Request</div>
+                                <div className="retailer-preview">
+                                    <div className="retailer-avatar">
+                                        {retailer.name.charAt(0)}
+                                    </div>
+                                    <div className="retailer-info">
+                                        <h4>{retailer.name}</h4>
+                                        <p>{retailer.phone} • {retailer.businessInfo?.businessName || 'Verified Trader'}</p>
                                     </div>
                                 </div>
+                                <TraderCreditCard retailer={retailer} variant="full" />
                             </div>
+                        ) : (
+                            <>
+                                <p className="section-hint">Enter the retailer's phone number to link this purchase</p>
+                                <div className="form-group">
+                                    <label className="form-label">Retailer Phone Number</label>
+                                    <div className="input-icon-wrapper">
+                                        <Phone size={16} className="input-icon" />
+                                        <input
+                                            type="tel"
+                                            className="form-control with-icon"
+                                            value={phone}
+                                            onChange={(e) => handlePhoneChange(e.target.value)}
+                                            placeholder="08012345678"
+                                        />
+                                        {searching ? (
+                                            <div className="input-loader"></div>
+                                        ) : lookupError ? (
+                                            <X size={16} className="input-icon-right text-error" />
+                                        ) : retailer ? (
+                                            <Package size={16} className="input-icon-right text-primary" />
+                                        ) : null}
+                                    </div>
+                                </div>
+
+                                {lookupError && (
+                                    <div className="lookup-error-box animate-scale-in">
+                                        <p>No approved retailer found with this number</p>
+                                    </div>
+                                )}
+
+                                {retailer && (
+                                    <div className="retailer-preview-container animate-scale-in" style={{ marginTop: '1rem' }}>
+                                        <div className="retailer-preview">
+                                            <div className="retailer-avatar">
+                                                {retailer.name.charAt(0)}
+                                            </div>
+                                            <div className="retailer-info">
+                                                <h4>{retailer.name}</h4>
+                                                <p>{retailer.phone} • {retailer.businessInfo?.businessName || 'Independent Retailer'}</p>
+                                            </div>
+                                        </div>
+                                        <TraderCreditCard retailer={retailer} variant="full" />
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -418,7 +619,6 @@ const AgentAAPCreate = () => {
                     </div>
                 </div>
             )}
-
             {/* Step 3: Repayment & Cost Review */}
             {step === 3 && (
                 <div className="step-content">
@@ -483,20 +683,20 @@ const AgentAAPCreate = () => {
                                         <span>₦{parseFloat(form.purchasePrice).toLocaleString()}</span>
                                     </div>
                                     <div className="breakdown-line">
-                                        <span>Murabaha Markup ({determineMarkup(retailer.amanaScore, form.repaymentTerm)}%)</span>
-                                        <span className="text-primary">+ ₦{(parseFloat(form.purchasePrice) * determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100).toLocaleString()}</span>
+                                        <span>Murabaha Markup ({determineMarkup(retailer?.amanaScore, form.repaymentTerm)}%)</span>
+                                        <span className="text-primary">+ ₦{(parseFloat(form.purchasePrice) * determineMarkup(retailer?.amanaScore, form.repaymentTerm) / 100).toLocaleString()}</span>
                                     </div>
                                     <div className="breakdown-line total">
                                         <span>Total Retailer Cost</span>
-                                        <span>₦{(parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)).toLocaleString()}</span>
+                                        <span>₦{(parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer?.amanaScore, form.repaymentTerm) / 100)).toLocaleString()}</span>
                                     </div>
                                 </div>
 
                                 <div className="credit-check-status">
-                                    { (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)) <= (retailer.creditLimit - retailer.usedCredit) ? (
+                                    { (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer?.amanaScore, form.repaymentTerm) / 100)) <= availableCredit ? (
                                         <p className="credit-ok">✓ Retailer has sufficient credit</p>
                                     ) : (
-                                        <p className="credit-error">⚠ Insufficient credit (Available: ₦{(retailer.creditLimit - retailer.usedCredit).toLocaleString()})</p>
+                                        <p className="credit-error">⚠ Insufficient credit (Available: ₦{availableCredit.toLocaleString()})</p>
                                     )}
                                 </div>
                             </>
@@ -507,13 +707,157 @@ const AgentAAPCreate = () => {
                         <button className="btn-secondary" onClick={() => setStep(2)}>
                             Back
                         </button>
+                        {aapId && (
+                            <button 
+                                type="button" 
+                                className="btn-secondary text-danger" 
+                                onClick={() => {
+                                    setCancelReason(isOverCredit ? `Goods cost (₦${estimatedTotal.toLocaleString()}) exceeds trader credit limit (₦${availableCredit.toLocaleString()})` : '');
+                                    setShowCancelModal(true);
+                                }}
+                            >
+                                Cancel Request
+                            </button>
+                        )}
                         <button 
                             className="btn-primary" 
                             onClick={handleSubmit}
-                            disabled={loading || !form.repaymentTerm || !form.requestedDuration || (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer.amanaScore, form.repaymentTerm) / 100)) > (retailer.creditLimit - retailer.usedCredit)}
+                            disabled={loading || !form.repaymentTerm || !form.requestedDuration || (parseFloat(form.purchasePrice) * (1 + determineMarkup(retailer?.amanaScore, form.repaymentTerm) / 100)) > availableCredit}
                         >
-                            {loading ? 'Creating...' : 'Finalize & Request Purchase'}
+                            {loading 
+                                ? (aapId ? 'Submitting to Admin...' : 'Creating...') 
+                                : (aapId ? 'Submit to Admin for Approval' : 'Finalize & Request Purchase')}
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Cancel Request Modal */}
+            {showCancelModal && (
+                <div 
+                    className="aap-create-cancel-overlay" 
+                    onClick={() => !cancelling && setShowCancelModal(false)}
+                >
+                    <div 
+                        className="aap-create-cancel-card" 
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="aap-create-cancel-stripe" />
+                        
+                        {/* Header */}
+                        <div className="aap-create-cancel-header">
+                            <div className="aap-create-cancel-icon-glow">
+                                <AlertTriangle size={22} />
+                            </div>
+                            <div className="aap-create-cancel-header-text">
+                                <span className="aap-create-cancel-badge">TRADER REQUEST</span>
+                                <h3 className="aap-create-cancel-title">Cancel Purchase Request</h3>
+                                <p className="aap-create-cancel-subtitle">
+                                    Provide a reason so the trader knows why this request cannot proceed.
+                                </p>
+                            </div>
+                            <button 
+                                type="button"
+                                className="aap-create-cancel-close-btn"
+                                onClick={() => !cancelling && setShowCancelModal(false)}
+                                title="Close"
+                                disabled={cancelling}
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="aap-create-cancel-body">
+                            {/* Affected Trader Context Banner */}
+                            {(retailer || traderRequest) && (
+                                <div className="aap-create-cancel-trader-banner">
+                                    <div className="aap-cancel-tb-header">
+                                        <span className="aap-cancel-tb-label">Target Trader</span>
+                                        <span className="aap-cancel-tb-name">
+                                            {retailer?.name || traderRequest?.retailerId?.name || 'Trader Request'}
+                                        </span>
+                                    </div>
+                                    {traderRequest?.traderRequestNote && (
+                                        <div className="aap-cancel-tb-note">
+                                            <span className="aap-cancel-tb-note-tag">Goods Requested:</span>
+                                            <span className="aap-cancel-tb-note-text">"{traderRequest.traderRequestNote}"</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Presets & Reason Input */}
+                            <div className="aap-create-cancel-form-group">
+                                <div className="aap-create-cancel-field-header">
+                                    <label className="aap-create-cancel-label">
+                                        Cancellation Reason <span className="required-star">*</span>
+                                    </label>
+                                    <span className="aap-create-cancel-hint">Tap a preset or type below</span>
+                                </div>
+
+                                <div className="aap-create-cancel-presets">
+                                    {CANCEL_REQUEST_PRESETS.map((preset, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            className={`aap-create-cancel-preset-chip ${cancelReason === preset ? 'active' : ''}`}
+                                            onClick={() => setCancelReason(preset)}
+                                            disabled={cancelling}
+                                        >
+                                            {preset}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <textarea
+                                    className="aap-create-cancel-textarea"
+                                    rows={3}
+                                    value={cancelReason}
+                                    onChange={(e) => setCancelReason(e.target.value)}
+                                    placeholder="e.g. Price exceeds trader available credit limit, or goods unavailable in the market"
+                                    disabled={cancelling}
+                                />
+
+                                <div className="aap-create-cancel-textarea-footer">
+                                    <span className="aap-create-cancel-char-hint">
+                                        Sent directly to trader and recorded in audit log
+                                    </span>
+                                    <span className={`aap-create-cancel-char-counter ${cancelReason.trim().length >= 3 ? 'valid' : ''}`}>
+                                        {cancelReason.trim().length} chars
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="aap-create-cancel-footer">
+                            <button
+                                type="button"
+                                className="aap-create-cancel-keep-btn"
+                                onClick={() => setShowCancelModal(false)}
+                                disabled={cancelling}
+                            >
+                                Keep Request
+                            </button>
+                            <button
+                                type="button"
+                                className="aap-create-cancel-confirm-btn"
+                                onClick={handleCancelTraderRequest}
+                                disabled={cancelling || !cancelReason.trim()}
+                            >
+                                {cancelling ? (
+                                    <>
+                                        <span className="aap-create-cancel-spinner" />
+                                        Cancelling Request...
+                                    </>
+                                ) : (
+                                    <>
+                                        <AlertTriangle size={16} />
+                                        Confirm Cancellation
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -522,3 +866,4 @@ const AgentAAPCreate = () => {
 };
 
 export default AgentAAPCreate;
+

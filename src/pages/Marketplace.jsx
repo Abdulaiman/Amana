@@ -431,9 +431,9 @@ const Marketplace = () => {
                                     )}
 
                                     {/* Credit Check Warning */}
-                                    {user && (user.creditLimit - user.usedCredit) < calculateFinance(selectedProduct.price).total && (
+                                    {user && (user.availableCredit !== undefined ? user.availableCredit : (user.creditLimit - user.usedCredit - (user.reservedCredit || 0))) < calculateFinance(selectedProduct.price).total && (
                                         <div className="credit-warning-box">
-                                            ⚠️ Insufficient Credit Limit. Available: ₦{(user.creditLimit - user.usedCredit).toLocaleString()}
+                                            ⚠️ Insufficient Credit Limit. Available: ₦{Math.max(0, user.availableCredit !== undefined ? user.availableCredit : (user.creditLimit - user.usedCredit - (user.reservedCredit || 0))).toLocaleString()}
                                         </div>
                                     )}
 
@@ -457,7 +457,7 @@ const Marketplace = () => {
                                         disabled={
                                             !acceptedTerms || 
                                             purchaseLoading || 
-                                            (user && (user.creditLimit - user.usedCredit) < calculateFinance(selectedProduct.price).total) ||
+                                            (user && (user.availableCredit !== undefined ? user.availableCredit : (user.creditLimit - user.usedCredit - (user.reservedCredit || 0))) < calculateFinance(selectedProduct.price).total) ||
                                             (user && user.isAgent && agentStatus.otherAgents === 0)
                                         }
                                         className="confirm-purchase-btn"

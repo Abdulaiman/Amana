@@ -1,0 +1,489 @@
+/* ═══════════════════════════════════════════════════════════════
+   TRADER CREDIT CARD LUXURY STYLING
+   High-contrast FinTech Design for Light & Dark Modes
+   ═══════════════════════════════════════════════════════════════ */
+
+.trader-credit-card-luxury {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LIGHT MODE (DEFAULT)
+   Crisp, luminous, mint/emerald high-contrast FinTech card
+   ───────────────────────────────────────────────────────────── */
+
+/* Tone variants - Light Mode */
+.trader-credit-card-luxury.tone-emerald {
+  background: linear-gradient(135deg, #f0fdf4 0%, #e6f7ed 50%, #dcfce7 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.32);
+  box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.12), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.trader-credit-card-luxury.tone-warning {
+  background: linear-gradient(135deg, #fffdf5 0%, #fef3c7 50%, #fde68a 100%);
+  border: 1.5px solid rgba(217, 119, 6, 0.32);
+  box-shadow: 0 4px 16px -2px rgba(217, 119, 6, 0.12), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.trader-credit-card-luxury.tone-danger {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
+  border: 1.5px solid rgba(220, 38, 38, 0.32);
+  box-shadow: 0 4px 16px -2px rgba(220, 38, 38, 0.12), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Shimmer Ambient Glow - Light Mode */
+.tc-shimmer-accent {
+  position: absolute;
+  top: -40px;
+  right: -30px;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+  filter: blur(10px);
+}
+.tone-warning .tc-shimmer-accent {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, transparent 70%);
+}
+.tone-danger .tc-shimmer-accent {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.18) 0%, transparent 70%);
+}
+
+/* ── Full Card Layout ── */
+.trader-credit-card-luxury.full {
+  padding: 1.1rem 1.25rem;
+  margin-top: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.tc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
+  gap: 0.5rem;
+}
+
+/* Chip Badge */
+.tc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.tc-chip-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #059669;
+}
+.tone-warning .tc-chip-icon-box { color: #d97706; }
+.tone-danger .tc-chip-icon-box { color: #dc2626; }
+
+.tc-chip-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+/* Score Pill */
+.tc-score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  color: #047857;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+}
+.tc-score-pill strong {
+  color: #065f46;
+}
+
+/* Amount Row & Group (Strictly non-wrapping) */
+.tc-amount-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.tc-amount-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+.tc-curr {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #059669;
+  line-height: 1;
+  white-space: nowrap;
+}
+.tone-warning .tc-curr { color: #d97706; }
+.tone-danger .tc-curr { color: #dc2626; }
+
+.tc-amount {
+  font-size: 1.7rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #0f172a; /* High contrast crisp dark slate in light mode */
+  white-space: nowrap;
+}
+
+/* Verified / Status Badge */
+.tc-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  color: #047857;
+  padding: 0.22rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.tc-verified-pill svg {
+  color: #059669;
+}
+
+/* Progress Bar Section */
+.tc-progress-section {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(16, 185, 129, 0.16);
+}
+.tone-warning .tc-progress-section {
+  border-top: 1px solid rgba(217, 119, 6, 0.16);
+}
+.tone-danger .tc-progress-section {
+  border-top: 1px solid rgba(220, 38, 38, 0.16);
+}
+
+.tc-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 0.45rem;
+}
+.tone-warning .tc-progress-bar-bg {
+  background: rgba(217, 119, 6, 0.15);
+}
+.tone-danger .tc-progress-bar-bg {
+  background: rgba(220, 38, 38, 0.15);
+}
+
+.tc-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+.tone-warning .tc-progress-bar-fill {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+.tone-danger .tc-progress-bar-fill {
+  background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+}
+
+.tc-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #475569;
+  font-weight: 500;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tc-progress-sub {
+  font-weight: 600;
+  color: #334155;
+}
+
+/* ── Compact Variant ── */
+.trader-credit-card-luxury.compact {
+  padding: 0.8rem 1rem;
+  margin-top: 0.45rem;
+}
+
+.trader-credit-card-luxury.compact .tc-amount {
+  font-size: 1.35rem;
+}
+
+.trader-credit-card-luxury.compact .tc-curr {
+  font-size: 1.05rem;
+}
+
+.tc-status-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #ffffff;
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.tc-compact-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(16, 185, 129, 0.16);
+  font-size: 0.72rem;
+  color: #475569;
+}
+.tone-warning .tc-compact-meta {
+  border-top: 1px solid rgba(217, 119, 6, 0.16);
+}
+.tone-danger .tc-compact-meta {
+  border-top: 1px solid rgba(220, 38, 38, 0.16);
+}
+
+.tc-compact-meta strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* ── Mini Variant ── */
+.trader-credit-card-luxury.mini {
+  padding: 0.35rem 0.65rem;
+  margin-top: 0.3rem;
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+}
+
+.tc-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.tc-mini-left {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #475569;
+}
+
+.tc-mini-val {
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.tc-mini-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.68rem;
+  color: #047857;
+  background: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* Hover effects */
+.trader-credit-card-luxury:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DARK MODE OVERRIDES ([data-theme='dark'])
+   Glowing obsidian-emerald dark glassmorphic styling
+   ───────────────────────────────────────────────────────────── */
+
+[data-theme='dark'] .trader-credit-card-luxury.tone-emerald {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(6, 78, 59, 0.24) 50%, rgba(15, 23, 42, 0.75) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), 0 0 16px rgba(16, 185, 129, 0.12);
+}
+
+[data-theme='dark'] .trader-credit-card-luxury.tone-warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(120, 53, 15, 0.24) 50%, rgba(15, 23, 42, 0.75) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), 0 0 16px rgba(245, 158, 11, 0.12);
+}
+
+[data-theme='dark'] .trader-credit-card-luxury.tone-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.14) 0%, rgba(127, 29, 29, 0.24) 50%, rgba(15, 23, 42, 0.75) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), 0 0 16px rgba(239, 68, 68, 0.12);
+}
+
+[data-theme='dark'] .tc-shimmer-accent {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+}
+[data-theme='dark'] .tone-warning .tc-shimmer-accent {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
+}
+[data-theme='dark'] .tone-danger .tc-shimmer-accent {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
+}
+
+[data-theme='dark'] .tc-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+[data-theme='dark'] .tc-chip-title {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .tc-chip-icon-box {
+  color: #10b981;
+}
+[data-theme='dark'] .tone-warning .tc-chip-icon-box { color: #f59e0b; }
+[data-theme='dark'] .tone-danger .tc-chip-icon-box { color: #ef4444; }
+
+[data-theme='dark'] .tc-score-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  box-shadow: none;
+}
+[data-theme='dark'] .tc-score-pill strong {
+  color: #34d399;
+}
+
+[data-theme='dark'] .tc-curr {
+  color: #10b981;
+}
+[data-theme='dark'] .tone-warning .tc-curr { color: #f59e0b; }
+[data-theme='dark'] .tone-danger .tc-curr { color: #ef4444; }
+
+[data-theme='dark'] .tc-amount {
+  color: #f8fafc; /* Crisp bright white in dark mode */
+}
+
+[data-theme='dark'] .tc-verified-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  box-shadow: none;
+}
+[data-theme='dark'] .tc-verified-pill svg {
+  color: #10b981;
+}
+
+[data-theme='dark'] .tc-progress-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .tc-progress-bar-bg {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .tc-progress-labels {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .tc-progress-sub {
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .tc-status-badge {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  box-shadow: none;
+}
+
+[data-theme='dark'] .tc-compact-meta {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .tc-compact-meta strong {
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .tc-mini-left {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .tc-mini-val {
+  color: #10b981;
+}
+
+[data-theme='dark'] .tc-mini-score {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  box-shadow: none;
+}
+
+/* ── Mobile Responsiveness ── */
+@media (max-width: 640px) {
+  .trader-credit-card-luxury.full {
+    padding: 0.85rem 1rem;
+  }
+  .tc-amount {
+    font-size: 1.4rem;
+  }
+  .tc-curr {
+    font-size: 1.05rem;
+  }
+  .tc-header {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .tc-amount-row {
+    gap: 0.4rem;
+  }
+  .tc-progress-labels {
+    font-size: 0.68rem;
+  }
+  .trader-credit-card-luxury.compact {
+    padding: 0.7rem 0.85rem;
+  }
+  .trader-credit-card-luxury.compact .tc-amount {
+    font-size: 1.2rem;
+  }
+}

@@ -15,21 +15,32 @@ const getPasswordStrength = (pw) => {
 };
 
 const Register = () => {
-    const { search } = useLocation();
-    const queryParams = new URLSearchParams(search);
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
     const initialRole = queryParams.get('role') || 'retailer';
 
+    // Retrieve any draft registration data if user returned to fix details
+    const getSavedDraft = () => {
+      try {
+        const saved = sessionStorage.getItem('amana_registration_draft');
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    };
+    const draft = location.state?.draft || getSavedDraft();
+
     const { user, registerRetailer, registerVendor } = useAuth();
-    const [role, setRole] = useState(initialRole);
+    const [role, setRole] = useState(draft?.role || initialRole);
     const [formData, setFormData] = useState({
-        name: user?.name || '', 
-        email: user?.email || '', 
+        name: draft?.name || user?.name || '', 
+        email: draft?.email || user?.email || '', 
         password: '', 
-        phone: user?.phone || '',
-        businessName: '', 
-        address: '', 
-        description: '', 
-        phones: [user?.phone || '', '']
+        phone: draft?.phone || user?.phone || '',
+        businessName: draft?.businessName || '', 
+        address: draft?.address || '', 
+        description: draft?.description || '', 
+        phones: draft?.phones || [draft?.phone || user?.phone || '', '']
     });
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -59,21 +70,23 @@ const Register = () => {
     }, []);
 
     const handleEmailBlur = () => {
-      if (!formData.email) return;
+      const cleanEmail = formData.email.trim();
+      if (!cleanEmail) return;
       setEmailChecking(true);
       clearTimeout(emailTimer.current);
       emailTimer.current = setTimeout(async () => {
-        await checkUniqueness({ email: formData.email });
+        await checkUniqueness({ email: cleanEmail });
         setEmailChecking(false);
       }, 400);
     };
 
     const handlePhoneBlur = () => {
-      if (!formData.phone) return;
+      const cleanPhone = formData.phone.trim();
+      if (!cleanPhone) return;
       setPhoneChecking(true);
       clearTimeout(phoneTimer.current);
       phoneTimer.current = setTimeout(async () => {
-        await checkUniqueness({ phone: formData.phone });
+        await checkUniqueness({ phone: cleanPhone });
         setPhoneChecking(false);
       }, 400);
     };
@@ -82,18 +95,49 @@ const Register = () => {
     const passwordsMatch = formData.password === confirmPassword;
 
     const handleChange = (e) => {
-        if (e.target.name.startsWith('phone_')) {
-            const index = parseInt(e.target.name.split('_')[1]);
+        const { name, value } = e.target;
+        if (name.startsWith('phone_')) {
+            const index = parseInt(name.split('_')[1]);
             const newPhones = [...formData.phones];
-            newPhones[index] = e.target.value;
-            setFormData({ ...formData, phones: newPhones });
+            newPhones[index] = value.replace(/[^\d+]/g, '');
+            const updated = { ...formData, phones: newPhones };
+            setFormData(updated);
+            try { sessionStorage.setItem('amana_registration_draft', JSON.stringify({ ...updated, role })); } catch {}
+        } else if (name === 'email') {
+            // Strip any internal and surrounding whitespace, lowercase
+            const clean = value.replace(/\s+/g, '').toLowerCase();
+            const updated = { ...formData, email: clean };
+            setFormData(updated);
+            if (emailTaken) setEmailTaken(false);
+            try { sessionStorage.setItem('amana_registration_draft', JSON.stringify({ ...updated, role })); } catch {}
+        } else if (name === 'phone') {
+            const clean = value.replace(/[^\d+]/g, '');
+            const updated = { ...formData, phone: clean };
+            setFormData(updated);
+            if (phoneTaken) setPhoneTaken(false);
+            try { sessionStorage.setItem('amana_registration_draft', JSON.stringify({ ...updated, role })); } catch {}
         } else {
-            setFormData({ ...formData, [e.target.name]: e.target.value });
+            const updated = { ...formData, [name]: value };
+            setFormData(updated);
+            try { sessionStorage.setItem('amana_registration_draft', JSON.stringify({ ...updated, role })); } catch {}
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const cleanEmail = formData.email.trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(cleanEmail)) {
+          addToast('Please enter a valid email address (e.g., name@example.com)', 'error');
+          return;
+        }
+
+        const cleanPhone = formData.phone.trim().replace(/[\s\-()]/g, '');
+        if (cleanPhone.length < 8) {
+          addToast('Please enter a valid phone number', 'error');
+          return;
+        }
 
         if (formData.password && formData.password.length < 8) {
           addToast('Password must be at least 8 characters', 'error');
@@ -132,22 +176,41 @@ const Register = () => {
 
         setLoading(true);
 
+        // Save draft to sessionStorage so user can edit if they made a mistake
+        try {
+          sessionStorage.setItem('amana_registration_draft', JSON.stringify({
+            name: formData.name,
+            email: cleanEmail,
+            phone: cleanPhone,
+            businessName: formData.businessName,
+            address: formData.address,
+            description: formData.description,
+            phones: formData.phones,
+            role,
+          }));
+        } catch {}
+
         try {
             if (role === 'retailer') {
                 await registerRetailer({
-                    name: formData.name, email: formData.email,
-                    password: formData.password, phone: formData.phone
+                    name: formData.name.trim(),
+                    email: cleanEmail,
+                    password: formData.password,
+                    phone: cleanPhone
                 });
                 addToast('Account created! Check your email to verify.', 'success');
-                navigate('/verify-email-sent?email=' + encodeURIComponent(formData.email));
+                navigate('/verify-email-sent?email=' + encodeURIComponent(cleanEmail));
             } else {
                 await registerVendor({
-                    businessName: formData.businessName, email: formData.email,
-                    password: formData.password, phones: formData.phones,
-                    address: formData.address, description: formData.description
+                    businessName: formData.businessName.trim(),
+                    email: cleanEmail,
+                    password: formData.password,
+                    phones: formData.phones.map(p => p.trim()).filter(Boolean),
+                    address: formData.address.trim(),
+                    description: formData.description.trim()
                 });
                 addToast('Account created! Check your email to verify.', 'success');
-                navigate('/verify-email-sent?email=' + encodeURIComponent(formData.email));
+                navigate('/verify-email-sent?email=' + encodeURIComponent(cleanEmail));
             }
         } catch (err) {
             addToast(err || 'Registration failed', 'error');
@@ -187,12 +250,12 @@ const Register = () => {
                         <>
                             <div className="form-group">
                                 <label className="form-label">Full Name</label>
-                                <input name="name" type="text" className="form-input" onChange={handleChange} required />
+                                <input name="name" type="text" className="form-input" value={formData.name} onChange={handleChange} required />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Phone Number</label>
-                                <input name="phone" type="tel" className="form-input" onChange={handleChange} onBlur={handlePhoneBlur} required />
-                                {phoneChecking && <div className="uniqueness-message checking">Checking...</div>}
+                                <input name="phone" type="tel" inputMode="tel" className="form-input" value={formData.phone} onChange={handleChange} onBlur={handlePhoneBlur} required />
+                                {phoneChecking && <div className="uniqueness-message checking">Checking phone availability...</div>}
                                 {phoneTaken && !phoneChecking && (
                                   <div className="uniqueness-message taken">
                                     This phone is already registered. <Link to="/login">Log in instead</Link>
@@ -204,19 +267,19 @@ const Register = () => {
                          <>
                             <div className="form-group">
                                 <label className="form-label">Business Name</label>
-                                <input name="businessName" type="text" className="form-input" onChange={handleChange} required />
+                                <input name="businessName" type="text" className="form-input" value={formData.businessName} onChange={handleChange} required />
                             </div>
                             <div className="grid-cols-2">
                                 <div>
                                     <label className="form-label">Phone 1</label>
-                                    <input name="phone_0" type="tel" className="form-input" onChange={handleChange} onBlur={handlePhoneBlur} required />
+                                    <input name="phone_0" type="tel" inputMode="tel" className="form-input" value={formData.phones[0] || ''} onChange={handleChange} onBlur={handlePhoneBlur} required />
                                 </div>
                                 <div>
                                     <label className="form-label">Phone 2</label>
-                                    <input name="phone_1" type="tel" className="form-input" onChange={handleChange} />
+                                    <input name="phone_1" type="tel" inputMode="tel" className="form-input" value={formData.phones[1] || ''} onChange={handleChange} />
                                 </div>
                             </div>
-                            {phoneChecking && <div className="uniqueness-message checking">Checking...</div>}
+                            {phoneChecking && <div className="uniqueness-message checking">Checking phone availability...</div>}
                             {phoneTaken && !phoneChecking && (
                               <div className="uniqueness-message taken" style={{ marginBottom: 'var(--space-5)' }}>
                                 This phone is already registered. <Link to="/login">Log in instead</Link>
@@ -224,7 +287,7 @@ const Register = () => {
                             )}
                             <div className="form-group">
                                 <label className="form-label">Address</label>
-                                <input name="address" type="text" className="form-input" onChange={handleChange} required />
+                                <input name="address" type="text" className="form-input" value={formData.address} onChange={handleChange} required />
                             </div>
                          </>
                     )}
@@ -233,8 +296,20 @@ const Register = () => {
                         <>
                             <div className="form-group">
                                 <label className="form-label">Email Address</label>
-                                <input name="email" type="email" className="form-input" value={formData.email} onChange={handleChange} onBlur={handleEmailBlur} required />
-                                {emailChecking && <div className="uniqueness-message checking">Checking...</div>}
+                                <input
+                                  name="email"
+                                  type="email"
+                                  autoComplete="email"
+                                  autoCapitalize="none"
+                                  spellCheck={false}
+                                  className="form-input"
+                                  value={formData.email}
+                                  onChange={handleChange}
+                                  onBlur={handleEmailBlur}
+                                  placeholder="name@example.com"
+                                  required
+                                />
+                                {emailChecking && <div className="uniqueness-message checking">Checking email availability...</div>}
                                 {emailTaken && !emailChecking && (
                                   <div className="uniqueness-message taken">
                                     This email is already registered. <Link to="/login">Log in instead</Link>
@@ -248,6 +323,7 @@ const Register = () => {
                                     name="password"
                                     type={showPassword ? 'text' : 'password'}
                                     className="form-input"
+                                    value={formData.password}
                                     onChange={handleChange}
                                     required
                                   />
@@ -329,8 +405,12 @@ const Register = () => {
                     </div>
 
                     <div className="form-actions">
-                        <button type="submit" className="btn-auth" disabled={loading || !passwordsMatch}>
-                            {loading ? 'Creating Account...' : 'Sign Up'}
+                        <button
+                          type="submit"
+                          className="btn-auth"
+                          disabled={loading || emailChecking || phoneChecking || emailTaken || phoneTaken || (formData.password && !passwordsMatch)}
+                        >
+                            {loading ? 'Creating Account...' : (emailChecking || phoneChecking) ? 'Checking Availability...' : 'Sign Up'}
                         </button>
                     </div>
                 </form>

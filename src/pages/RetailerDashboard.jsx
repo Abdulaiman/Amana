@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import './RetailerDashboard.css';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
-import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock, Phone, User, LayoutDashboard } from 'lucide-react';
+import ContractModal from '../components/ContractModal';
+import { generateDeedOfUndertaking, generateMurabahaContract } from '../utils/contractTemplates';
+import { CreditCard, TrendingUp, ShoppingBag, Clock, ChevronRight, AlertCircle, CheckCircle, X, Package, ShieldCheck, Lock, Phone, User, LayoutDashboard, Zap, Search, ArrowRight, Scale, BookOpen } from 'lucide-react';
 import KYCStatusGate from '../components/KYCStatusGate';
 
 const RetailerDashboard = () => {
+    const { user } = useAuth();
     const [profile, setProfile] = useState(null);
     const [orders, setOrders] = useState([]);
     const [aaps, setAAPs] = useState([]);
@@ -16,18 +20,36 @@ const RetailerDashboard = () => {
     const [cancellingOrderId, setCancellingOrderId] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null); // For order details modal
     const [selectedAAP, setSelectedAAP] = useState(null); // For AAP details modal
+    const [contractModalOpen, setContractModalOpen] = useState(false);
+    const [contractType, setContractType] = useState('undertaking');
+    const [activeContractData, setActiveContractData] = useState(null);
+    const [activeContractAAPId, setActiveContractAAPId] = useState(null);
+    const [signingContract, setSigningContract] = useState(false);
+    const [decliningContract, setDecliningContract] = useState(false);
+    const [aapActionLoadingId, setAapActionLoadingId] = useState(null);
     
     // Payment State
     const [showRepaymentModal, setShowRepaymentModal] = useState(false);
     const [repaymentAmount, setRepaymentAmount] = useState('');
+    const [repaymentMode, setRepaymentMode] = useState('full'); // 'full' | 'partial'
     const [targetOrderId, setTargetOrderId] = useState(null); // If paying specific order
     const [isPayLoading, setIsPayLoading] = useState(false);
+
+    // Request Goods (AAP) State
+    const [showRequestGoodsModal, setShowRequestGoodsModal] = useState(false);
+    const [agents, setAgents] = useState([]);
+    const [agentsLoading, setAgentsLoading] = useState(false);
+    const [selectedAgent, setSelectedAgent] = useState(null);
+    const [agentSearch, setAgentSearch] = useState('');
+    const [traderNote, setTraderNote] = useState('');
+    const [submittingRequest, setSubmittingRequest] = useState(false);
 
     // Notification System
     const { addToast } = useToast();
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, isDestructive: false });
 
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     const fetchData = async () => {
         try {
@@ -51,6 +73,14 @@ const RetailerDashboard = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Check if navigated from Transactions page with a specific order/AAP to repay
+    useEffect(() => {
+        const repayId = searchParams.get('repay');
+        if (repayId && (orders.length > 0 || aaps.length > 0)) {
+            openRepaymentModal(repayId);
+        }
+    }, [searchParams, orders, aaps]);
 
     const executeCancelOrder = async (orderId) => {
         setCancellingOrderId(orderId);
@@ -144,45 +174,100 @@ const RetailerDashboard = () => {
     };
 
     const openRepaymentModal = (orderId = null, amount = null) => {
-        setTargetOrderId(orderId);
-        if (amount) {
-            setRepaymentAmount(amount.toString());
+        const getRemaining = (doc, totalField) => {
+            const total = doc[totalField] || 0;
+            if (doc.remainingBalance !== undefined && doc.remainingBalance !== null) return doc.remainingBalance;
+            return Math.max(0, total - (doc.amountPaid || 0));
+        };
+
+        if (orderId) {
+            setTargetOrderId(orderId);
+            setRepaymentMode('full');
+            if (amount) {
+                setRepaymentAmount(amount.toString());
+            } else {
+                const allItems = [
+                    ...orders.map(o => ({ _id: o._id, rem: getRemaining(o, 'totalRepaymentAmount') })),
+                    ...aaps.map(a => ({ _id: a._id, rem: getRemaining(a, 'totalRetailerCost') }))
+                ];
+                const matched = allItems.find(i => i._id === orderId);
+                setRepaymentAmount(matched ? matched.rem.toString() : (profile?.usedCredit || 0).toString());
+            }
         } else {
-            setRepaymentAmount(profile.usedCredit.toString());
+            const activeOrders = orders.filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status));
+            const activeAAPs = aaps.filter(a => !a.isPaid && a.status === 'received');
+            const combined = [
+                ...activeOrders.map(o => ({ _id: o._id, dueDate: o.dueDate, rem: getRemaining(o, 'totalRepaymentAmount') })),
+                ...activeAAPs.map(a => ({ _id: a._id, dueDate: a.dueDate, rem: getRemaining(a, 'totalRetailerCost') }))
+            ].filter(i => i.rem > 0).sort((a, b) => {
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            });
+
+            if (combined.length > 0) {
+                setTargetOrderId(combined[0]._id);
+                setRepaymentAmount(combined[0].rem.toString());
+            } else {
+                setTargetOrderId(null);
+                setRepaymentAmount((profile?.usedCredit || 0).toString());
+            }
+            setRepaymentMode('full');
         }
         setShowRepaymentModal(true);
     };
 
+    const openContractModal = (type, aap) => {
+        setContractType(type);
+        setActiveContractAAPId(aap._id);
+        const data = type === 'undertaking' ? generateDeedOfUndertaking(aap) : generateMurabahaContract(aap);
+        setActiveContractData(data);
+        setContractModalOpen(true);
+    };
+
     const handleAAPConfirm = async (aapId) => {
+        setSigningContract(true);
         try {
             await api.put(`/aap/${aapId}/confirm`);
-            addToast('Intent recorded! Amana will review your request.', 'success');
+            addToast("Deed of Undertaking (Wa'd) executed successfully!", 'success');
+            setContractModalOpen(false);
             fetchData();
         } catch (error) {
             addToast(error.response?.data?.message || 'Confirmation failed', 'error');
+        } finally {
+            setSigningContract(false);
         }
     };
 
     const handleAcceptMurabaha = async (aapId) => {
-        if (!window.confirm('Accept the Murabaha sale? Amana purchased these goods and is offering them to you at the stated price (purchase price + markup). This confirms your agreement to buy.')) return;
+        setSigningContract(true);
         try {
             await api.put(`/aap/${aapId}/accept-murabaha`);
-            addToast('Murabaha sale accepted! Awaiting delivery.', 'success');
+            addToast('Murabaha Contract concluded! Awaiting delivery.', 'success');
+            setContractModalOpen(false);
             fetchData();
         } catch (error) {
             addToast(error.response?.data?.message || 'Acceptance failed', 'error');
+        } finally {
+            setSigningContract(false);
         }
     };
 
     const handleAAPDecline = async (aapId) => {
         const reason = prompt('Why are you declining this purchase?');
         if (!reason) return;
+        setAapActionLoadingId(aapId);
+        setDecliningContract(true);
         try {
             await api.put(`/aap/${aapId}/decline`, { reason });
             addToast('Purchase declined.', 'info');
+            setContractModalOpen(false);
             fetchData();
         } catch (error) {
             addToast(error.response?.data?.message || 'Decline failed', 'error');
+        } finally {
+            setAapActionLoadingId(null);
+            setDecliningContract(false);
         }
     };
 
@@ -196,6 +281,77 @@ const RetailerDashboard = () => {
         } catch (error) {
             addToast(error.response?.data?.message || 'Receipt confirmation failed', 'error');
         }
+    };
+
+    const openRequestGoodsModal = async () => {
+        setShowRequestGoodsModal(true);
+        setAgentsLoading(true);
+        setSelectedAgent(null);
+        setTraderNote('');
+        setAgentSearch('');
+        try {
+            const res = await api.get('/retailer/agents');
+            const currentUserId = profile?._id || user?._id;
+            const availableAgents = (res.data || []).filter(ag => !currentUserId || ag._id !== currentUserId);
+            setAgents(availableAgents);
+        } catch (err) {
+            console.error('Failed to load agents:', err);
+            addToast('Could not load market agents', 'error');
+        } finally {
+            setAgentsLoading(false);
+        }
+    };
+
+    const handleSendAAPRequest = async () => {
+        if (!selectedAgent) {
+            addToast('Please select a market agent first', 'warning');
+            return;
+        }
+
+        const currentUserId = profile?._id || user?._id;
+        if (currentUserId && selectedAgent._id === currentUserId) {
+            addToast('You cannot select yourself as the agent for goods purchase', 'error');
+            return;
+        }
+
+        setSubmittingRequest(true);
+        try {
+            const res = await api.post('/aap/trader/initiate', {
+                agentId: selectedAgent._id,
+                traderRequestNote: traderNote.trim()
+            });
+            addToast(`Purchase request dispatched to ${selectedAgent.name}!`, 'success');
+            setShowRequestGoodsModal(false);
+            fetchData();
+        } catch (err) {
+            addToast(err.response?.data?.message || 'Failed to submit request', 'error');
+        } finally {
+            setSubmittingRequest(false);
+        }
+    };
+
+    const handleCancelAAPRequest = (aapId) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Cancel Purchase Request',
+            message: 'Are you sure you want to cancel this purchase request? The agent will be notified.',
+            isDestructive: true,
+            onConfirm: async () => {
+                setAapActionLoadingId(aapId);
+                setDecliningContract(true);
+                try {
+                    await api.put(`/aap/${aapId}/cancel`, { reason: 'Cancelled by trader' });
+                    addToast('Purchase request cancelled', 'success');
+                    setContractModalOpen(false);
+                    fetchData();
+                } catch (err) {
+                    addToast(err.response?.data?.message || 'Failed to cancel request', 'error');
+                } finally {
+                    setAapActionLoadingId(null);
+                    setDecliningContract(false);
+                }
+            }
+        });
     };
 
     const viewOrderDetails = async (orderId) => {
@@ -317,15 +473,18 @@ const RetailerDashboard = () => {
                     <div className="stat-card-body">
                         <div className="stat-card-value currency">
                             <span className="currency-sign">₦</span>
-                            <span className="value-main">{(profile.creditLimit - profile.usedCredit).toLocaleString()}</span>
+                            <span className="value-main">{(profile.availableCredit !== undefined ? Math.max(0, profile.availableCredit) : Math.max(0, profile.creditLimit - profile.usedCredit - (profile.reservedCredit || 0))).toLocaleString()}</span>
                         </div>
-                        <p className="stat-card-note">Max Limit: ₦{profile.creditLimit.toLocaleString()}</p>
+                        <p className="stat-card-note">
+                            Max Limit: ₦{profile.creditLimit.toLocaleString()}
+                            {profile.reservedCredit > 0 && ` (₦${profile.reservedCredit.toLocaleString()} in-flight)`}
+                        </p>
                     </div>
                     <div className="stat-card-progress">
                         <div className="progress-track">
                             <div 
                                 className="progress-fill" 
-                                style={{ width: `${((profile.creditLimit - profile.usedCredit) / profile.creditLimit) * 100}%` }}
+                                style={{ width: `${Math.min(100, ((profile.availableCredit !== undefined ? profile.availableCredit : (profile.creditLimit - profile.usedCredit)) / (profile.creditLimit || 1)) * 100)}%` }}
                             ></div>
                         </div>
                     </div>
@@ -354,71 +513,188 @@ const RetailerDashboard = () => {
                 </div>
             </div>
             
+            {/* Request Goods (AAP) Banner */}
+            <div className="request-goods-banner card animate-slide-up">
+                <div className="rgb-pill-row">
+                    <div className="rgb-super-pill">
+                        <Zap size={11} className="fill-current" />
+                        <span>DIRECT AGENT PURCHASE</span>
+                    </div>
+                    <div className="rgb-credit-pill">
+                        <CreditCard size={13} />
+                        <span>Available: <strong>₦{(profile.availableCredit !== undefined ? Math.max(0, profile.availableCredit) : Math.max(0, profile.creditLimit - (profile.usedCredit || 0) - (profile.reservedCredit || 0))).toLocaleString()}</strong></span>
+                    </div>
+                </div>
+
+                <div className="rgb-main-row">
+                    <div className="rgb-icon-glow">
+                        <ShoppingBag size={24} />
+                    </div>
+
+                    <div className="rgb-text-group">
+                        <h3 className="rgb-title">Request Goods</h3>
+                        <p className="rgb-desc">
+                            Send a trusted agent to buy inventory directly for your shop with instant Amana credit.
+                        </p>
+                    </div>
+
+                    <button className="rgb-action-btn" onClick={openRequestGoodsModal}>
+                        <span>Request Now</span>
+                        <ArrowRight size={14} />
+                    </button>
+                </div>
+
+                <div className="rgb-perks-row">
+                    <div className="rgb-perk-item">
+                        <CheckCircle size={13} />
+                        <span>Verified Agents</span>
+                    </div>
+                    <div className="rgb-perk-divider" />
+                    <div className="rgb-perk-item">
+                        <ShieldCheck size={13} />
+                        <span>Murabaha Based</span>
+                    </div>
+                    <div className="rgb-perk-divider" />
+                    <div className="rgb-perk-item">
+                        <Clock size={13} />
+                        <span>Fast Dispatch</span>
+                    </div>
+                </div>
+            </div>
+
             {/* Agent Assisted Purchases (AAP) Section */}
-            {aaps.filter(a => ['awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(a.status)).length > 0 && (
+            {aaps.filter(a => ['trader_initiated', 'awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(a.status)).length > 0 && (
                 <div className="aap-retailer-section animate-slide-up">
                     <h2 className="section-title">Agent-Assisted Purchases</h2>
                     <div className="aap-retailer-grid">
-                        {aaps.filter(a => ['awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(a.status)).map(aap => (
+                        {aaps.filter(a => ['trader_initiated', 'awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed', 'pending_murabaha_acceptance', 'murabaha_accepted', 'delivered'].includes(a.status)).map(aap => (
                             <div key={aap._id} className="aap-retailer-card card">
                                 <div className="aap-header">
                                     <div className="aap-title-group">
-                                        <h3 className="aap-product-name">{aap.productName}</h3>
+                                        <h3 className="aap-product-name">{aap.productName || aap.traderRequestNote || 'Goods Purchase'}</h3>
                                         <span className={`status-pill-small ${aap.status.replace(/_/g, '-')}`}>
-                                            {aap.status === 'awaiting_retailer_confirm' ? 'Express Intent' : 
-                                             aap.status === 'pending_murabaha_acceptance' ? 'Sale Offer' :
+                                            {aap.status === 'trader_initiated' ? 'Agent Assigned' :
+                                             aap.status === 'awaiting_retailer_confirm' ? 'Sign Undertaking' : 
+                                             aap.status === 'pending_murabaha_acceptance' ? 'Sign Murabaha' :
                                              aap.status === 'murabaha_accepted' ? 'Awaiting Delivery' :
                                              aap.status.replace(/_/g, ' ')}
                                         </span>
                                     </div>
                                 </div>
                                 <div className="aap-body">
-                                    <div className="aap-breakdown-mini">
-                                        <div className="breakdown-item">
-                                            <span className="label">Item Price</span>
-                                            <span className="value">₦{aap.purchasePrice?.toLocaleString()}</span>
+                                    {aap.status === 'trader_initiated' ? (
+                                        <div className="aap-trader-initiated-info">
+                                            <p className="aap-goods-note">
+                                                <strong>Items Requested:</strong> {aap.traderRequestNote || 'Inventory to be purchased'}
+                                            </p>
+                                            <div className="aap-meta-footer">
+                                                <div className="aap-meta-row">
+                                                    <User size={14} /> <span>Assigned Agent: {aap.agent?.name || 'Assigned'}</span>
+                                                </div>
+                                                {aap.agent?.phone && (
+                                                    <div className="aap-meta-row">
+                                                        <Phone size={14} /> <span>{aap.agent?.phone}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <p className="aap-instruction" style={{ color: 'var(--color-brand)' }}>
+                                                Request dispatched. Your agent will source and verify the goods for your review.
+                                            </p>
                                         </div>
-                                        <div className="breakdown-item">
-                                            <span className="label">Markup ({aap.markupPercentage}%)</span>
-                                            <span className="value">+ ₦{aap.markupAmount?.toLocaleString()}</span>
-                                        </div>
-                                        <div className="breakdown-item total">
-                                            <span className="label">Your Total</span>
-                                            <span className="value text-primary">₦{aap.totalRetailerCost?.toLocaleString()}</span>
-                                        </div>
-                                    </div>
-                                    <div className="aap-meta-footer">
-                                        <div className="aap-meta-row">
-                                            <User size={14} /> <span>Agent: {aap.agent?.name}</span>
-                                        </div>
-                                        <div className="aap-meta-row">
-                                            <Clock size={14} /> <span>Term: {aap.repaymentTerm} days</span>
-                                        </div>
-                                    </div>
-                                    {aap.status === 'awaiting_retailer_confirm' ? (
-                                        <p className="aap-instruction">Your agent found this product. Express your intent — this tells Amana you want to buy through us. Final terms will be presented after we acquire the goods.</p>
-                                    ) : aap.status === 'pending_murabaha_acceptance' ? (
-                                        <p className="aap-instruction" style={{ color: 'var(--color-brand)' }}>Amana purchased this product. Review and accept the Murabaha sale terms above.</p>
-                                    ) : aap.status === 'murabaha_accepted' ? (
-                                        <p className="aap-instruction" style={{ color: 'var(--color-brand)' }}>Sale accepted! Awaiting delivery from your agent.</p>
-                                    ) : aap.status === 'delivered' ? (
-                                        <p className="aap-instruction success">Goods delivered! Enter OTP to confirm receipt.</p>
                                     ) : (
-                                        <p className="aap-instruction muted">
-                                            Status: {aap.status.replace(/_/g, ' ')}
-                                        </p>
+                                        <>
+                                            <div className="aap-breakdown-mini">
+                                                <div className="breakdown-item">
+                                                    <span className="label">{['awaiting_retailer_confirm', 'pending_admin_approval', 'fund_disbursed'].includes(aap.status) ? 'Estimated Wholesale Cost' : 'Disclosed Cost'}</span>
+                                                    <span className="value">₦{aap.purchasePrice?.toLocaleString()}</span>
+                                                </div>
+                                                {['pending_murabaha_acceptance', 'murabaha_accepted', 'delivered', 'received', 'completed'].includes(aap.status) && (
+                                                    <>
+                                                        <div className="breakdown-item">
+                                                            <span className="label">Markup ({aap.markupPercentage}%)</span>
+                                                            <span className="value">+ ₦{aap.markupAmount?.toLocaleString()}</span>
+                                                        </div>
+                                                        <div className="breakdown-item total">
+                                                            <span className="label">Your Total</span>
+                                                            <span className="value text-primary">₦{aap.totalRetailerCost?.toLocaleString()}</span>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className="aap-meta-footer">
+                                                <div className="aap-meta-row">
+                                                    <User size={14} /> <span>Agent: {aap.agent?.name}</span>
+                                                </div>
+                                                <div className="aap-meta-row">
+                                                    <Clock size={14} /> <span>Term: {aap.repaymentTerm} days</span>
+                                                </div>
+                                            </div>
+                                            {aap.status === 'awaiting_retailer_confirm' ? (
+                                                <p className="aap-instruction">Your agent has sourced and verified these goods. Review and sign the Deed of Undertaking (Wa'd) to commit to purchase under Murabaha once Amana acquires the goods.</p>
+                                            ) : aap.status === 'pending_murabaha_acceptance' ? (
+                                                <p className="aap-instruction" style={{ color: 'var(--color-brand)' }}>Amana has acquired possession of the goods. Review and sign the Murabaha Contract below.</p>
+                                            ) : aap.status === 'murabaha_accepted' ? (
+                                                <p className="aap-instruction" style={{ color: 'var(--color-brand)' }}>Murabaha sale concluded! Awaiting physical delivery from your agent.</p>
+                                            ) : aap.status === 'delivered' ? (
+                                                <p className="aap-instruction success">Goods delivered! Inspect physically and enter OTP to confirm receipt.</p>
+                                            ) : (
+                                                <p className="aap-instruction muted">
+                                                    Status: {aap.status.replace(/_/g, ' ')}
+                                                </p>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 
                                 <div className="aap-actions">
+                                    {aap.status === 'trader_initiated' && (
+                                        <button 
+                                            className="btn-decline" 
+                                            onClick={() => handleCancelAAPRequest(aap._id)}
+                                            disabled={aapActionLoadingId === aap._id || (decliningContract && activeContractAAPId === aap._id)}
+                                        >
+                                            {aapActionLoadingId === aap._id || (decliningContract && activeContractAAPId === aap._id) ? (
+                                                <>
+                                                    <span className="btn-spinner-sm danger" />
+                                                    <span>Cancelling...</span>
+                                                </>
+                                            ) : (
+                                                'Cancel Request'
+                                            )}
+                                        </button>
+                                    )}
                                     {aap.status === 'awaiting_retailer_confirm' && (
                                         <>
-                                            <button className="btn-approve" onClick={() => handleAAPConfirm(aap._id)}>Express Intent</button>
-                                            <button className="btn-decline" onClick={() => handleAAPDecline(aap._id)}>No, Thanks</button>
+                                            <button 
+                                                className="btn-undertaking" 
+                                                onClick={() => openContractModal('undertaking', aap)}
+                                                disabled={(signingContract && activeContractAAPId === aap._id) || (decliningContract && activeContractAAPId === aap._id) || aapActionLoadingId === aap._id}
+                                            >
+                                                <Scale size={14} style={{ marginRight: 6 }} /> Review & Sign Undertaking
+                                            </button>
+                                            <button 
+                                                className="btn-decline" 
+                                                onClick={() => handleCancelAAPRequest(aap._id)}
+                                                disabled={aapActionLoadingId === aap._id || (decliningContract && activeContractAAPId === aap._id)}
+                                            >
+                                                {aapActionLoadingId === aap._id || (decliningContract && activeContractAAPId === aap._id) ? (
+                                                    <>
+                                                        <span className="btn-spinner-sm danger" />
+                                                        <span>Cancelling...</span>
+                                                    </>
+                                                ) : (
+                                                    'Cancel Request'
+                                                )}
+                                            </button>
                                         </>
                                     )}
                                     {aap.status === 'pending_murabaha_acceptance' && (
-                                        <button className="btn-approve" onClick={() => handleAcceptMurabaha(aap._id)}>Accept Sale — Buy from Amana</button>
+                                        <button 
+                                            className="btn-murabaha" 
+                                            onClick={() => openContractModal('murabaha', aap)}
+                                        >
+                                            <BookOpen size={14} style={{ marginRight: 6 }} /> Review & Sign Murabaha
+                                        </button>
                                     )}
                                     {aap.status === 'delivered' && (
                                         <button className="btn-approve" onClick={() => handleAAPReceive(aap._id)}>Confirm Receipt (Enter OTP)</button>
@@ -460,9 +736,20 @@ const RetailerDashboard = () => {
                         const activeAAPs = aaps.filter(a => !a.isPaid && a.status === 'received' && a.dueDate);
                         
                         const combined = [
-                            ...activeOrders.map(o => ({ ...o, _type: 'order', _amount: o.totalRepaymentAmount, _name: o.orderItems[0]?.name || 'Order' })),
-                            ...activeAAPs.map(a => ({ ...a, _type: 'aap', _amount: a.totalRetailerCost, _name: a.productName }))
-                        ].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                            ...activeOrders.map(o => {
+                                const total = o.totalRepaymentAmount || o.itemsPrice || 0;
+                                const paid = o.amountPaid || 0;
+                                const remaining = (o.remainingBalance !== undefined && o.remainingBalance !== null) ? o.remainingBalance : Math.max(0, total - paid);
+                                return { ...o, _type: 'order', _total: total, _paid: paid, _amount: remaining, _name: o.orderItems[0]?.name || 'Order' };
+                            }),
+                            ...activeAAPs.map(a => {
+                                const total = a.totalRetailerCost || a.purchasePrice || 0;
+                                const paid = a.amountPaid || 0;
+                                const remaining = (a.remainingBalance !== undefined && a.remainingBalance !== null) ? a.remainingBalance : Math.max(0, total - paid);
+                                return { ...a, _type: 'aap', _total: total, _paid: paid, _amount: remaining, _name: a.productName || 'Assisted Purchase' };
+                            })
+                        ].filter(item => item._amount > 0)
+                         .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
 
                         const earliestItem = combined[0];
                         
@@ -484,6 +771,11 @@ const RetailerDashboard = () => {
                                             #{earliestItem._id.slice(-6)}
                                         </span>
                                     </div>
+                                    {earliestItem._paid > 0 && (
+                                        <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '4px', fontWeight: 600 }}>
+                                            ₦{earliestItem._paid.toLocaleString()} paid of ₦{earliestItem._total.toLocaleString()} (Partially Paid)
+                                        </div>
+                                    )}
                                 </div>
                             );
                         } else if (profile.usedCredit > 0) {
@@ -533,36 +825,47 @@ const RetailerDashboard = () => {
 
                         return (
                             <div className="compact-transaction-list">
-                                {recentTxs.map(tx => (
-                                    <div key={tx._id} className="premium-tx-card card" onClick={() => navigate('/transactions')}>
-                                        <div className="tx-date-col">
-                                            <span className="tx-day">{new Date(tx.date).getDate()}</span>
-                                            <span className="tx-month">{new Date(tx.date).toLocaleString('default', { month: 'short' }).toUpperCase()}</span>
-                                        </div>
-                                        <div className="tx-main-info">
-                                            <div className="tx-row-top">
-                                                <span className="tx-id">{tx.description}</span>
-                                                <span className={`status-pill-small ${tx.status}`}>
-                                                    {tx.status}
-                                                </span>
+                                {recentTxs.map(tx => {
+                                    const isRepay = ['repayment', 'admin_partial_payment', 'admin_cash_confirmation'].includes(tx.type);
+                                    const typeTitle = tx.type === 'admin_partial_payment' 
+                                        ? 'Partial Repayment' 
+                                        : tx.type === 'admin_cash_confirmation' 
+                                            ? 'Cash Settlement' 
+                                            : tx.type === 'repayment' 
+                                                ? 'Repayment' 
+                                                : tx.type?.replace(/_/g, ' ');
+
+                                    return (
+                                        <div key={tx._id} className="premium-tx-card card" onClick={() => navigate('/transactions')}>
+                                            <div className="tx-date-col">
+                                                <span className="tx-day">{new Date(tx.date || tx.createdAt).getDate()}</span>
+                                                <span className="tx-month">{new Date(tx.date || tx.createdAt).toLocaleString('default', { month: 'short' }).toUpperCase()}</span>
                                             </div>
-                                            <div className="tx-items-preview">
-                                                <span className="items-text">
-                                                    Ref: {tx.reference.slice(-8).toUpperCase()}
+                                            <div className="tx-main-info">
+                                                <div className="tx-row-top">
+                                                    <span className="tx-id">{tx.description || typeTitle}</span>
+                                                    <span className={`status-pill-small ${tx.status || 'success'}`}>
+                                                        {tx.status || 'success'}
+                                                    </span>
+                                                </div>
+                                                <div className="tx-items-preview">
+                                                    <span className="items-text">
+                                                        Ref: {(tx.reference || tx._id || '').slice(-8).toUpperCase()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="tx-amount-col">
+                                                <span className={`tx-amount ${isRepay ? 'text-green' : ''}`}>
+                                                    {isRepay ? '-' : '+'}₦{(tx.amount || 0).toLocaleString()}
                                                 </span>
+                                                <span className="tx-type">{typeTitle}</span>
+                                            </div>
+                                            <div className="tx-arrow">
+                                                <ChevronRight size={20} />
                                             </div>
                                         </div>
-                                        <div className="tx-amount-col">
-                                            <span className="tx-amount">
-                                                {tx.type === 'repayment' ? '-' : '+'}₦{tx.amount.toLocaleString()}
-                                            </span>
-                                            <span className="tx-type">{tx.type.replace(/_/g, ' ')}</span>
-                                        </div>
-                                        <div className="tx-arrow">
-                                            <ChevronRight size={20} />
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         );
                     })()}
@@ -735,7 +1038,7 @@ const RetailerDashboard = () => {
                             <div className="repayment-title-group">
                                 <h2>
                                     <CreditCard size={24} color="#10b981" />
-                                    Repay Loan
+                                    Settle Murabaha Facility
                                 </h2>
                                 <p className="repayment-subtitle">Select a contract to settle securely.</p>
                             </div>
@@ -749,99 +1052,160 @@ const RetailerDashboard = () => {
 
                         {/* Body */}
                         <div className="repayment-body custom-scrollbar">
-                           
-                           {(() => {
-                               const activeOrders = orders.filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status));
-                               const activeAAPs = aaps.filter(a => !a.isPaid && a.status === 'received');
-                               const combined = [
-                                   ...activeOrders.map(o => ({ ...o, _isAAP: false, _amount: o.totalRepaymentAmount, _name: o.orderItems[0]?.name || 'Order', _others: o.orderItems.length - 1 })),
-                                   ...activeAAPs.map(a => ({ ...a, _isAAP: true, _amount: a.totalRetailerCost, _name: a.productName, _others: 0 }))
-                               ].sort((a, b) => {
-                                   if (!a.dueDate) return -1;
-                                   if (!b.dueDate) return 1;
-                                   return new Date(a.dueDate) - new Date(b.dueDate);
-                               });
-
-                               if (combined.length === 0) {
-                                   return (
-                                       <div className="repayment-empty-state">
-                                           <div style={{ marginBottom: '1rem', color: 'var(--color-brand)' }}>
-                                               <ShieldCheck size={48} />
-                                           </div>
-                                           <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>All Caught Up!</h3>
-                                           <p>You have no active loans. Your credit health is looking great.</p>
-                                       </div>
-                                   );
-                               }
-
-                               return (
-                                   <div>
-                                       {combined.map(item => {
-                                           const isSelected = targetOrderId === item._id;
-                                           const isOverdue = !item.dueDate || new Date(item.dueDate) < new Date();
                                            
-                                           return (
-                                               <div 
-                                                   key={item._id}
-                                                   onClick={() => {
-                                                       setTargetOrderId(item._id);
-                                                       setRepaymentAmount(item._amount.toString());
-                                                   }}
-                                                   className={`repayment-card ${isSelected ? 'selected' : ''}`}
-                                               >
-                                                   <div className="selection-bar" />
+                                           {(() => {
+                                               const activeOrders = orders.filter(o => !o.isPaid && ['ready_for_pickup', 'goods_received', 'completed', 'defaulted'].includes(o.status));
+                                               const activeAAPs = aaps.filter(a => !a.isPaid && a.status === 'received');
+                                               
+                                               // Helper: compute remaining balance (same logic as backend)
+                                               const getRemaining = (doc, totalField) => {
+                                                   const total = doc[totalField] || 0;
+                                                   if (doc.remainingBalance !== undefined && doc.remainingBalance !== null) return doc.remainingBalance;
+                                                   return Math.max(0, total - (doc.amountPaid || 0));
+                                               };
 
-                                                   <div className="card-content">
-                                                       <div className="card-row-top">
-                                                           <div>
-                                                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                   <span className="card-id-badge">
-                                                                       #{item._id.slice(-6)}
-                                                                   </span>
-                                                                   {item._isAAP && 
-                                                                       <span className="premium-badge-aap">
-                                                                           AAP
-                                                                       </span>
-                                                                   }
-                                                                   {isOverdue && 
-                                                                       <span style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 'bold', textTransform: 'uppercase', display: 'flex', gap: '4px', alignItems: 'center', background: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                                                                           <AlertCircle size={10} /> Overdue
-                                                                       </span>
-                                                                   }
+                                               const combined = [
+                                                   ...activeOrders.map(o => {
+                                                       const totalDebt = o.totalRepaymentAmount || o.itemsPrice || 0;
+                                                       const remaining = getRemaining(o, 'totalRepaymentAmount');
+                                                       return { ...o, _isAAP: false, _totalDebt: totalDebt, _amount: remaining, _amountPaid: o.amountPaid || 0, _name: o.orderItems[0]?.name || 'Order', _others: o.orderItems.length - 1 };
+                                                   }),
+                                                   ...activeAAPs.map(a => {
+                                                       const totalDebt = a.totalRetailerCost || a.purchasePrice || 0;
+                                                       const remaining = getRemaining(a, 'totalRetailerCost');
+                                                       return { ...a, _isAAP: true, _totalDebt: totalDebt, _amount: remaining, _amountPaid: a.amountPaid || 0, _name: a.productName, _others: 0 };
+                                                   })
+                                               ].filter(item => item._amount > 0).sort((a, b) => {
+                                                   if (!a.dueDate) return -1;
+                                                   if (!b.dueDate) return 1;
+                                                   return new Date(a.dueDate) - new Date(b.dueDate);
+                                               });
+
+                                               if (combined.length === 0) {
+                                                   return (
+                                                       <div className="repayment-empty-state">
+                                                           <div style={{ marginBottom: '1rem', color: 'var(--color-brand)' }}>
+                                                               <ShieldCheck size={48} />
+                                                           </div>
+                                                           <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>All Caught Up!</h3>
+                                                           <p>You have no active financing balances. Your Sharia credit standing is in excellent shape.</p>
+                                                       </div>
+                                                   );
+                                               }
+
+                                               return (
+                                                   <div>
+                                                       {combined.map(item => {
+                                                           const isSelected = targetOrderId === item._id;
+                                                           const isOverdue = !item.dueDate || new Date(item.dueDate) < new Date();
+                                                           
+                                                           return (
+                                                               <div 
+                                                                   key={item._id}
+                                                                   onClick={() => {
+                                                                       setTargetOrderId(item._id);
+                                                                       setRepaymentAmount(item._amount.toString());
+                                                                   }}
+                                                                   className={`repayment-card ${isSelected ? 'selected' : ''}`}
+                                                               >
+                                                                   <div className="selection-bar" />
+
+                                                                   <div className="card-content">
+                                                                       <div className="card-row-top">
+                                                                           <div>
+                                                                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                                   <span className="card-id-badge">
+                                                                                       #{item._id.slice(-6)}
+                                                                                   </span>
+                                                                                   {item._isAAP && 
+                                                                                       <span className="premium-badge-aap">
+                                                                                           AAP
+                                                                                       </span>
+                                                                                   }
+                                                                                   {isOverdue && 
+                                                                                       <span style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 'bold', textTransform: 'uppercase', display: 'flex', gap: '4px', alignItems: 'center', background: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                                                           <AlertCircle size={10} /> Overdue
+                                                                                       </span>
+                                                                                   }
+                                                                               </div>
+                                                                               <h4 className="card-item-title">
+                                                                                   {item._name}
+                                                                                   {item._others > 0 && <span style={{ color: '#9ca3af', fontWeight: 'normal' }}> +{item._others} others</span>}
+                                                                               </h4>
+                                                                           </div>
+                                                                           <div className="check-indicator">
+                                                                               {isSelected && <CheckCircle size={14} strokeWidth={3} />}
+                                                                           </div>
+                                                                       </div>
+
+                                                                       <div className="card-row-bottom">
+                                                                           <div>
+                                                                               <p className="due-label">Due Date</p>
+                                                                               <p className={`due-date ${isOverdue ? 'overdue' : ''}`}>
+                                                                                   {item.dueDate ? new Date(item.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Immediate'}
+                                                                               </p>
+                                                                           </div>
+                                                                           <div style={{ textAlign: 'right' }}>
+                                                                                <p className="amount-label">Balance Due</p>
+                                                                                <p className="amount-value">₦{item._amount.toLocaleString()}</p>
+                                                                                {item._amountPaid > 0 && (
+                                                                                    <div style={{ marginTop: '4px' }}>
+                                                                                        <p style={{ fontSize: '0.65rem', color: '#10b981', margin: 0, fontWeight: 600 }}>₦{item._amountPaid.toLocaleString()} paid of ₦{item._totalDebt.toLocaleString()}</p>
+                                                                                        <div style={{ width: '80px', height: '3px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', marginTop: '3px', overflow: 'hidden', marginLeft: 'auto' }}>
+                                                                                            <div style={{ width: `${Math.min(100, Math.round((item._amountPaid / item._totalDebt) * 100))}%`, height: '100%', background: 'var(--color-brand)', borderRadius: '2px' }} />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                           </div>
+                                                                       </div>
+                                                                   </div>
                                                                </div>
-                                                               <h4 className="card-item-title">
-                                                                   {item._name}
-                                                                   {item._others > 0 && <span style={{ color: '#9ca3af', fontWeight: 'normal' }}> +{item._others} others</span>}
-                                                               </h4>
-                                                           </div>
-                                                           <div className="check-indicator">
-                                                               {isSelected && <CheckCircle size={14} strokeWidth={3} />}
-                                                           </div>
-                                                       </div>
-
-                                                       <div className="card-row-bottom">
-                                                           <div>
-                                                               <p className="due-label">Due Date</p>
-                                                               <p className={`due-date ${isOverdue ? 'overdue' : ''}`}>
-                                                                   {item.dueDate ? new Date(item.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Immediate'}
-                                                               </p>
-                                                           </div>
-                                                           <div style={{ textAlign: 'right' }}>
-                                                                <p className="amount-label">{item._isAAP ? 'Total AAP Cost' : '+Limit Bonus'}</p>
-                                                                <p className="amount-value">₦{item._amount.toLocaleString()}</p>
-                                                           </div>
-                                                       </div>
-                                                   </div>
-                                               </div>
-                                           );
-                                       })}
-                                   </div>
-                               );
-                           })()}
+                                                           );
+                                                       })}
+                                                    </div>
+                                               );
+                                           })()}
                         </div>
 
                         {/* Footer */}
                         <div className="repayment-footer">
+                            {/* Locked Full Settlement Amount Display */}
+                            {targetOrderId && (() => {
+                                const allItems = [...orders, ...aaps];
+                                const selectedItem = allItems.find(i => i._id === targetOrderId);
+                                const totalDebt = selectedItem?.totalRepaymentAmount || selectedItem?.totalRetailerCost || 0;
+                                const amountPaid = selectedItem?.amountPaid || 0;
+                                const remaining = selectedItem?.remainingBalance !== undefined && selectedItem?.remainingBalance !== null
+                                    ? selectedItem.remainingBalance
+                                    : Math.max(0, totalDebt - amountPaid);
+
+                                return (
+                                    <div style={{
+                                        background: 'rgba(255, 255, 255, 0.04)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '12px',
+                                        padding: '12px 16px',
+                                        marginBottom: '1rem'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>
+                                                <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 600, display: 'block' }}>
+                                                    {amountPaid > 0 ? 'Price Left to Settle (In Full)' : 'Full Settlement Amount'}
+                                                </span>
+                                                {amountPaid > 0 && (
+                                                    <span style={{ fontSize: '0.7rem', color: '#10b981', marginTop: '2px', display: 'block' }}>
+                                                        ₦{amountPaid.toLocaleString()} paid of ₦{totalDebt.toLocaleString()}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#10b981' }}>
+                                                ₦{remaining.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
                             <div className="security-badges">
                                 <span className="sec-badge">
                                     <ShieldCheck size={14} color="#10b981" />
@@ -856,7 +1220,7 @@ const RetailerDashboard = () => {
                             <button 
                                 className="pay-secure-btn"
                                 onClick={handleInitiatePayment}
-                                disabled={isPayLoading || !targetOrderId}
+                                disabled={isPayLoading || !targetOrderId || !repaymentAmount || parseFloat(repaymentAmount) <= 0}
                             >
                                 {isPayLoading ? (
                                     <>
@@ -866,10 +1230,10 @@ const RetailerDashboard = () => {
                                 ) : targetOrderId ? (
                                     <>
                                         <Lock size={18} />
-                                        <span>Pay ₦{parseFloat(repaymentAmount || 0).toLocaleString()} Now</span>
+                                        <span>Pay ₦{parseFloat(repaymentAmount || 0).toLocaleString()} in Full</span>
                                     </>
                                 ) : (
-                                    'Select an Order above'
+                                    'Select a contract above'
                                 )}
                             </button>
                             
@@ -880,6 +1244,142 @@ const RetailerDashboard = () => {
                     </div>
                 </div>
             )}
+
+            {/* Request Goods Modal */}
+            {showRequestGoodsModal && (
+                <div className="modal-overlay request-goods-overlay animate-fade-in" onClick={() => setShowRequestGoodsModal(false)}>
+                    <div className="request-goods-modal animate-scale-up" onClick={e => e.stopPropagation()}>
+                        <div className="rgm-drag-handle" />
+                        
+                        <div className="rgm-header">
+                            <div>
+                                <div className="rgm-badge">
+                                    <ShieldCheck size={12} />
+                                    <span>SHARIA-COMPLIANT CREDIT</span>
+                                </div>
+                                <h2 className="rgm-title">Request Goods Purchase</h2>
+                                <p className="rgm-subtitle">Select a verified agent to buy stock in the market for your shop.</p>
+                            </div>
+                            <button className="rgm-close-btn" onClick={() => setShowRequestGoodsModal(false)}>
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Credit Status */}
+                        <div className="rgm-credit-card">
+                            <div className="rgm-credit-icon">
+                                <CreditCard size={18} />
+                            </div>
+                            <div className="rgm-credit-info">
+                                <span className="rgm-credit-label">Available Credit Line</span>
+                                <span className="rgm-credit-amount">₦{(profile.availableCredit !== undefined ? Math.max(0, profile.availableCredit) : Math.max(0, profile.creditLimit - (profile.usedCredit || 0) - (profile.reservedCredit || 0))).toLocaleString()}</span>
+                            </div>
+                            <div className="rgm-credit-pill">
+                                <span className="rgm-dot" />
+                                <span>Ready to spend</span>
+                            </div>
+                        </div>
+
+                        {/* Agent Search */}
+                        <div className="rgm-search-bar">
+                            <Search size={16} />
+                            <input 
+                                type="text" 
+                                placeholder="Search agent name or market (e.g. Mile 12)..." 
+                                value={agentSearch} 
+                                onChange={e => setAgentSearch(e.target.value)}
+                            />
+                            {agentSearch && (
+                                <button className="rgm-clear-search" onClick={() => setAgentSearch('')}>
+                                    <X size={14} />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Agent List */}
+                        <div className="rgm-list-header">
+                            <span>Verified Market Agents</span>
+                            <span className="rgm-agent-count">{agents.length} Available</span>
+                        </div>
+
+                        {agentsLoading ? (
+                            <div className="rgm-loading-state">
+                                <div className="spinner-mini" />
+                                <span>Finding available market agents...</span>
+                            </div>
+                        ) : (
+                            <div className="rgm-agent-list">
+                                {agents
+                                    .filter(ag => {
+                                        const currentUserId = profile?._id || user?._id;
+                                        if (currentUserId && ag._id === currentUserId) return false;
+                                        const q = agentSearch.toLowerCase();
+                                        return !q || ag.name?.toLowerCase().includes(q) || ag.market?.toLowerCase().includes(q);
+                                    })
+                                    .map(ag => {
+                                        const isSelected = selectedAgent?._id === ag._id;
+                                        return (
+                                            <div 
+                                                key={ag._id} 
+                                                className={`rgm-agent-item ${isSelected ? 'selected' : ''}`}
+                                                onClick={() => setSelectedAgent(ag)}
+                                            >
+                                                <div className="rgm-agent-avatar">
+                                                    <span>{ag.name?.charAt(0)?.toUpperCase()}</span>
+                                                    <span className="rgm-online-indicator" />
+                                                </div>
+                                                <div className="rgm-agent-details">
+                                                    <div className="rgm-agent-name-row">
+                                                        <span className="rgm-agent-name">{ag.name}</span>
+                                                        <CheckCircle size={13} className="text-primary" />
+                                                    </div>
+                                                    <span className="rgm-agent-sub">
+                                                        {ag.market ? `📍 ${ag.market}` : 'Verified Market Agent'} · {ag.phone}
+                                                    </span>
+                                                </div>
+                                                <div className={`rgm-radio ${isSelected ? 'active' : ''}`}>
+                                                    {isSelected && <CheckCircle size={14} />}
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                }
+                                {agents.length === 0 && !agentsLoading && (
+                                    <div className="rgm-empty-agents">No market agents currently available.</div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Goods Note Input */}
+                        <div className="rgm-note-section">
+                            <div className="rgm-note-header">
+                                <label>What goods do you need?</label>
+                                <span className="rgm-optional-badge">Optional</span>
+                            </div>
+                            <textarea 
+                                className="rgm-textarea"
+                                rows={2}
+                                placeholder="e.g. 5 bags of Mama Gold 50kg rice, 2 cartons vegetable oil..."
+                                value={traderNote}
+                                onChange={e => setTraderNote(e.target.value)}
+                            />
+                            <p className="rgm-note-tip">
+                                💡 The agent will buy the items, verify quality, and input price for your approval.
+                            </p>
+                        </div>
+
+                        {/* Action CTA */}
+                        <button 
+                            className="rgm-submit-btn" 
+                            disabled={!selectedAgent || submittingRequest}
+                            onClick={handleSendAAPRequest}
+                        >
+                            {submittingRequest ? "Dispatching Agent..." : selectedAgent ? `Request ${selectedAgent.name.split(' ')[0]} to Buy Goods →` : "Select an Agent to Continue"}
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <ConfirmModal 
                 isOpen={confirmModal.isOpen}
                 onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
@@ -888,6 +1388,39 @@ const RetailerDashboard = () => {
                 message={confirmModal.message}
                 isDestructive={confirmModal.isDestructive}
                 confirmText={confirmModal.confirmText}
+            />
+
+            <ContractModal
+                isOpen={contractModalOpen}
+                onClose={() => !signingContract && !decliningContract && setContractModalOpen(false)}
+                contractData={activeContractData}
+                onSign={() => {
+                    if (contractType === 'undertaking') {
+                        handleAAPConfirm(activeContractAAPId);
+                    } else {
+                        handleAcceptMurabaha(activeContractAAPId);
+                    }
+                }}
+                onDecline={() => {
+                    if (contractType === 'undertaking') {
+                        handleCancelAAPRequest(activeContractAAPId);
+                    } else {
+                        handleAAPDecline(activeContractAAPId);
+                    }
+                }}
+                isSigning={signingContract}
+                isDeclining={decliningContract}
+                canSign={true}
+                signButtonText={
+                    contractType === 'undertaking'
+                        ? "Sign Deed of Undertaking (Wa'd)"
+                        : "Accept Sale & Sign Murabaha Contract"
+                }
+                declineButtonText={
+                    contractType === 'undertaking'
+                        ? "Cancel Purchase Request"
+                        : "Decline Murabaha Offer"
+                }
             />
         </div>
     );

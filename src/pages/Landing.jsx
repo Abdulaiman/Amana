@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, ShieldCheck, Award, Download } from 'lucide-react';
 import './landing.css';
 import AppPromo from '../components/AppPromo';
+import GooglePlayBadge from '../components/GooglePlayBadge';
 
 const Landing = () => {
   const sectionRefs = useRef([]);
@@ -53,12 +54,7 @@ const Landing = () => {
             <Link to="/register" className="btn-cta-lg">
               Apply for Financing <ArrowRight size={20} />
             </Link>
-            <a 
-              href="https://drive.google.com/uc?export=download&id=1Yqz9jshwEwVvSSpPSKDOWBOSBKV1pUW2" 
-              className="btn-cta-secondary"
-            >
-              Download for Android <Download size={20} />
-            </a>
+            <GooglePlayBadge size="lg" />
           </div>
         </div>
       </section>
@@ -69,7 +65,7 @@ const Landing = () => {
           <span className="section-label">The Challenge</span>
           <h2 className="section-headline">Most trade financing isn't built for you</h2>
           <p className="plain-body">
-            If you've looked for financing to grow your business, you've probably run into the same wall: interest. Bank loans, microfinance, most digital lenders, they all charge riba, which many traders cannot and will not accept. So you wait, undercapitalized, watching opportunities pass you by. Amana was built to close that gap.
+            If you've looked for financing to grow your business, you've probably run into the same wall: interest. Conventional commercial lenders and digital finance apps all charge riba, which many traders cannot and will not accept. So you wait, undercapitalized, watching opportunities pass you by. Amana was built to close that gap.
           </p>
         </div>
       </section>
@@ -80,7 +76,7 @@ const Landing = () => {
           <span className="section-label">Sharia-Compliant Trade</span>
           <h2 className="section-headline">How Murabaha Works, In Plain Terms</h2>
           <p className="plain-body">
-            Murabaha is a Sharia-compliant sale, not a loan. Instead of lending you cash, Amana buys the exact goods you need directly from your supplier. We then sell those goods to you at a clear price that already includes our profit, agreed with you in advance. You know exactly what you'll pay before you commit. No interest is ever charged, at any point, for any reason.
+            Murabaha is an authentic Sharia-compliant inventory sale. Instead of extending cash or debt, Amana buys the exact goods you need directly from your supplier. We then sell those goods to you at a clear price that already includes our profit, agreed with you in advance. You know exactly what you'll pay before you commit. No interest is ever charged, at any point, for any reason.
           </p>
           <div className="callout-box">
             <p>No interest. No cash you could be tempted to misuse. Full transparency, always.</p>
@@ -219,6 +215,7 @@ const Landing = () => {
             <Link to="/register" className="btn-cta-lg">
               Apply for Financing <ArrowRight size={20} />
             </Link>
+            <GooglePlayBadge size="lg" />
           </div>
         </div>
       </section>

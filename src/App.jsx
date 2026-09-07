@@ -56,6 +56,11 @@ import AdminOperations from './pages/admin/AdminOperations';
 import UserProfileView from './pages/admin/UserProfileView';
 import AdminAAPDashboard from './pages/admin/AdminAAPDashboard';
 import AdminCancellations from './pages/admin/AdminCancellations';
+import AdminRetailers from './pages/admin/AdminRetailers';
+import AdminVendors from './pages/admin/AdminVendors';
+import AdminAgents from './pages/admin/AdminAgents';
+import AdminPayouts from './pages/admin/AdminPayouts';
+import AdminAppRelease from './pages/admin/AdminAppRelease';
 
 function App() {
   return (
@@ -117,6 +122,7 @@ function App() {
                     {/* Retailer Routes */}
                     <Route path="/dashboard" element={<RetailerDashboard />} />
                     <Route path="/transactions" element={<RetailerTransactions />} />
+                    <Route path="/orders" element={<Navigate to="/transactions" replace />} />
                     <Route path="/profile" element={<UserProfile />} />
                     <Route path="/complete-profile" element={<CompleteProfile />} />
                     <Route path="/onboarding" element={<PsychometricTest />} />
@@ -151,6 +157,10 @@ function App() {
             <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="retailers" element={<AdminRetailers />} />
+                <Route path="vendors" element={<AdminVendors />} />
+                <Route path="agents" element={<AdminAgents />} />
+                <Route path="payouts" element={<AdminPayouts />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="user/:id" element={<UserProfileView />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
@@ -159,6 +169,7 @@ function App() {
                 <Route path="cancellations" element={<AdminCancellations />} />
                 <Route path="ops" element={<AdminOperations />} />
                 <Route path="audit" element={<AdminOperations />} />
+                <Route path="app-releases" element={<AdminAppRelease />} />
                 {/* Legacy redirects or specific sub-pages can go here */}
             </Route>
         </Routes>

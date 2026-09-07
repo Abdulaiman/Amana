@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { ArrowLeft, Camera, CheckCircle, XCircle, Store, DollarSign, Users, FileText, ShieldCheck, PhoneOutgoing, Mail } from 'lucide-react';
+import { ArrowLeft, Camera, CheckCircle, XCircle, Store, DollarSign, Users, FileText, ShieldCheck, PhoneOutgoing, Mail, AlertTriangle, X, Check, ListChecks } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import './AgentFieldVisitPage.css';
+
+const AGENT_REJECTION_PRESETS = [
+  'No physical store found at the address',
+  'Verified stock/capital is below ₦500,000 threshold',
+  'Store items are not eligible retail resale goods',
+  'Trading history is less than required 6 months',
+  'Store owner refused or failed physical inspection',
+  'Store premises are temporary or informal structure',
+];
 
 const StepToggle = ({ checked, onChange, label }) => (
   <label className="fv-toggle">
@@ -23,6 +32,10 @@ const AgentFieldVisitPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [retailer, setRetailer] = useState(null);
+
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejecting, setRejecting] = useState(false);
 
   const [a1PhysicalStore, setA1PhysicalStore] = useState(true);
   const [a1Notes, setA1Notes] = useState('');
@@ -84,6 +97,17 @@ const AgentFieldVisitPage = () => {
   const aPass = a1PhysicalStore && a2MinHistory && a3ResaleOnly;
   const allPass = aPass && isB2Pass && c2UnionAwareness && storePhotoUrl;
 
+  const checklistItems = [
+    { id: 'store', label: 'Physical premises verified', done: Boolean(a1PhysicalStore) },
+    { id: 'history', label: '6-month history confirmed', done: Boolean(a2MinHistory) },
+    { id: 'resale', label: 'Goods for resale only', done: Boolean(a3ResaleOnly) },
+    { id: 'photo', label: 'Store photo captured', done: Boolean(storePhotoUrl) },
+    { id: 'capital', label: 'Capital counted & verified', done: Boolean(capitalAmount) },
+    { id: 'union', label: 'Union awareness checked', done: Boolean(c2UnionAwareness) },
+  ];
+  const checklistCompletedCount = checklistItems.filter(item => item.done).length;
+  const checklistProgressPct = Math.round((checklistCompletedCount / checklistItems.length) * 100);
+
   const handleSubmitChecklist = async () => {
     if (!capitalAmount || isNaN(calculatedCapital)) {
       addToast('Please enter a valid verified capital amount', 'error');
@@ -113,6 +137,26 @@ const AgentFieldVisitPage = () => {
       addToast(error.response?.data?.message || 'Failed to submit', 'error');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleRejectVerification = async () => {
+    if (!rejectReason.trim()) {
+      addToast('Please provide a reason for declining verification', 'error');
+      return;
+    }
+    setRejecting(true);
+    try {
+      await api.post(`/agent/field-visits/${id}/reject`, {
+        reason: rejectReason.trim(),
+      });
+      addToast('Store verification declined. Trader notified.', 'info');
+      setShowRejectModal(false);
+      navigate('/agent/tasks');
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Failed to decline verification', 'error');
+    } finally {
+      setRejecting(false);
     }
   };
 
@@ -426,17 +470,28 @@ const AgentFieldVisitPage = () => {
                 After submission the application moves to Admin for final review.
               </span>
             </div>
-            <button
-              className={`fv-submit-btn ${allPass ? 'ready' : ''}`}
-              onClick={handleSubmitChecklist}
-              disabled={submitting || !allPass}
-            >
-              {submitting ? (
-                <><div className="fv-spinner-sm" /> Submitting…</>
-              ) : (
-                <><CheckCircle size={20} /> Submit to Admin</>
-              )}
-            </button>
+            <div className="fv-submit-actions">
+              <button
+                type="button"
+                className="fv-decline-btn"
+                onClick={() => setShowRejectModal(true)}
+                disabled={submitting || rejecting}
+              >
+                <XCircle size={18} /> Decline Verification
+              </button>
+              <button
+                type="button"
+                className={`fv-submit-btn ${allPass ? 'ready' : ''}`}
+                onClick={handleSubmitChecklist}
+                disabled={submitting || !allPass}
+              >
+                {submitting ? (
+                  <><div className="fv-spinner-sm" /> Submitting…</>
+                ) : (
+                  <><CheckCircle size={20} /> Submit to Admin</>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -478,19 +533,161 @@ const AgentFieldVisitPage = () => {
             )}
           </div>
 
-          <div className="fv-side-box">
-            <h4>Checklist</h4>
+          <div className="fv-side-box fv-checklist-box">
+            <div className="fv-checklist-header-row">
+              <div className="fv-checklist-title-group">
+                <div className="fv-checklist-icon-wrap">
+                  <ListChecks size={16} />
+                </div>
+                <h4 className="fv-checklist-title">Verification Checklist</h4>
+              </div>
+              <span className={`fv-checklist-badge ${checklistCompletedCount === checklistItems.length ? 'complete' : ''}`}>
+                {checklistCompletedCount}/{checklistItems.length}
+              </span>
+            </div>
+
+            <div className="fv-checklist-meter">
+              <div 
+                className="fv-checklist-meter-fill" 
+                style={{ width: `${checklistProgressPct}%` }} 
+              />
+            </div>
+
             <ul className="fv-side-list">
-              <li className={a1PhysicalStore ? 'done' : ''}>Physical premises verified</li>
-              <li className={a2MinHistory ? 'done' : ''}>6-month history confirmed</li>
-              <li className={a3ResaleOnly ? 'done' : ''}>Goods for resale only</li>
-              <li className={!!storePhotoUrl ? 'done' : ''}>Store photo captured</li>
-              <li className={!!capitalAmount ? 'done' : ''}>Capital counted & verified</li>
-              <li className={c2UnionAwareness ? 'done' : ''}>Union awareness checked</li>
+              {checklistItems.map((item) => (
+                <li key={item.id} className={`fv-side-list-item ${item.done ? 'done' : 'pending'}`}>
+                  <div className="fv-item-left">
+                    <div className="fv-item-icon-box">
+                      {item.done ? (
+                        <Check size={12} strokeWidth={3} />
+                      ) : (
+                        <span className="fv-item-bullet" />
+                      )}
+                    </div>
+                    <span className="fv-item-label">{item.label}</span>
+                  </div>
+                  <span className="fv-item-pill">
+                    {item.done ? 'Verified' : 'Pending'}
+                  </span>
+                </li>
+              ))}
             </ul>
           </div>
         </aside>
       </div>
+
+      {showRejectModal && (
+        <div className="fv-modal-overlay" onClick={() => !rejecting && setShowRejectModal(false)}>
+          <div className="fv-modal-card" onClick={e => e.stopPropagation()}>
+            <div className="fv-modal-stripe" />
+            <div className="fv-modal-header">
+              <div className="fv-modal-icon-wrap">
+                <AlertTriangle size={24} color="#ef4444" />
+              </div>
+              <div className="fv-modal-title-col">
+                <div className="fv-modal-badge">Eligibility Action</div>
+                <h3 className="fv-modal-title">Decline Field Verification</h3>
+                <p className="fv-modal-sub">
+                  Specify the reasons this business currently fails eligibility requirements. This written explanation is sent directly to the trader so they can address issues and re-apply.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="fv-modal-close"
+                onClick={() => setShowRejectModal(false)}
+                disabled={rejecting}
+                title="Close modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="fv-modal-presets">
+              <div className="fv-modal-presets-header">
+                <span className="fv-modal-presets-label">Quick Reason Presets</span>
+                <span className="fv-modal-presets-hint">Click to toggle or append</span>
+              </div>
+              <div className="fv-modal-presets-list">
+                {AGENT_REJECTION_PRESETS.map((preset, idx) => {
+                  const isSelected = rejectReason.includes(preset);
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`fv-modal-preset-chip ${isSelected ? 'selected' : ''}`}
+                      onClick={() => {
+                        if (isSelected) {
+                          const regex = new RegExp(`(^|\\. |\\s*)` + preset.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + `(\\.|$)`, 'g');
+                          const updated = rejectReason.replace(regex, ' ').replace(/\s+/g, ' ').replace(/^\.|\.$/g, '').trim();
+                          setRejectReason(updated);
+                        } else {
+                          setRejectReason(prev => {
+                            const trimmed = prev.trim();
+                            if (!trimmed) return preset;
+                            return trimmed.endsWith('.') ? `${trimmed} ${preset}.` : `${trimmed}. ${preset}.`;
+                          });
+                        }
+                      }}
+                    >
+                      <span className="fv-preset-icon">{isSelected ? '✓' : '+'}</span>
+                      <span>{preset}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="fv-modal-body">
+              <div className="fv-modal-label-row">
+                <label className="fv-modal-input-label">Detailed Reason for Trader</label>
+                <span className="fv-modal-char-count">{rejectReason.length} characters</span>
+              </div>
+              <textarea
+                className="fv-modal-textarea"
+                placeholder="Explain clearly what requirements were not met and what the trader can do to qualify..."
+                rows={4}
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+              />
+              <div className="fv-modal-notice">
+                <ShieldCheck size={16} className="fv-modal-notice-icon" />
+                <span>
+                  This decline rationale is archived in the audit log and visible on the trader's profile.
+                </span>
+              </div>
+            </div>
+
+            <div className="fv-modal-footer">
+              <button
+                type="button"
+                className="fv-modal-cancel-btn"
+                onClick={() => setShowRejectModal(false)}
+                disabled={rejecting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="fv-modal-confirm-btn"
+                onClick={handleRejectVerification}
+                disabled={rejecting || !rejectReason.trim()}
+              >
+                {rejecting ? (
+                  <>
+                    <span className="fv-spinner-sm" />
+                    <span>Declining…</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle size={16} />
+                    <span>Confirm Decline</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

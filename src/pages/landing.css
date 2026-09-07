@@ -327,6 +327,15 @@
   padding: var(--space-20) var(--space-6);
 }
 
+.cta-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-8);
+}
+
 /* ── App Promo Section Customizations ── */
 .landing-new .app-promo {
   background-color: var(--color-bg);

@@ -102,17 +102,22 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      addToast('Please enter your email or phone number', 'error');
+      return;
+    }
     setLoading(true);
     setUnverifiedEmail(null);
     try {
-      const user = await login(email, password);
+      const user = await login(cleanEmail, password);
       addToast('Welcome back!', 'success');
       if (user.role === 'vendor') navigate('/vendor');
       else if (user.role === 'admin') navigate('/admin');
       else navigate('/dashboard');
     } catch (err) {
       if (err?.includes?.('verify your email')) {
-        setUnverifiedEmail(email);
+        setUnverifiedEmail(cleanEmail);
       } else {
         addToast(err || 'Invalid credentials', 'error');
       }
@@ -139,6 +144,9 @@ const Login = () => {
               placeholder="name@example.com or 08012345678"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoCapitalize="none"
+              autoComplete="username"
+              spellCheck={false}
               required
             />
           </div>
@@ -229,6 +237,17 @@ const Login = () => {
                       style={{ background: 'transparent', color: '#92400E', border: '1px solid #D1D5DB', padding: '7px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
                     >
                       Cancel
+                    </button>
+                  </div>
+
+                  <div style={{ marginTop: 12, textAlign: 'center', fontSize: 13, color: '#6B7280' }}>
+                    Mistyped your email?{' '}
+                    <button
+                      type="button"
+                      onClick={() => navigate('/register')}
+                      style={{ background: 'none', border: 'none', color: '#0F766E', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                    >
+                      Restart Sign Up
                     </button>
                   </div>
                 </>

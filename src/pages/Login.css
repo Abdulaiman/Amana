@@ -581,3 +581,44 @@
   gap: 1rem;
   justify-content: flex-end;
 }
+
+@media (max-width: 640px) {
+  .login-page {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .auth-card {
+    padding: var(--space-5) var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .auth-title {
+    font-size: var(--text-xl);
+  }
+
+  .web-terms-modal-overlay {
+    padding: 0.75rem;
+  }
+
+  .web-terms-modal-card {
+    max-height: 92vh;
+    border-radius: var(--radius-lg);
+  }
+
+  .web-terms-modal-header {
+    padding: 1rem;
+  }
+
+  .web-terms-modal-body {
+    padding: 1rem;
+  }
+
+  .web-terms-modal-footer {
+    padding: 1rem;
+    flex-direction: column-reverse;
+  }
+
+  .web-terms-modal-footer button {
+    width: 100%;
+  }
+}
